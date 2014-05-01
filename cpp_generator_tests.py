@@ -356,4 +356,5 @@ def generate_reference_code():
 
 
 if __name__ == "__main__":
-    unittest.main()
+    #unittest.main()
+    generate_reference_code()
