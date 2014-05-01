@@ -6,7 +6,7 @@ from cpp_generator import *
 
 
 __doc__ = '''
-Unit test for C++ code generation
+Unit tests for C++ code generator
 '''
 
 
@@ -356,5 +356,4 @@ def generate_reference_code():
 
 
 if __name__ == "__main__":
-    #unittest.main()
-    generate_reference_code()
+    unittest.main()

@@ -2,8 +2,8 @@ __doc__ = '''The module encapsutates C++ code generation logics for main C++ lan
 classes, methods and functions, variables, enums.
 Every C++ element could render its current state to a string that could be evaluated as 
 a legal C++ construction.
- 
-Some elemets could be rendered to a pair of representations (i.e. declaration and definition)
+
+Some elements could be rendered to a pair of representations (i.e. declaration and definition)
  
 Example:
 # Python code
@@ -109,7 +109,7 @@ class CppLanguageElement(object):
     def check_input_properties_names(self, input_property_names):
         '''
         Ensure that all properties that passed to the CppLanguageElement are recognized.
-        Raise an exception othervise
+        Raise an exception otherwise
         '''
         unknown_properties = input_property_names.difference(self.availablePropertiesNames)
         if unknown_properties:
@@ -123,7 +123,7 @@ class CppLanguageElement(object):
         @param: current_class_properties - all available properties for the C++ element to be generated
         @param: input_properties_dict - values for the initialized properties (e.g. is_const=True)
         @param: default_property_value - value for properties that are not initialized 
-        (None by default, because of same as False symantec)
+        (None by default, because of same as False semantic)
         '''
         # Set all available properties to DefaultValue
         for propertyName in current_class_properties:
@@ -145,7 +145,7 @@ class CppLanguageElement(object):
     def parent_qualifier(self):
         '''
         Generate string for class name qualifiers
-        Shuld be used for methods implementation and static class members defenition.
+        Should be used for methods implementation and static class members defenition.
         Ex.
         void MyClass::MyMethod()
         int MyClass::m_staticVar = 0;
@@ -202,7 +202,7 @@ class CppFunction(CppLanguageElement):
         self.init_class_properties(current_class_properties=self.availablePropertiesNames,
                                    input_properties_dict=properties)
 
-        # argumants are plain strings
+        # arguments are plain strings
         # e.g. 'int* a', 'const string& s', 'size_t sz = 10'
         self.arguments = []
 
@@ -241,7 +241,7 @@ class CppFunction(CppLanguageElement):
 
     def definition(self):
         '''
-        @return: Cppdefinition wrapper, that could be used
+        @return: CppImplementation wrapper, that could be used
         for definition rendering using render_to_string(cpp) interface
         '''
         return CppImplementation(self)
@@ -417,7 +417,7 @@ class CppVariable(CppLanguageElement):
 
     def definition(self):
         '''
-        @return: Cppdefinition wrapper, that could be used
+        @return: CppImplementation wrapper, that could be used
         for definition rendering using render_to_string(cpp) interface
         '''
         return CppImplementation(self)
@@ -425,7 +425,7 @@ class CppVariable(CppLanguageElement):
     def render_to_string(self, cpp):
         '''
         Only automatic variables or static const class members could be rendered using this method
-        Generates complete variable defenition, e.g.
+        Generates complete variable definition, e.g.
         int a = 10;
         const double b = M_PI;
         '''
@@ -489,7 +489,7 @@ class CppArray(CppLanguageElement):
     For example:
 
     int arr[] = {1,2,2};
-    double dbls[5] = {1.0,2.0};
+    double doubles[5] = {1.0,2.0};
 
     class MyClass
     {
@@ -504,8 +504,7 @@ class CppArray(CppLanguageElement):
     is_const - boolean, 'const' prefix
     arraySize - integer, size of array if required
     is_class_member - boolean, for appropriate definition/declaration rendering
-    newline_align - in the array defenition rendering place every item on the new string
-
+    newline_align - in the array definition rendering place every item on the new string
     '''
     availablePropertiesNames = {'type',
                                 'is_static',
@@ -532,7 +531,7 @@ class CppArray(CppLanguageElement):
 
     def definition(self):
         '''
-        @return: Cppdefinition wrapper, that could be used
+        @return: CppImplementation wrapper, that could be used
         for definition rendering using render_to_string(cpp) interface
         '''
         return CppImplementation(self)
@@ -563,7 +562,7 @@ class CppArray(CppLanguageElement):
 
     def render_to_string(self, cpp):
         '''
-        Generates defenition for the C++ array.
+        Generates definition for the C++ array.
         Output depends on the array type
 
         Generates something like
@@ -612,7 +611,7 @@ class CppArray(CppLanguageElement):
 
     def render_to_string_implementation(self, cpp):
         '''
-        Generates defenition for the C++ array.
+        Generates definition for the C++ array.
         Output depends on the array type
 
         Example:
@@ -631,7 +630,7 @@ class CppArray(CppLanguageElement):
         if not self.is_static:
             raise RuntimeError('Only static arrays as class members are supported')
 
-        # newline-formatting of array elements makes sence only if array is not empty
+        # newline-formatting of array elements makes sense only if array is not empty
         if self.newline_align and self.items:
             with cpp.block('{0}{1}{2} {3}{4}{5} = '.format('static ' if self.is_static else '',
                                                            'const ' if self.is_const else '',
@@ -657,7 +656,7 @@ class CppClass(CppLanguageElement):
     The Python class that generates string representation for C++ class or struct.
     Usually contains a number of child elements - internal classes, enums, methods and variables.
     Available properties:
-    is_struct - bolean, use 'struct' keyword for class declaration, 'class' othervise
+    is_struct - boolean, use 'struct' keyword for class declaration, 'class' otherwise
 
     Example of usage:
 
@@ -705,7 +704,7 @@ class CppClass(CppLanguageElement):
         self.internal_class_elements = []
 
         # class members
-        self.internal_variable_vlements = []
+        self.internal_variable_elements = []
 
         # array class members
         self.internal_array_elements = []
@@ -731,7 +730,7 @@ class CppClass(CppLanguageElement):
         '''
         cpp_variable.ref_to_parent = self
         cpp_variable.is_class_member = True
-        self.internal_variable_vlements.append(cpp_variable)
+        self.internal_variable_elements.append(cpp_variable)
 
     def add_array(self, cpp_variable):
         '''
@@ -763,7 +762,6 @@ class CppClass(CppLanguageElement):
         '''
         Generates section of nested classes
         Could be placed both in 'private:' or 'public:' sections
- 
         '''
         for classItem in self.internal_class_elements:
             classItem.declaration().render_to_string(cpp)
@@ -781,7 +779,7 @@ class CppClass(CppLanguageElement):
         '''
         Render to string all contained variable class members
         '''
-        for varItem in self.internal_variable_vlements:
+        for varItem in self.internal_variable_elements:
             varItem.declaration().render_to_string(cpp)
             cpp.newline()
 
@@ -807,8 +805,8 @@ class CppClass(CppLanguageElement):
         Generates definition for all static class variables
         int MyClass::my_static_array[] = {}
         '''
-        # generate defenition fro static variables
-        static_vars = [variable for variable in self.internal_variable_vlements if variable.is_static]
+        # generate definition for static variables
+        static_vars = [variable for variable in self.internal_variable_elements if variable.is_static]
         for varItem in static_vars:
             varItem.definition().render_to_string(cpp)
             cpp.newline()
@@ -871,9 +869,9 @@ class CppClass(CppLanguageElement):
         '''
         class_type = 'struct' if self.is_struct else 'class'
         with cpp.block('{0} {1} {2}'.format(class_type,
-                                            self.name,
-                                            ' : public {0}'.format(self.parent_class) if self.parent_class else ''),
-                                            ';'):
+                       self.name,
+                       ' : public {0}'.format(self.parent_class) if self.parent_class else ''),
+                       ';'):
 
             # in case of struct all members meant to be public
             if not self.is_struct:
@@ -904,7 +902,7 @@ class CppClass(CppLanguageElement):
 
     def definition(self):
         '''
-        @return: Cppdefinition wrapper, that could be used
+        @return: CppImplementation wrapper, that could be used
         for definition rendering using render_to_string(cpp) interface
         '''
         return CppImplementation(self)
