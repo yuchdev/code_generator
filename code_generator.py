@@ -91,7 +91,7 @@ class CodeFile:
     '''
     The class is a main instrument of code generation
     
-    It can generate plain strings using finctional calls
+    It can generate plain strings using functional calls
     Ex:
     code = CodeFile(python_src_file)
     code('import os, sys')
