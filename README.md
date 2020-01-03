@@ -6,7 +6,12 @@ Simple and straightforward code generator for creating C++ code. It also could b
 Every C++ element could render its current state to a string that could be evaluated as 
 a legal C++ construction.
 Some elements could be rendered to a pair of representations (i.e. declaration and definition)
- 
+
+### Special thanks
+
+Thanks to Eric Reynolds, the idea mainly based on his article published on
+http://www.codeproject.com/Articles/571645/Really-simple-Cplusplus-code-generation-in-Python
+
 ## Usage examples
 
 ### Generate C++ code from Python code
