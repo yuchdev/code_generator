@@ -7,7 +7,7 @@ Every C++ element could render its current state to a string that could be evalu
 a legal C++ construction.
 Some elements could be rendered to a pair of representations (i.e. declaration and definition)
  
-## Usage example
+## Usage examples
 
 ### Generate C++ code from Python code
 
