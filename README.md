@@ -9,8 +9,10 @@ Some elements could be rendered to a pair of representations (i.e. declaration a
 
 ### Special thanks
 
-Thanks to Eric Reynolds, the idea mainly based on his article published on
+Thanks to Eric Reynolds, the idea of this project mainly based on his article published on
 http://www.codeproject.com/Articles/571645/Really-simple-Cplusplus-code-generation-in-Python
+
+However, this solution has been both simplified and extended compared to the initial idea.
 
 ## Usage examples
 
