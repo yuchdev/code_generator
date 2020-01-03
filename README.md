@@ -10,21 +10,25 @@ Some elements could be rendered to a pair of representations (i.e. declaration a
 # Usage example
 
 ## Python code
-`cpp_class = CppClass(name = 'MyClass', is_struct = True)
+`
+cpp_class = CppClass(name = 'MyClass', is_struct = True)
 cpp_class.add_variable(CppVariable(name = "m_var",
     type = 'size_t',
     is_static = True,
     is_const = True,
-    initialization_value = 255))`
+    initialization_value = 255))
+`
  
 ## Generated C++ declaration
-`struct MyClass
+`
+struct MyClass
 {
     static const size_t m_var;
 }
  
 // Generated C++ definition
-const size_t MyClass::m_var = 255;`
+const size_t MyClass::m_var = 255;
+`
  
  
 That module uses and highly depends on code_generator.py model as it uses
