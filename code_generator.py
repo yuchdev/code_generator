@@ -34,6 +34,10 @@ public:
     int m_classMember1;
     double m_classMember2;
 };
+
+Class `ANSICodeStyle` is responsible for code formatting. 
+Re-implement it if you wish to apply any other formatting style.
+
 '''
 
 

@@ -24,24 +24,25 @@ struct MyClass
 const size_t MyClass::m_var = 255;
  
  
-That module uses and highly depends on code_generator.py model as it uses
+That module uses and highly depends on code_generator.py as it uses
 code generating and formatting primitives implemented there.
  
 The main object referenced from code_generator.py is CppFile, 
-that passed as a parameter to render_to_string(cpp) Python method
+which is passed as a parameter to render_to_string(cpp) Python method
  
-It could be used for composing more complicated C++ constructuions,
+It could also be used for composing more complicated C++ code,
 that does not supported by cpp_generator
  
-It supports 
+It support:
+
 - functional calls:
 cpp('int a = 10;')
  
-- 'with; symantic:
+- 'with' semantic:
 with cpp.block('class MyClass', ';')
     class_definition(cpp)
  
-- append to the last string without EOL:
+- append code to the last string without EOL:
 cpp.append(', p = NULL);')
  
 - empty lines:
