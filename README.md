@@ -5,7 +5,7 @@ Simple and straightforward code generator for creating C++ code. It also could b
 
 Every C++ element could render its current state to a string that could be evaluated as 
 a legal C++ construction.
-Some elements could be rendered to a pair of representations (i.e. declaration and definition)
+Some elements could be rendered to a pair of representations (C++ classes and functions declaration and implementation)
 
 ### Special thanks
 
