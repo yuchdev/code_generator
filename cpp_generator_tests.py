@@ -37,11 +37,6 @@ class TestCppGenerator(unittest.TestCase):
                                  type="std::string",
                                  is_class_member=False,
                                  is_static=False,
-                                 is_const=False),
-                     CppVariable(name="var3",
-                                 type="std::string",
-                                 is_class_member=False,
-                                 is_static=False,
                                  is_const=False)]
 
         for var in variables:
