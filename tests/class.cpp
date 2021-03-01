@@ -27,3 +27,12 @@ int MyClass::GetParam() const
 const size_t MyClass::Nested::m_gcAnswer  = 42;
 
 
+
+
+/**
+ * Example multiline documentation.
+ */
+void Example::DoNothing()
+{
+}
+

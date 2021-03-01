@@ -37,7 +37,14 @@ class TestCppGenerator(unittest.TestCase):
                                  type="std::string",
                                  is_class_member=False,
                                  is_static=False,
-                                 is_const=False)]
+                                 is_const=False),
+                     CppVariable(name="var4",
+                                 type="int",
+                                 documentation='// A number',
+                                 is_class_member=False,
+                                 is_static=False,
+                                 is_const=False),
+        ]
 
         for var in variables:
             var.render_to_string(cpp)
@@ -84,7 +91,9 @@ class TestCppGenerator(unittest.TestCase):
 
         functions = [CppFunction(name='GetParam', ret_type='int'),
                      CppFunction(name='Calculate', ret_type='void'),
-                     CppFunction(name='GetAnswer', ret_type='int', implementation_handle=function_body)]
+                     CppFunction(name='GetAnswer', ret_type='int', implementation_handle=function_body),
+                     CppFunction(name='Help', ret_type='char *', documentation='/// Returns the help documentation.'),
+        ]
         for func in functions:
             func.render_to_string(hpp)
         for func in functions:
@@ -127,6 +136,13 @@ class TestCppGenerator(unittest.TestCase):
         my_class_cpp = CppFile('class.cpp')
         my_class_h = CppFile('class.h')
         my_class = CppClass(name='MyClass')
+        example_class = CppClass(
+            name='Example',
+            documentation='''\
+                /// An example
+                /// class with
+                /// multiline documentation''',
+        )
 
         enum_elements = CppEnum(name='Items', prefix='wd')
         for item in ['One', 'Two', 'Three']:
@@ -149,6 +165,12 @@ class TestCppGenerator(unittest.TestCase):
         my_class.add_variable(CppVariable(name="m_var2",
                                           type="int*"))
 
+        example_class.add_variable(CppVariable(
+            name="m_var1",
+            documentation="/// A number.",
+            type="int"),
+        )
+
         a2 = CppArray(name='array2', type='char*', is_const=True, is_static=True, )
         a2.add_array_item('"Item1"')
         a2.add_array_item('"Item2"')
@@ -161,6 +183,13 @@ class TestCppGenerator(unittest.TestCase):
 
         def method_body(_, cpp):
             cpp('return m_var1;')
+
+        example_class.add_method(CppFunction(name="DoNothing",
+                                             documentation="""\
+                                                 /**
+                                                  * Example multiline documentation.
+                                                  */""",
+                                             ret_type="void"))
 
         my_class.add_method(CppFunction(name="GetParam",
                                         ret_type="int",
@@ -180,7 +209,9 @@ class TestCppGenerator(unittest.TestCase):
                                         is_pure_virtual=True))
 
         my_class.declaration().render_to_string(my_class_h)
+        example_class.declaration().render_to_string(my_class_h)
         my_class.definition().render_to_string(my_class_cpp)
+        example_class.definition().render_to_string(my_class_cpp)
 
         my_class_cpp.close()
         my_class_h.close()
@@ -233,7 +264,14 @@ def generate_var():
                              type="std::string",
                              is_class_member=False,
                              is_static=False,
-                             is_const=False)]
+                             is_const=False),
+                 CppVariable(name="var4",
+                             type="int",
+                             documentation='// A number',
+                             is_class_member=False,
+                             is_static=False,
+                             is_const=False),
+    ]
 
     for var in variables:
         var.render_to_string(cpp)
@@ -276,7 +314,9 @@ def generate_func():
 
     functions = [CppFunction(name='GetParam', ret_type='int'),
                  CppFunction(name='Calculate', ret_type='void'),
-                 CppFunction(name='GetAnswer', ret_type='int', implementation_handle=function_body)]
+                 CppFunction(name='GetAnswer', ret_type='int', implementation_handle=function_body),
+                 CppFunction(name='Help', ret_type='char *', documentation='/// Returns the help documentation.'),
+    ]
     for func in functions:
         func.render_to_string(hpp)
     for func in functions:
@@ -295,6 +335,13 @@ def generate_class():
     my_class_cpp = CppFile('tests/class.cpp')
     my_class_h = CppFile('tests/class.h')
     my_class = CppClass(name='MyClass', ref_to_parent=None)
+    example_class = CppClass(
+        name='Example',
+        documentation='''\
+            /// An example
+            /// class with
+            /// multiline documentation''',
+    )
 
     enum_elements = CppEnum(name='Items', prefix='wd')
     for item in ['One', 'Two', 'Three']:
@@ -316,6 +363,12 @@ def generate_class():
 
     my_class.add_variable(CppVariable(name="m_var2",
                                       type="int*"))
+
+    example_class.add_variable(CppVariable(
+        name="m_var1",
+        documentation="/// A number.",
+        type="int"),
+    )
 
     a2 = CppArray(name='array2', type='char*', is_const=True, is_static=True, )
     a2.add_array_item('"Item1"')
@@ -347,8 +400,19 @@ def generate_class():
                                     is_virtual=True,
                                     is_pure_virtual=True))
 
+    example_class.add_method(CppFunction(
+        name="DoNothing",
+        documentation="""\
+            /**
+             * Example multiline documentation.
+             */""",
+        ret_type="void"),
+    )
+
     my_class.declaration().render_to_string(my_class_h)
+    example_class.declaration().render_to_string(my_class_h)
     my_class.definition().render_to_string(my_class_cpp)
+    example_class.definition().render_to_string(my_class_cpp)
     my_class_cpp.close()
     my_class_h.close()
 
