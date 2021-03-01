@@ -1,5 +1,6 @@
 import unittest
 import filecmp
+import os
 
 from code_generator import *
 from cpp_generator import *
@@ -47,6 +48,7 @@ class TestCppGenerator(unittest.TestCase):
             var.render_to_string(cpp)
         self.assertTrue(filecmp.cmpfiles('.', 'tests', 'var.cpp'))
         cpp.close()
+        os.remove(cpp.filename)
 
     def test_cpp_arrays(self):
         '''
@@ -71,6 +73,7 @@ class TestCppGenerator(unittest.TestCase):
             arr.render_to_string(cpp)
         self.assertTrue(filecmp.cmpfiles('.', 'tests', 'array.cpp'))
         cpp.close()
+        os.remove(cpp.filename)
 
     def test_cpp_function(self):
         '''
@@ -94,7 +97,9 @@ class TestCppGenerator(unittest.TestCase):
         self.assertTrue(filecmp.cmpfiles('.', 'tests', 'func.cpp'))
         self.assertTrue(filecmp.cmpfiles('.', 'tests', 'func.h'))
         cpp.close()
+        os.remove(cpp.filename)
         hpp.close()
+        os.remove(hpp.filename)
 
     def test_cpp_enum(self):
         '''
@@ -113,6 +118,7 @@ class TestCppGenerator(unittest.TestCase):
 
         self.assertTrue(filecmp.cmpfiles('.', 'tests', 'enum.cpp'))
         cpp.close()
+        os.remove(cpp.filename)
 
     def test_cpp_class(self):
         '''
@@ -179,7 +185,9 @@ class TestCppGenerator(unittest.TestCase):
         self.assertTrue(filecmp.cmpfiles('.', 'tests', 'class.cpp'))
         self.assertTrue(filecmp.cmpfiles('.', 'tests', 'class.h'))
         my_class_cpp.close()
+        os.remove(my_class_cpp.filename)
         my_class_h.close()
+        os.remove(my_class_h.filename)
 
 
 # Generate test data
@@ -199,6 +207,7 @@ def generate_enum():
         enum_elements_custom.add_item(item)
     enum_elements_custom.render_to_string(cpp)
     cpp.close()
+    os.remove(cpp.filename)
 
 
 def generate_var():
@@ -229,6 +238,7 @@ def generate_var():
         var.render_to_string(cpp)
 
     cpp.close()
+    os.remove(cpp.filename)
 
 
 def generate_array():
@@ -251,6 +261,7 @@ def generate_array():
         arr.render_to_string(cpp)
 
     cpp.close()
+    os.remove(cpp.filename)
 
 
 def generate_func():
@@ -274,7 +285,9 @@ def generate_func():
     for func in functions:
         func.render_to_string_implementation(cpp)
     cpp.close()
+    os.remove(cpp.filename)
     hpp.close()
+    os.remove(hpp.filename)
 
 
 def generate_class():
@@ -340,7 +353,9 @@ def generate_class():
     my_class.declaration().render_to_string(my_class_h)
     my_class.definition().render_to_string(my_class_cpp)
     my_class_cpp.close()
+    os.remove(cpp.filename)
     my_class_h.close()
+    os.remove(h.filename)
 
 
 def generate_reference_code():

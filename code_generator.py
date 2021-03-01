@@ -133,6 +133,7 @@ class CodeFile:
         '''
         self.current_indent = 0
         self.last = None
+        self.filename = filename
         self.out = open(filename, "w")
  
     def close(self):
