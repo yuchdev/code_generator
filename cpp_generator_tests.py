@@ -1,5 +1,6 @@
 import unittest
 import filecmp
+import os
 
 from code_generator import *
 from cpp_generator import *
@@ -36,17 +37,14 @@ class TestCppGenerator(unittest.TestCase):
                                  type="std::string",
                                  is_class_member=False,
                                  is_static=False,
-                                 is_const=False),
-                     CppVariable(name="var3",
-                                 type="std::string",
-                                 is_class_member=False,
-                                 is_static=False,
                                  is_const=False)]
 
         for var in variables:
             var.render_to_string(cpp)
-        self.assertTrue(filecmp.cmpfiles('.', 'tests', 'var.cpp'))
         cpp.close()
+        expected_cpp = ['var.cpp']
+        self.assertEqual(filecmp.cmpfiles('.', 'tests', expected_cpp)[0], expected_cpp)
+        os.remove(cpp.filename)
 
     def test_cpp_arrays(self):
         '''
@@ -69,8 +67,10 @@ class TestCppGenerator(unittest.TestCase):
 
         for arr in arrays:
             arr.render_to_string(cpp)
-        self.assertTrue(filecmp.cmpfiles('.', 'tests', 'array.cpp'))
         cpp.close()
+        expected_cpp = ['array.cpp']
+        self.assertEqual(filecmp.cmpfiles('.', 'tests', expected_cpp)[0], expected_cpp)
+        os.remove(cpp.filename)
 
     def test_cpp_function(self):
         '''
@@ -91,10 +91,14 @@ class TestCppGenerator(unittest.TestCase):
             func.render_to_string_declaration(hpp)
         for func in functions:
             func.render_to_string_implementation(cpp)
-        self.assertTrue(filecmp.cmpfiles('.', 'tests', 'func.cpp'))
-        self.assertTrue(filecmp.cmpfiles('.', 'tests', 'func.h'))
+        expected_cpp = ['func.cpp']
+        expected_h = ['func.h']
         cpp.close()
         hpp.close()
+        self.assertEqual(filecmp.cmpfiles('.', 'tests', expected_cpp)[0], expected_cpp)
+        self.assertEqual(filecmp.cmpfiles('.', 'tests', expected_h)[0], expected_h)
+        os.remove(cpp.filename)
+        os.remove(hpp.filename)
 
     def test_cpp_enum(self):
         '''
@@ -111,8 +115,10 @@ class TestCppGenerator(unittest.TestCase):
             enum_elements_custom.add_item(item)
         enum_elements_custom.render_to_string(cpp)
 
-        self.assertTrue(filecmp.cmpfiles('.', 'tests', 'enum.cpp'))
         cpp.close()
+        expected_cpp = ['enum.cpp']
+        self.assertEqual(filecmp.cmpfiles('.', 'tests', expected_cpp)[0], expected_cpp)
+        os.remove(cpp.filename)
 
     def test_cpp_class(self):
         '''
@@ -176,10 +182,14 @@ class TestCppGenerator(unittest.TestCase):
         my_class.declaration().render_to_string(my_class_h)
         my_class.definition().render_to_string(my_class_cpp)
 
-        self.assertTrue(filecmp.cmpfiles('.', 'tests', 'class.cpp'))
-        self.assertTrue(filecmp.cmpfiles('.', 'tests', 'class.h'))
         my_class_cpp.close()
         my_class_h.close()
+        expected_cpp = ['class.cpp']
+        expected_h = ['class.h']
+        self.assertEqual(filecmp.cmpfiles('.', 'tests', expected_cpp)[0], expected_cpp)
+        self.assertEqual(filecmp.cmpfiles('.', 'tests', expected_h)[0], expected_h)
+        os.remove(my_class_cpp.filename)
+        os.remove(my_class_h.filename)
 
 
 # Generate test data
