@@ -33,3 +33,17 @@ private:
 	static const char* array3[];
 	
 };
+/// An example
+/// class with
+/// multiline documentation
+class Example 
+{
+public:
+	void DoNothing();
+	
+	
+private:
+	/// A number.
+	int m_var1;
+	
+};

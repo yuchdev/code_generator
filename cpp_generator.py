@@ -51,6 +51,8 @@ cpp.newline(2)
 For detailed information see code_generator.py documentation.
 '''
 
+from textwrap import dedent
+
 
 ###########################################################################
 # declaration/Implementation helpers
@@ -173,12 +175,16 @@ class CppFunction(CppLanguageElement):
     is_const - boolean, const method prefix, could not be static
     is_virtual - boolean, virtual method postfix, could not be static
     is_pure_virtual - boolean, ' = 0' method postfix, could not be static
+    documentation - string, '/// Example doxygen'
     implementation_handle - reference to a function that receives 'self' and C++ code generator handle
     (see code_generator.cpp) and generates method body without braces
     Ex.
     #Python code
     def functionBody(self, cpp): cpp('return 42;')
-    f1 = CppFunction(name = 'GetAnswer', ret_type = 'int', implementation_handle = functionBody)
+    f1 = CppFunction(name = 'GetAnswer',
+                     ret_type = 'int',
+                     documentation = '// Generated code',
+                     implementation_handle = functionBody)
  
     // Generated code
     int GetAnswer()
@@ -192,6 +198,7 @@ class CppFunction(CppLanguageElement):
                                 'is_virtual',
                                 'is_pure_virtual',
                                 'implementation_handle',
+                                'documentation',
                                 'is_method'} | CppLanguageElement.availablePropertiesNames
 
     def __init__(self, **properties):
@@ -298,6 +305,8 @@ class CppFunction(CppLanguageElement):
         '''
         # check all properties for the consistency
         self.__sanity_check()
+        if self.documentation:
+            cpp(dedent(self.documentation))
         with cpp.block('{0}{1} {2}{3}({4}){5}{6}'.format(
                 '/*virtual*/' if self.is_virtual else '',
                 self.ret_type if self.ret_type else '',
@@ -394,12 +403,14 @@ class CppVariable(CppLanguageElement):
     is_const - boolean, 'const' prefix
     initialization_value - string, value to be initialized with. 
         'a = value;' for automatic variables, 'a(value)' for the class member
+    documentation - string, '/// Example doxygen'
     is_class_member - boolean, for appropriate definition/declaration rendering
     '''
     availablePropertiesNames = {'type',
                                 'is_static',
                                 'is_const',
                                 'initialization_value',
+                                'documentation',
                                 'is_class_member'} | CppLanguageElement.availablePropertiesNames
 
     def __init__(self, **properties):
@@ -433,6 +444,8 @@ class CppVariable(CppLanguageElement):
         if self.is_class_member and not (self.is_static and self.is_const):
             raise RuntimeError('For class member variables use definition() and declaration() methods')
         else:
+            if self.documentation:
+                cpp(dedent(self.documentation))
             cpp('{0}{1}{2} {3}{4};'.format('static ' if self.is_static else '',
                                            'const ' if self.is_const else '',
                                            self.type,
@@ -448,6 +461,8 @@ class CppVariable(CppLanguageElement):
         if not self.is_class_member:
             raise RuntimeError('For automatic variable use its render_to_string() method')
 
+        if self.documentation and self.is_class_member:
+            cpp(dedent(self.documentation))
         cpp('{0}{1}{2} {3};'.format('static ' if self.is_static else '',
                                     'const ' if self.is_const else '',
                                     self.type,
@@ -658,6 +673,7 @@ class CppClass(CppLanguageElement):
     Usually contains a number of child elements - internal classes, enums, methods and variables.
     Available properties:
     is_struct - boolean, use 'struct' keyword for class declaration, 'class' otherwise
+    documentation - string, '/// Example doxygen'
 
     Example of usage:
 
@@ -692,6 +708,7 @@ class CppClass(CppLanguageElement):
     }
     '''
     availablePropertiesNames = {'is_struct',
+                                'documentation',
                                 'parent_class'} | CppLanguageElement.availablePropertiesNames
 
     def __init__(self, **properties):
@@ -868,6 +885,8 @@ class CppClass(CppLanguageElement):
         Render to string class declaration.
         Typically handle to header should be passed as 'cpp' param
         '''
+        if self.documentation:
+            cpp(dedent(self.documentation))
         class_type = 'struct' if self.is_struct else 'class'
         with cpp.block('{0} {1} {2}'.format(class_type,
                        self.name,

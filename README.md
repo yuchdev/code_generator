@@ -21,20 +21,19 @@ However, this solution has been both simplified and extended compared to the ini
 #### 1 Creating variables
 
 ##### 1.1 Python code
-```
-
+```python
 cpp = CodeFile('example.cpp')
 cpp('int i = 0;')
 ```
 
 ##### 1.2 Generated C++ code
-```
+```c++
 int i = 0;
 ```
 #### 2 Creating classes and structures
 
 ##### 2.1 Python code
-```
+```python
 cpp = CppFile('example.cpp')
 with cpp.block('class A', ';'):
     cpp.label('public:')
@@ -43,7 +42,7 @@ with cpp.block('class A', ';'):
 ```
 
 ##### 2.2 Generated C++ code
-```
+```c++
 class A
 {
 public:
@@ -56,7 +55,8 @@ public:
 
 ##### 3.1 Python code
 
-```cpp_class = CppClass(name = 'MyClass', is_struct = True)
+```python
+cpp_class = CppClass(name = 'MyClass', is_struct = True)
 cpp_class.add_variable(CppVariable(name = "m_var",
     type = 'size_t',
     is_static = True,
@@ -66,14 +66,15 @@ cpp_class.add_variable(CppVariable(name = "m_var",
  
 ##### 3.2 Generated C++ declaration
 
-```struct MyClass
+```c++
+struct MyClass
 {
     static const size_t m_var;
 }
 ```
  
 #### 3.3 Generated C++ implementation
-```
+```c++
 const size_t MyClass::m_var = 255;
 ```
 
@@ -92,23 +93,41 @@ Class `ANSICodeStyle` is responsible for code formatting. Re-implement it if you
 It support:
 
 - functional calls:
-```
+```python
 cpp('int a = 10;')
 ```
  
 - `with` semantic:
-```
+```python
 with cpp.block('class MyClass', ';')
     class_definition(cpp)
 ```
  
 - append code to the last string without EOL:
-```
+```python
 cpp.append(', p = NULL);')
 ```
  
 - empty lines:
-```
+```python
 cpp.newline(2)
 ```
+
+## Maintainers
+
+### Executing unit tests
+The following command will execute the unit tests.
+
+```bash
+python -m unittest cpp_generator_tests.py
+```
+
+### Updating unit tests fixed data
+After changing a unit test the fixed data needs to be updated to successfully pass the unit tests.
+
+```bash
+python -c 'cpp_generator_tests import generate_reference_code; generate_reference_code()'
+```
+
+After executing that command, the fixed data under `tests/` will be updated and will need to be committed to git.
  
