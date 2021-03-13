@@ -1,6 +1,7 @@
 import unittest
 import filecmp
 import os
+import io
 
 from code_generator import *
 from cpp_generator import *
@@ -15,6 +16,18 @@ class TestCppGenerator(unittest.TestCase):
     '''
     Test C++ code generation
     '''
+
+    def test_cpp_var_via_writer(self):
+        writer = io.StringIO()
+        cpp = CppFile(None, writer=writer)
+        variables = CppVariable(name="var1",
+                                type="char*",
+                                is_class_member=False,
+                                is_static=False,
+                                is_const=True,
+                                initialization_value='0')
+        variables.render_to_string(cpp)
+        self.assertEqual('const char* var1 = 0;\n', writer.getvalue())
 
     def test_cpp_variables(self):
         generate_var(output_dir='.')

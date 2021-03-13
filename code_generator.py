@@ -126,15 +126,19 @@ class CodeFile:
     # Current formatting style (assigned as a class attribute to generate all files uniformly)
     Formatter = ANSICodeStyle
  
-    def __init__(self, filename):
+    def __init__(self, filename, writer=None):
         '''
         Creates a new source file
         @param: filename source file to create (rewrite if exists)
+        @param: writer optional writer to write output to
         '''
         self.current_indent = 0
         self.last = None
         self.filename = filename
-        self.out = open(filename, "w")
+        if writer:
+            self.out = writer
+        else:
+            self.out = open(filename, "w")
  
     def close(self):
         '''
@@ -185,11 +189,11 @@ class CppFile(CodeFile):
     '''
     This class extends CodeFile class with some specific C++ constructions
     '''
-    def __init__(self, filename):
+    def __init__(self, filename, writer=None):
         '''
         Create C++ source file
         '''
-        CodeFile.__init__(self, filename)
+        CodeFile.__init__(self, filename, writer)
         
     def label(self, text):
         '''
