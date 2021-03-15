@@ -409,6 +409,7 @@ class CppVariable(CppLanguageElement):
     availablePropertiesNames = {'type',
                                 'is_static',
                                 'is_const',
+                                'is_constexpr',
                                 'initialization_value',
                                 'documentation',
                                 'is_class_member'} | CppLanguageElement.availablePropertiesNames
@@ -419,6 +420,10 @@ class CppVariable(CppLanguageElement):
         super(CppVariable, self).__init__(properties)
         self.init_class_properties(current_class_properties=self.availablePropertiesNames,
                                    input_properties_dict=properties)
+        if self.is_const and self.is_constexpr:
+            raise RuntimeError("Variable object can be either 'const' or 'constexpr', not both")
+        if self.is_constexpr and not self.initialization_value:
+            raise RuntimeError("Variable object must be initialized when 'constexpr'")
 
     def declaration(self):
         '''
@@ -447,7 +452,7 @@ class CppVariable(CppLanguageElement):
             if self.documentation:
                 cpp(dedent(self.documentation))
             cpp('{0}{1}{2} {3}{4};'.format('static ' if self.is_static else '',
-                                           'const ' if self.is_const else '',
+                                           'const ' if self.is_const else 'constexpr ' if self.is_constexpr else '',
                                            self.type,
                                            self.name,
                                            ' = {0}'.format(
@@ -463,10 +468,11 @@ class CppVariable(CppLanguageElement):
 
         if self.documentation and self.is_class_member:
             cpp(dedent(self.documentation))
-        cpp('{0}{1}{2} {3};'.format('static ' if self.is_static else '',
-                                    'const ' if self.is_const else '',
-                                    self.type,
-                                    self.name))
+        cpp('{0}{1}{2} {3};'.format(
+            'static ' if self.is_static else '',
+            'const ' if self.is_const else 'constexpr ' if self.is_constexpr else '',
+            self.type,
+            self.name if not self.is_constexpr else '{} = {}'.format(self.name, self.initialization_value)))
 
     def render_to_string_implementation(self, cpp):
         '''

@@ -29,6 +29,34 @@ class TestCppGenerator(unittest.TestCase):
         variables.render_to_string(cpp)
         self.assertEqual('const char* var1 = 0;\n', writer.getvalue())
 
+    def test_is_constexpr_raises_error_when_is_const_true(self):
+        self.assertRaises(RuntimeError, CppVariable, name="COUNT", type="int", is_class_member=True, is_const=True, is_constexpr=True, initialization_value='0')
+
+    def test_is_constexpr_raises_error_when_initialization_value_is_none(self):
+        self.assertRaises(RuntimeError, CppVariable, name="COUNT", type="int", is_class_member=True, is_constexpr=True)
+
+    def test_is_constexpr_render_to_string(self):
+        writer = io.StringIO()
+        cpp = CppFile(None, writer=writer)
+        variables = CppVariable(name="COUNT",
+                                type="int",
+                                is_class_member=False,
+                                is_constexpr=True,
+                                initialization_value='0')
+        variables.render_to_string(cpp)
+        self.assertIn('constexpr int COUNT = 0;', writer.getvalue())
+
+    def test_is_constexpr_render_to_string_declaration(self):
+        writer = io.StringIO()
+        cpp = CppFile(None, writer=writer)
+        variables = CppVariable(name="COUNT",
+                                type="int",
+                                is_class_member=True,
+                                is_constexpr=True,
+                                initialization_value='0')
+        variables.render_to_string_declaration(cpp)
+        self.assertIn('constexpr int COUNT = 0;', writer.getvalue())
+
     def test_cpp_variables(self):
         generate_var(output_dir='.')
         expected_cpp = ['var.cpp']
