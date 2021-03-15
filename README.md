@@ -34,6 +34,34 @@ x_variable.render_to_string(cpp)
 int i = 0;
 static constexpr int const& x = 42;
 ```
+
+#### 2. Creating functions
+
+##### 2.1 Python code
+```python
+def handle_to_factorial(self, cpp):
+    cpp('return n < 1 ? 1 : (n * factorial(n - 1));')
+
+cpp = CodeFile('example.cpp')
+
+factorial_function = CppFunction(name='factorial',
+    ret_type='int',
+    is_constexpr=True,
+    implementation_handle=handle_to_factorial,
+    documentation='/// Calculates and returns the factorial of \p n.')
+factorial_function.add_argument('int n')
+factorial_function.render_to_string(cpp)
+```
+
+##### 2.2 Generated C++ code
+```c++
+/// Calculates and returns the factorial of \p n.
+constexpr int factorial(int n)
+{
+    return n <= 1 ? 1 : (n * factorial(n - 1));
+}
+```
+
 #### 2 Creating classes and structures
 
 ##### 2.1 Python code
