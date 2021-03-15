@@ -24,11 +24,15 @@ However, this solution has been both simplified and extended compared to the ini
 ```python
 cpp = CodeFile('example.cpp')
 cpp('int i = 0;')
+
+x_variable = CppVariable(name='x', type='int const&', is_static=True, is_constexpr=True, initialization_value='42')
+x_variable.render_to_string(cpp)
 ```
 
 ##### 1.2 Generated C++ code
 ```c++
 int i = 0;
+static constexpr int const& x = 42;
 ```
 #### 2 Creating classes and structures
 
