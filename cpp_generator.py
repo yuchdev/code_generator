@@ -195,6 +195,7 @@ class CppFunction(CppLanguageElement):
     availablePropertiesNames = {'ret_type',
                                 'is_static',
                                 'is_const',
+                                'is_constexpr',
                                 'is_virtual',
                                 'is_pure_virtual',
                                 'implementation_handle',
@@ -226,6 +227,8 @@ class CppFunction(CppLanguageElement):
             raise RuntimeError('Pure virtual method should have attribute is_virtual=True')
         if self.is_method and not self.ref_to_parent:
             raise RuntimeError('Method object could be a child of a CppClass only. Use CppClass.add_method()')
+        if self.is_constexpr and not self.implementation_handle:
+            raise RuntimeError("Method object must be initialized when 'constexpr'")
 
     def add_argument(self, argument):
         '''
@@ -268,12 +271,16 @@ class CppFunction(CppLanguageElement):
         '''
         # check all properties for the consistency
         self.__sanity_check()
-        with cpp.block('{0}{1} {2}({3}){4}{5}'.format('virtual ' if self.is_virtual else '',
-                                                      self.ret_type if self.ret_type else '',
-                                                      self.name,
-                                                      ', '.join(self.arguments),
-                                                      ' const ' if self.is_const else '',
-                                                      ' = 0' if self.is_pure_virtual else '')):
+        if self.documentation and self.is_constexpr:
+            cpp(dedent(self.documentation))
+        with cpp.block('{0}{1}{2} {3}({4}){5}{6}'.format(
+            'virtual ' if self.is_virtual else '',
+            'constexpr ' if self.is_constexpr else '',
+            self.ret_type if self.ret_type else '',
+            self.name,
+            ', '.join(self.arguments),
+            ' const ' if self.is_const else '',
+            ' = 0' if self.is_pure_virtual else '')):
             self.implementation(cpp)
 
     def render_to_string_declaration(self, cpp):
@@ -285,12 +292,24 @@ class CppFunction(CppLanguageElement):
         '''
         # check all properties for the consistency
         self.__sanity_check()
-        cpp('{0}{1} {2}({3}){4}{5};'.format('virtual ' if self.is_virtual else '',
-                                            self.ret_type if self.ret_type else '',
-                                            self.name,
-                                            ', '.join(self.arguments),
-                                            ' const ' if self.is_const else '',
-                                            ' = 0' if self.is_pure_virtual else ''))
+        if self.is_constexpr:
+            if self.documentation:
+                cpp(dedent(self.documentation))
+            with cpp.block('{0}constexpr {1} {2}({3}){4}{5}'.format(
+                'virtual ' if self.is_virtual else '',
+                self.ret_type if self.ret_type else '',
+                self.name,
+                ', '.join(self.arguments),
+                ' const ' if self.is_const else '',
+                ' = 0' if self.is_pure_virtual else '')):
+                self.implementation(cpp)
+        else:
+            cpp('{0}{1} {2}({3}){4}{5};'.format('virtual ' if self.is_virtual else '',
+                                                self.ret_type if self.ret_type else '',
+                                                self.name,
+                                                ', '.join(self.arguments),
+                                                ' const ' if self.is_const else '',
+                                                ' = 0' if self.is_pure_virtual else ''))
 
     def render_to_string_implementation(self, cpp):
         '''
@@ -305,7 +324,7 @@ class CppFunction(CppLanguageElement):
         '''
         # check all properties for the consistency
         self.__sanity_check()
-        if self.documentation:
+        if self.documentation and not self.is_constexpr:
             cpp(dedent(self.documentation))
         with cpp.block('{0}{1} {2}{3}({4}){5}{6}'.format(
                 '/*virtual*/' if self.is_virtual else '',
@@ -409,6 +428,7 @@ class CppVariable(CppLanguageElement):
     availablePropertiesNames = {'type',
                                 'is_static',
                                 'is_const',
+                                'is_constexpr',
                                 'initialization_value',
                                 'documentation',
                                 'is_class_member'} | CppLanguageElement.availablePropertiesNames
@@ -419,6 +439,10 @@ class CppVariable(CppLanguageElement):
         super(CppVariable, self).__init__(properties)
         self.init_class_properties(current_class_properties=self.availablePropertiesNames,
                                    input_properties_dict=properties)
+        if self.is_const and self.is_constexpr:
+            raise RuntimeError("Variable object can be either 'const' or 'constexpr', not both")
+        if self.is_constexpr and not self.initialization_value:
+            raise RuntimeError("Variable object must be initialized when 'constexpr'")
 
     def declaration(self):
         '''
@@ -447,7 +471,7 @@ class CppVariable(CppLanguageElement):
             if self.documentation:
                 cpp(dedent(self.documentation))
             cpp('{0}{1}{2} {3}{4};'.format('static ' if self.is_static else '',
-                                           'const ' if self.is_const else '',
+                                           'const ' if self.is_const else 'constexpr ' if self.is_constexpr else '',
                                            self.type,
                                            self.name,
                                            ' = {0}'.format(
@@ -463,10 +487,11 @@ class CppVariable(CppLanguageElement):
 
         if self.documentation and self.is_class_member:
             cpp(dedent(self.documentation))
-        cpp('{0}{1}{2} {3};'.format('static ' if self.is_static else '',
-                                    'const ' if self.is_const else '',
-                                    self.type,
-                                    self.name))
+        cpp('{0}{1}{2} {3};'.format(
+            'static ' if self.is_static else '',
+            'const ' if self.is_const else 'constexpr ' if self.is_constexpr else '',
+            self.type,
+            self.name if not self.is_constexpr else '{} = {}'.format(self.name, self.initialization_value)))
 
     def render_to_string_implementation(self, cpp):
         '''
