@@ -106,6 +106,16 @@ class TestCppVariableGenerator(unittest.TestCase):
         variables.render_to_string_declaration(cpp)
         self.assertIn('constexpr int COUNT = 0;', writer.getvalue())
 
+    def test_is_extern_raises_error_when_is_static_is_true(self):
+        self.assertRaises(RuntimeError, CppVariable, name="var1", type="char*", is_static=True, is_extern=True)
+
+    def test_is_extern_render_to_string(self):
+        writer = io.StringIO()
+        cpp = CppFile(None, writer=writer)
+        v = CppVariable(name="var1", type="char*", is_extern=True)
+        v.render_to_string(cpp)
+        self.assertIn('extern char* var1;', writer.getvalue())
+
 
 class TestCppGenerator(unittest.TestCase):
     '''

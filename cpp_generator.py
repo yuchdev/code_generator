@@ -419,6 +419,7 @@ class CppVariable(CppLanguageElement):
     Available properties:
     type - string, variable type
     is_static - boolean, 'static' prefix
+    is_extern - boolean, 'extern' prefix
     is_const - boolean, 'const' prefix
     initialization_value - string, value to be initialized with. 
         'a = value;' for automatic variables, 'a(value)' for the class member
@@ -427,6 +428,7 @@ class CppVariable(CppLanguageElement):
     '''
     availablePropertiesNames = {'type',
                                 'is_static',
+                                'is_extern',
                                 'is_const',
                                 'is_constexpr',
                                 'initialization_value',
@@ -443,6 +445,8 @@ class CppVariable(CppLanguageElement):
             raise RuntimeError("Variable object can be either 'const' or 'constexpr', not both")
         if self.is_constexpr and not self.initialization_value:
             raise RuntimeError("Variable object must be initialized when 'constexpr'")
+        if self.is_static and self.is_extern:
+            raise RuntimeError("Variable object can be either 'extern' or 'static', not both")
 
     def declaration(self):
         '''
@@ -470,7 +474,7 @@ class CppVariable(CppLanguageElement):
         else:
             if self.documentation:
                 cpp(dedent(self.documentation))
-            cpp('{0}{1}{2} {3}{4};'.format('static ' if self.is_static else '',
+            cpp('{0}{1}{2} {3}{4};'.format('static ' if self.is_static else 'extern ' if self.is_extern else '',
                                            'const ' if self.is_const else 'constexpr ' if self.is_constexpr else '',
                                            self.type,
                                            self.name,
