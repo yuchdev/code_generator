@@ -271,6 +271,8 @@ class CppFunction(CppLanguageElement):
         '''
         # check all properties for the consistency
         self.__sanity_check()
+        if self.documentation and self.is_constexpr:
+            cpp(dedent(self.documentation))
         with cpp.block('{0}{1}{2} {3}({4}){5}{6}'.format(
             'virtual ' if self.is_virtual else '',
             'constexpr ' if self.is_constexpr else '',
@@ -291,6 +293,8 @@ class CppFunction(CppLanguageElement):
         # check all properties for the consistency
         self.__sanity_check()
         if self.is_constexpr:
+            if self.documentation:
+                cpp(dedent(self.documentation))
             with cpp.block('{0}constexpr {1} {2}({3}){4}{5}'.format(
                 'virtual ' if self.is_virtual else '',
                 self.ret_type if self.ret_type else '',
@@ -320,7 +324,7 @@ class CppFunction(CppLanguageElement):
         '''
         # check all properties for the consistency
         self.__sanity_check()
-        if self.documentation:
+        if self.documentation and not self.is_constexpr:
             cpp(dedent(self.documentation))
         with cpp.block('{0}{1} {2}{3}({4}){5}{6}'.format(
                 '/*virtual*/' if self.is_virtual else '',
