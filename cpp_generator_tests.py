@@ -11,11 +11,7 @@ __doc__ = '''
 Unit tests for C++ code generator
 '''
 
-
-class TestCppGenerator(unittest.TestCase):
-    '''
-    Test C++ code generation
-    '''
+class TestCppVariableGenerator(unittest.TestCase):
 
     def test_cpp_var_via_writer(self):
         writer = io.StringIO()
@@ -56,6 +52,12 @@ class TestCppGenerator(unittest.TestCase):
                                 initialization_value='0')
         variables.render_to_string_declaration(cpp)
         self.assertIn('constexpr int COUNT = 0;', writer.getvalue())
+
+
+class TestCppGenerator(unittest.TestCase):
+    '''
+    Test C++ code generation
+    '''
 
     def test_cpp_variables(self):
         generate_var(output_dir='.')
