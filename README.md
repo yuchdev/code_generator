@@ -18,21 +18,57 @@ However, this solution has been both simplified and extended compared to the ini
 
 ### Generate C++ code from Python code
 
-#### 1 Creating variables
+#### Creating variables
 
-##### 1.1 Python code
+##### Python code
 ```python
 cpp = CodeFile('example.cpp')
 cpp('int i = 0;')
+
+x_variable = CppVariable(name='x', type='int const&', is_static=True, is_constexpr=True, initialization_value='42')
+x_variable.render_to_string(cpp)
+
+name_variable = CppVariable(name='name', type='char*', is_extern=True)
+name_variable.render_to_string(cpp)
 ```
 
-##### 1.2 Generated C++ code
+##### Generated C++ code
 ```c++
 int i = 0;
+static constexpr int const& x = 42;
+extern char* name;
 ```
-#### 2 Creating classes and structures
 
-##### 2.1 Python code
+#### Creating functions
+
+##### Python code
+```python
+def handle_to_factorial(self, cpp):
+    cpp('return n < 1 ? 1 : (n * factorial(n - 1));')
+
+cpp = CodeFile('example.cpp')
+
+factorial_function = CppFunction(name='factorial',
+    ret_type='int',
+    is_constexpr=True,
+    implementation_handle=handle_to_factorial,
+    documentation='/// Calculates and returns the factorial of \p n.')
+factorial_function.add_argument('int n')
+factorial_function.render_to_string(cpp)
+```
+
+##### Generated C++ code
+```c++
+/// Calculates and returns the factorial of \p n.
+constexpr int factorial(int n)
+{
+    return n <= 1 ? 1 : (n * factorial(n - 1));
+}
+```
+
+#### Creating classes and structures
+
+##### Python code
 ```python
 cpp = CppFile('example.cpp')
 with cpp.block('class A', ';'):
@@ -41,7 +77,7 @@ with cpp.block('class A', ';'):
     cpp('double m_classMember2;')
 ```
 
-##### 2.2 Generated C++ code
+##### Generated C++ code
 ```c++
 class A
 {
@@ -51,9 +87,9 @@ public:
 };
 ```
 
-#### 3 Rendering `CppClass` objects to C++ declaration and implementation
+#### Rendering `CppClass` objects to C++ declaration and implementation
 
-##### 3.1 Python code
+##### Python code
 
 ```python
 cpp_class = CppClass(name = 'MyClass', is_struct = True)
@@ -64,7 +100,7 @@ cpp_class.add_variable(CppVariable(name = "m_var",
     initialization_value = 255))
 ```
  
-##### 3.2 Generated C++ declaration
+##### Generated C++ declaration
 
 ```c++
 struct MyClass
@@ -73,7 +109,7 @@ struct MyClass
 }
 ```
  
-#### 3.3 Generated C++ implementation
+#### Generated C++ implementation
 ```c++
 const size_t MyClass::m_var = 255;
 ```
