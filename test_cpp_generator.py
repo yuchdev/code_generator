@@ -3,21 +3,22 @@ import filecmp
 import os
 import io
 
-from textwrap import dedent
 from code_generator import *
 from cpp_generator import *
 
-
-__doc__ = '''
+__doc__ = """
 Unit tests for C++ code generator
-'''
+"""
 
-def handle_to_factorial(self, cpp):
+
+def handle_to_factorial(_, cpp):
     cpp('return n < 1 ? 1 : (n * factorial(n - 1));')
+
 
 class TestCppFunctionGenerator(unittest.TestCase):
 
-    def handle_to_factorial(self, cpp):
+    @staticmethod
+    def handle_to_factorial(_, cpp):
         cpp('return n < 1 ? 1 : (n * factorial(n - 1));')
 
     def test_is_constexpr_raises_error_when_implementation_value_is_none(self):
@@ -29,39 +30,43 @@ class TestCppFunctionGenerator(unittest.TestCase):
     def test_is_constexpr_render_to_string(self):
         writer = io.StringIO()
         cpp = CppFile(None, writer=writer)
-        func = CppFunction(name="factorial", ret_type="int", implementation_handle=TestCppFunctionGenerator.handle_to_factorial, is_constexpr=True)
+        func = CppFunction(name="factorial", ret_type="int",
+                           implementation_handle=TestCppFunctionGenerator.handle_to_factorial, is_constexpr=True)
         func.add_argument('int n')
         func.render_to_string(cpp)
-        self.assertIn(dedent('''\
+        self.assertIn(dedent("""\
             constexpr int factorial(int n)
             {
             \treturn n < 1 ? 1 : (n * factorial(n - 1));
-            }'''), writer.getvalue())
+            }"""), writer.getvalue())
 
     def test_is_constexpr_render_to_string_declaration(self):
         writer = io.StringIO()
         cpp = CppFile(None, writer=writer)
-        func = CppFunction(name="factorial", ret_type="int", implementation_handle=TestCppFunctionGenerator.handle_to_factorial, is_constexpr=True)
+        func = CppFunction(name="factorial", ret_type="int",
+                           implementation_handle=TestCppFunctionGenerator.handle_to_factorial, is_constexpr=True)
         func.add_argument('int n')
         func.render_to_string_declaration(cpp)
-        self.assertIn(dedent('''\
+        self.assertIn(dedent("""\
             constexpr int factorial(int n)
             {
             \treturn n < 1 ? 1 : (n * factorial(n - 1));
-            }'''), writer.getvalue())
+            }"""), writer.getvalue())
 
     def test_README_example(self):
         writer = io.StringIO()
         cpp = CppFile(None, writer=writer)
-        factorial_function = CppFunction(name='factorial', ret_type='int', is_constexpr=True, implementation_handle=handle_to_factorial, documentation='/// Calculates and returns the factorial of \p n.')
+        factorial_function = CppFunction(name='factorial', ret_type='int', is_constexpr=True,
+                                         implementation_handle=handle_to_factorial,
+                                         documentation='/// Calculates and returns the factorial of p n.')
         factorial_function.add_argument('int n')
         factorial_function.render_to_string(cpp)
-        self.assertIn(dedent('''\
-            /// Calculates and returns the factorial of \p n.
+        self.assertIn(dedent("""\
+            /// Calculates and returns the factorial of p n.
             constexpr int factorial(int n)
             {
             \treturn n < 1 ? 1 : (n * factorial(n - 1));
-            }'''), writer.getvalue())
+            }"""), writer.getvalue())
 
 
 class TestCppVariableGenerator(unittest.TestCase):
@@ -79,7 +84,8 @@ class TestCppVariableGenerator(unittest.TestCase):
         self.assertEqual('const char* var1 = 0;\n', writer.getvalue())
 
     def test_is_constexpr_raises_error_when_is_const_true(self):
-        self.assertRaises(RuntimeError, CppVariable, name="COUNT", type="int", is_class_member=True, is_const=True, is_constexpr=True, initialization_value='0')
+        self.assertRaises(RuntimeError, CppVariable, name="COUNT", type="int", is_class_member=True, is_const=True,
+                          is_constexpr=True, initialization_value='0')
 
     def test_is_constexpr_raises_error_when_initialization_value_is_none(self):
         self.assertRaises(RuntimeError, CppVariable, name="COUNT", type="int", is_class_member=True, is_constexpr=True)
@@ -118,9 +124,9 @@ class TestCppVariableGenerator(unittest.TestCase):
 
 
 class TestCppGenerator(unittest.TestCase):
-    '''
+    """
     Test C++ code generation
-    '''
+    """
 
     def test_cpp_variables(self):
         generate_var(output_dir='.')
@@ -161,10 +167,10 @@ class TestCppGenerator(unittest.TestCase):
 
 # Generate test data
 def generate_enum(output_dir='.'):
-    '''
+    """
     Generate model data (C++ enum)
     Do not call unless generator logic is changed
-    '''
+    """
     cpp = CppFile(os.path.join(output_dir, 'enum.cpp'))
     enum_elements = CppEnum(name='Items')
     for item in ['Chair', 'Table', 'Shelve']:
@@ -179,10 +185,10 @@ def generate_enum(output_dir='.'):
 
 
 def generate_var(output_dir='.'):
-    '''
+    """
     Generate model data (C++ variables)
     Do not call unless generator logic is changed
-    '''
+    """
     cpp = CppFile(os.path.join(output_dir, 'var.cpp'))
     variables = [CppVariable(name="var1",
                              type="char*",
@@ -207,7 +213,7 @@ def generate_var(output_dir='.'):
                              is_class_member=False,
                              is_static=False,
                              is_const=False),
-    ]
+                 ]
 
     for var in variables:
         var.render_to_string(cpp)
@@ -238,10 +244,10 @@ def generate_array(output_dir='.'):
 
 
 def generate_func(output_dir='.'):
-    '''
+    """
     Generate model data (C++ functions)
     Do not call unless generator logic is changed
-    '''
+    """
     cpp = CppFile(os.path.join(output_dir, 'func.cpp'))
     hpp = CppFile(os.path.join(output_dir, 'func.h'))
 
@@ -252,7 +258,7 @@ def generate_func(output_dir='.'):
                  CppFunction(name='Calculate', ret_type='void'),
                  CppFunction(name='GetAnswer', ret_type='int', implementation_handle=function_body),
                  CppFunction(name='Help', ret_type='char *', documentation='/// Returns the help documentation.'),
-    ]
+                 ]
     for func in functions:
         func.render_to_string(hpp)
     for func in functions:
@@ -264,19 +270,19 @@ def generate_func(output_dir='.'):
 
 
 def generate_class(output_dir='.'):
-    '''
+    """
     Generate model data (C++ classes)
     Do not call unless generator logic is changed
-    '''
+    """
     my_class_cpp = CppFile(os.path.join(output_dir, 'class.cpp'))
     my_class_h = CppFile(os.path.join(output_dir, 'class.h'))
     my_class = CppClass(name='MyClass', ref_to_parent=None)
     example_class = CppClass(
         name='Example',
-        documentation='''\
+        documentation="""\
             /// An example
             /// class with
-            /// multiline documentation''',
+            /// multiline documentation""",
     )
 
     enum_elements = CppEnum(name='Items', prefix='wd')
@@ -354,10 +360,10 @@ def generate_class(output_dir='.'):
 
 
 def generate_reference_code():
-    '''
+    """
     Generate model data for C++ generator
     Do not call unless generator logic is changed
-    '''
+    """
     generate_enum(output_dir='tests')
     generate_var(output_dir='tests')
     generate_array(output_dir='tests')
