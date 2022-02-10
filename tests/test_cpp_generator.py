@@ -137,30 +137,30 @@ class TestCppGenerator(unittest.TestCase):
     def test_cpp_arrays(self):
         generate_array(output_dir='.')
         expected_cpp = ['array.cpp']
-        self.assertEqual(filecmp.cmpfiles('.', 'tests', expected_cpp)[0], expected_cpp)
+        self.assertEqual(filecmp.cmpfiles('.', 'test_assets', expected_cpp)[0], expected_cpp)
         os.remove(expected_cpp[0])
 
     def test_cpp_function(self):
         generate_func(output_dir='.')
         expected_cpp = ['func.cpp']
         expected_h = ['func.h']
-        self.assertEqual(filecmp.cmpfiles('.', 'tests', expected_cpp)[0], expected_cpp)
-        self.assertEqual(filecmp.cmpfiles('.', 'tests', expected_h)[0], expected_h)
+        self.assertEqual(filecmp.cmpfiles('.', 'test_assets', expected_cpp)[0], expected_cpp)
+        self.assertEqual(filecmp.cmpfiles('.', 'test_assets', expected_h)[0], expected_h)
         os.remove(expected_cpp[0])
         os.remove(expected_h[0])
 
     def test_cpp_enum(self):
         generate_enum(output_dir='.')
         expected_cpp = ['enum.cpp']
-        self.assertEqual(filecmp.cmpfiles('.', 'tests', expected_cpp)[0], expected_cpp)
+        self.assertEqual(filecmp.cmpfiles('.', 'test_assets', expected_cpp)[0], expected_cpp)
         os.remove(expected_cpp[0])
 
     def test_cpp_class(self):
         generate_class(output_dir='.')
         expected_cpp = ['class.cpp']
         expected_h = ['class.h']
-        self.assertEqual(filecmp.cmpfiles('.', 'tests', expected_cpp)[0], expected_cpp)
-        self.assertEqual(filecmp.cmpfiles('.', 'tests', expected_h)[0], expected_h)
+        self.assertEqual(filecmp.cmpfiles('.', 'test_assets', expected_cpp)[0], expected_cpp)
+        self.assertEqual(filecmp.cmpfiles('.', 'test_assets', expected_h)[0], expected_h)
         os.remove(expected_cpp[0])
         os.remove(expected_h[0])
 
@@ -364,11 +364,11 @@ def generate_reference_code():
     Generate model data for C++ generator
     Do not call unless generator logic is changed
     """
-    generate_enum(output_dir='tests')
-    generate_var(output_dir='tests')
-    generate_array(output_dir='tests')
-    generate_func(output_dir='tests')
-    generate_class(output_dir='tests')
+    generate_enum(output_dir='test_assets')
+    generate_var(output_dir='test_assets')
+    generate_array(output_dir='test_assets')
+    generate_func(output_dir='test_assets')
+    generate_class(output_dir='test_assets')
 
 
 if __name__ == "__main__":
