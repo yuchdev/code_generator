@@ -3,8 +3,8 @@ import filecmp
 import os
 import io
 
-from code_generator import *
-from cpp_generator import *
+from code_generator.code_generator import *
+from code_generator.cpp_generator import *
 
 __doc__ = """
 Unit tests for C++ code generator
@@ -131,7 +131,7 @@ class TestCppGenerator(unittest.TestCase):
     def test_cpp_variables(self):
         generate_var(output_dir='.')
         expected_cpp = ['var.cpp']
-        self.assertEqual(filecmp.cmpfiles('.', 'tests', expected_cpp)[0], expected_cpp)
+        self.assertEqual(filecmp.cmpfiles('.', 'test_assets', expected_cpp)[0], expected_cpp)
         os.remove(expected_cpp[0])
 
     def test_cpp_arrays(self):
@@ -181,6 +181,22 @@ def generate_enum(output_dir='.'):
     for item in ['Chair', 'Table', 'Shelve']:
         enum_elements_custom.add_item(item)
     enum_elements_custom.render_to_string(cpp)
+
+    enum_elements_custom = CppEnum(name='Items', prefix='')
+    for item in ['Chair', 'Table', 'Shelve']:
+        enum_elements_custom.add_item(item)
+    enum_elements_custom.render_to_string(cpp)
+
+    enum_elements_custom = CppEnum(name='Items', prefix='', add_counter=False)
+    for item in ['Chair', 'Table', 'Shelve']:
+        enum_elements_custom.add_item(item)
+    enum_elements_custom.render_to_string(cpp)
+
+    enum_elements_custom = CppEnum(name='Items', add_counter=False)
+    for item in ['Chair', 'Table', 'Shelve']:
+        enum_elements_custom.add_item(item)
+    enum_elements_custom.render_to_string(cpp)
+
     cpp.close()
 
 
