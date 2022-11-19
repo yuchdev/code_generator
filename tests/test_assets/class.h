@@ -6,7 +6,7 @@ public:
 		wdOne = 0,
 		wdTwo = 1,
 		wdThree = 2,
-		wdItemsCount
+		wdItemsCount = 3
 	};
 	
 	struct Nested 

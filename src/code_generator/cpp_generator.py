@@ -406,7 +406,7 @@ class CppEnum(CppLanguageElement):
                 cpp('{0}{1} = {2},'.format(finalPrefix, item, counter))
                 counter += 1
             if self.add_counter in [None, True]:
-                last_element = '{0}{1}Count'.format(finalPrefix, self.name)
+                last_element = '{0}{1}Count = {2}'.format(finalPrefix, self.name, counter)
                 cpp(last_element)
 
 
