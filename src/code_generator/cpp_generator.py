@@ -343,6 +343,7 @@ class CppEnum(CppLanguageElement):
 
     Available properties:
     prefix - string, prefix added to every enum element, 'e' by default ('eItem1')
+    add_counter - boolean, terminating value that shows count of enum elements added, 'True' by default.
 
     Example of usage:
     # Python code
@@ -359,7 +360,8 @@ class CppEnum(CppLanguageElement):
         eItemsCount = 3
     }
     """
-    availablePropertiesNames = {'prefix'} | CppLanguageElement.availablePropertiesNames
+    availablePropertiesNames = {'prefix',
+                                'add_counter'} | CppLanguageElement.availablePropertiesNames
 
     def __init__(self, **properties):
         # check properties
@@ -398,12 +400,14 @@ class CppEnum(CppLanguageElement):
         }
         """
         counter = 0
+        finalPrefix = self.prefix if self.prefix != None else 'e'
         with cpp.block('enum {0}'.format(self.name), ';'):
             for item in self.enum_items:
-                cpp('{0}{1} = {2},'.format(self.prefix if self.prefix else 'e', item, counter))
+                cpp('{0}{1} = {2},'.format(finalPrefix, item, counter))
                 counter += 1
-            last_element = '{0}{1}Count'.format(self.prefix if self.prefix else 'e', self.name)
-            cpp(last_element)
+            if self.add_counter in [None, True]:
+                last_element = '{0}{1}Count = {2}'.format(finalPrefix, self.name, counter)
+                cpp(last_element)
 
 
 # noinspection PyUnresolvedReferences
