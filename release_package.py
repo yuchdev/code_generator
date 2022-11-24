@@ -51,6 +51,14 @@ elif is_windows():
     PIP = "pip"
 
 
+def sanity_check():
+    """
+    Check src/{PACKAGE_NAME} exists
+    """
+    if not os.path.isdir(os.path.join(PROJECT_DIR, 'src', PACKAGE_NAME)):
+        raise RuntimeError(f'Cannot find src/{PACKAGE_NAME}')
+
+
 def wheel_path():
     """
     :return: Path to the wheel file
@@ -214,6 +222,7 @@ def main():
     print(f'Package name: {PACKAGE_NAME}')
     print(f'Package name2: {PACKAGE_NAME_DASH}')
     print(f'Version: {VERSION}')
+    sanity_check()
 
     if args.create_release and not release_version_exists(VERSION):
         print(f'No release notes found for version {VERSION}')
