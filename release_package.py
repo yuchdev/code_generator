@@ -65,6 +65,17 @@ def uninstall_wheel():
     run([PIP, 'uninstall', '-y', PACKAGE_NAME_DASH])
 
 
+def publish_pypi():
+    """
+    Publish the package to PyPI
+    Example:
+    twine upload dist/{PACKAGE_NAME}-2.9.34-py3-none-any.whl
+    """
+    run([PYTHON, '-m', 'pip', 'install', '--upgrade', 'build', 'twine'])
+    run(['twine', 'check', 'dist/*'])
+    run(['twine', 'upload', 'dist/*'])
+
+
 def build_wheel():
     """
     python.exe -m pip install --upgrade pip
@@ -194,6 +205,10 @@ def main():
                         help='Create a release on GitHub',
                         action='store_true',
                         required=False)
+    parser.add_argument('--publish-pypi',
+                        help='Publish the package to PyPI',
+                        action='store_true',
+                        required=False)
     args = parser.parse_args()
 
     print(f'Package name: {PACKAGE_NAME}')
@@ -232,6 +247,9 @@ def main():
         tag_release()
         create_release(release_file=release_file)
         os.remove(release_file)
+
+    if args.publish_pypi and args.mode != "uninstall":
+        publish_pypi()
 
     return 0
 

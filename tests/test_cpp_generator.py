@@ -3,8 +3,8 @@ import filecmp
 import os
 import io
 
-from py_codegen.code_generator import *
-from py_codegen.cpp_generator import *
+from code_generation.code_generator import *
+from code_generation.cpp_generator import *
 
 __doc__ = """
 Unit tests for C++ code generator
