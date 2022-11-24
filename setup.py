@@ -7,7 +7,7 @@ cfg = ConfigParser()
 cfg.read(filenames=['setup.cfg'])
 VERSION = cfg.get('metadata', 'version')
 PACKAGE_NAME = cfg.get('metadata', 'name')
-PYTHON_REQUIRED = cfg.get('options', 'python_requires')
+PYTHON_REQUIRES = cfg.get('options', 'python_requires')
 
 # The directory containing this file
 HERE = pathlib.Path(__file__).parent
@@ -50,7 +50,7 @@ setup(
     packages=find_packages(where=str(HERE / 'src')),
     package_dir={'': 'src'},
     package_data={PACKAGE_NAME: ['defaults/*']},
-    python_requires=PYTHON_REQUIRED,
+    python_requires=PYTHON_REQUIRES,
     include_package_data=True,
     install_requires=DEPENDENCIES,
 )

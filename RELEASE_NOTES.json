@@ -3,10 +3,10 @@
     "download_link": "https://{package_name_dash}-package.s3.amazonaws.com/server/{package_name}-{version}-py3-none-any.whl"
   },
   "releases": {
-    "1.6.1": {
+    "2.0.0": {
       "release_notes": [
-        "Auto-upload to S3",
-        "Auto-update links"
+        "Application is now available as a package",
+        "Auto-upload to S3 bucket"
       ]
     }
   }

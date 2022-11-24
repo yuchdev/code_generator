@@ -139,10 +139,20 @@ def create_release(release_file):
          '--notes-file', release_file])
 
 
+def release_version_exists(version):
+    """
+    Check if version with respective release notes exists in RELEASE_NOTES.json
+    :param version: Version to check in format 2.9.34
+    :return: True if version exists, False otherwise
+    """
+    with open(os.path.join(PROJECT_DIR, 'RELEASE_NOTES.json'), 'r') as release_json:
+        release_notes = json.load(release_json)
+    return True if version in release_notes['releases'] else False
+
+
 def tmp_release_notes():
     """
     Read the last release notes in JSON format from release_notes.json and create a temporary release notes file
-    :param version: Version to release
     :return: Path to the temporary release notes file
     """
     # read release_notes.json as dict
@@ -150,7 +160,7 @@ def tmp_release_notes():
     with open('RELEASE_NOTES.json', 'r') as release_json:
         release_notes = json.load(release_json)
 
-    if release_notes['releases'].get(VERSION) is None:
+    if not release_version_exists(VERSION):
         print(f'No release notes found for version {VERSION}')
         sys.exit(1)
 
@@ -165,7 +175,7 @@ def tmp_release_notes():
         for note in last_release:
             release_tmp.write('* {}\n'.format(note))
         release_tmp.write('## Staging Area Download URL\n')
-        release_tmp.write('[Wheel Package {} on AWS S3]({})\n'.format(version, release_url))
+        release_tmp.write('[Wheel Package {} on AWS S3]({})\n'.format(VERSION, release_url))
     return os.path.abspath(release_md)
 
 
@@ -189,6 +199,10 @@ def main():
     print(f'Package name: {PACKAGE_NAME}')
     print(f'Package name2: {PACKAGE_NAME_DASH}')
     print(f'Version: {VERSION}')
+
+    if args.create_release and not release_version_exists(VERSION):
+        print(f'No release notes found for version {VERSION}')
+        sys.exit(1)
 
     if args.mode == "build":
         build_wheel()
