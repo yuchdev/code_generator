@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-import os
-import sys
 import pathlib
 from setuptools import find_packages, setup
+from configparser import ConfigParser
 
-PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__))))
-sys.path.append(os.path.abspath(os.path.join(PROJECT_DIR, "src", "code_generator")))
-from version import  VERSION
+cfg = ConfigParser()
+cfg.read(filenames=['setup.cfg'])
+VERSION = cfg.get('metadata', 'version')
+PACKAGE_NAME = cfg.get('metadata', 'name')
+PYTHON_REQUIRES = cfg.get('options', 'python_requires')
 
 # The directory containing this file
 HERE = pathlib.Path(__file__).parent
@@ -15,14 +16,13 @@ HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text(encoding='utf8')
 
 # Add future dependencies here
-DEPENDENCIES = []
-
+DEPENDENCIES = ["pathlib"]
 
 setup(
-    name="code_generator",
+    name=PACKAGE_NAME,
     version=VERSION,
     author="Yurii Cherkasov",
-    author_email="yurii.cherkasov@antidetect.online",
+    author_email="strategarius@protonmail.com",
     description="Provides functionality of generating source code programmatically",
     long_description=README,
     long_description_content_type="text/markdown",
@@ -35,7 +35,7 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
 
         # Indicate who your project is intended for
         'Intended Audience :: Developers',
@@ -43,14 +43,14 @@ setup(
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate you support Python 3. These classifiers are *not*
         # checked by 'pip install'. See instead 'python_requires' below.
-        "Programming Language :: Python :: 3",
-        "License :: Commercial",
-        "Operating System :: OS Independent",
+        'Programming Language :: Python :: 3',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
     ],
     packages=find_packages(where=str(HERE / 'src')),
-    package_dir={"": "src"},
-    package_data={'code_generator': ['defaults/*']},
-    python_requires=">=3.4",
+    package_dir={'': 'src'},
+    package_data={PACKAGE_NAME: ['defaults/*']},
+    python_requires=PYTHON_REQUIRES,
     include_package_data=True,
     install_requires=DEPENDENCIES,
 )

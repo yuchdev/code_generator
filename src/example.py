@@ -1,11 +1,11 @@
-from code_generator import code_generator
-from code_generator import cpp_generator
+from py_codegen import code_generator
+from py_codegen import cpp_generator
 
 # Create a new code file
 cpp = code_generator.CodeFile('example.cpp')
 cpp('int i = 0;')
 
-# Create a new variabel 'x'
+# Create a new variable 'x'
 x_variable = cpp_generator.CppVariable(
     name='x',
     type='int const&',
@@ -14,7 +14,7 @@ x_variable = cpp_generator.CppVariable(
     initialization_value='42')
 x_variable.render_to_string(cpp)
 
-# Create a new variabel 'name'
+# Create a new variable 'name'
 name_variable = cpp_generator.CppVariable(
     name='name',
     type='char*',

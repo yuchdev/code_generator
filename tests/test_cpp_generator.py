@@ -2,11 +2,9 @@ import unittest
 import filecmp
 import os
 import io
-import sys
 
-sys.path.append('src')
-from code_generator.code_generator import *
-from code_generator.cpp_generator import *
+from py_codegen.code_generator import *
+from py_codegen.cpp_generator import *
 
 __doc__ = """
 Unit tests for C++ code generator
