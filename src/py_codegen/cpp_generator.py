@@ -1,4 +1,7 @@
-__doc__ = """The module encapsutates C++ code generation logics for main C++ language primitives:
+from textwrap import dedent
+
+
+__doc__ = """The module encapsulates C++ code generation logics for main C++ language primitives:
 classes, methods and functions, variables, enums.
 Every C++ element could render its current state to a string that could be evaluated as 
 a legal C++ construction.
@@ -50,8 +53,6 @@ cpp.newline(2)
  
 For detailed information see code_generator.py documentation.
 """
-
-from textwrap import dedent
 
 
 ###########################################################################
@@ -214,7 +215,7 @@ class CppFunction(CppLanguageElement):
         self.arguments = []
 
     # noinspection PyUnresolvedReferences
-    def __sanity_check(self):
+    def _sanity_check(self):
         """
         Check whether attributes compose a correct C++ code
         """
@@ -269,7 +270,7 @@ class CppFunction(CppLanguageElement):
         }
         """
         # check all properties for the consistency
-        self.__sanity_check()
+        self._sanity_check()
         if self.documentation and self.is_constexpr:
             cpp(dedent(self.documentation))
         with cpp.block('{0}{1}{2} {3}({4}){5}{6}'.format(
@@ -290,7 +291,7 @@ class CppFunction(CppLanguageElement):
         int GetX() const;
         """
         # check all properties for the consistency
-        self.__sanity_check()
+        self._sanity_check()
         if self.is_constexpr:
             if self.documentation:
                 cpp(dedent(self.documentation))
@@ -322,7 +323,7 @@ class CppFunction(CppLanguageElement):
         Generates method body if self.implementation_handle property exists
         """
         # check all properties for the consistency
-        self.__sanity_check()
+        self._sanity_check()
         if self.documentation and not self.is_constexpr:
             cpp(dedent(self.documentation))
         with cpp.block('{0}{1} {2}{3}({4}){5}{6}'.format(
