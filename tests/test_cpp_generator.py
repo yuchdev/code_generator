@@ -2,7 +2,10 @@ import unittest
 import filecmp
 import os
 import io
+import sys
 
+sys.path.append('src')
+sys.path.append('../src')
 from code_generation.code_generator import *
 from code_generation.cpp_generator import *
 
@@ -321,6 +324,13 @@ def generate_class(output_dir='.'):
 
     my_class.add_variable(CppVariable(name="m_var2",
                                       type="int*"))
+
+    my_class.add_variable(CppVariable(name="m_var3",
+                                      type="int",
+                                      is_constexpr=True,
+                                      is_static = True,
+                                      is_class_member=True,
+                                      initialization_value = 42))    
 
     example_class.add_variable(CppVariable(
         name="m_var1",
