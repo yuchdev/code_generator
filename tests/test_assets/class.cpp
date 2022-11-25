@@ -1,5 +1,6 @@
 
 
+
 static const char* MyClass::array2[] = {"Item1", "Item2"};
 
 static const char* MyClass::array3[] = 

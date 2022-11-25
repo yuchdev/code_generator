@@ -28,6 +28,8 @@ private:
 	
 	int* m_var2;
 	
+	static constexpr int m_var3 = 42;
+	
 	static const char* array2[];
 	
 	static const char* array3[];

@@ -520,18 +520,19 @@ class CppVariable(CppLanguageElement):
             raise RuntimeError('For automatic variable use its render_to_string() method')
 
         # generate definition for the static class member
-        if self.is_static:
-            cpp('{0}{1} {2}{3} {4};'.format('const ' if self.is_const else '',
-                                            self.type,
-                                            '{0}'.format(self.parent_qualifier()),
-                                            self.name,
-                                            ' = {0}'.format(
-                                                self.initialization_value if self.initialization_value else '')))
+        if not self.is_constexpr:
+            if self.is_static:
+                cpp('{0}{1} {2}{3} {4};'.format('const ' if self.is_const else '',
+                                                self.type,
+                                                '{0}'.format(self.parent_qualifier()),
+                                                self.name,
+                                                ' = {0}'.format(
+                                                    self.initialization_value if self.initialization_value else '')))
 
-        # generate definition for non-static static class member
-        # (string for the constructor initialization list)
-        else:
-            cpp('{0}({1})'.format(self.name, self.initialization_value if self.initialization_value else ''))
+            # generate definition for non-static static class member
+            # (string for the constructor initialization list)
+            else:
+                cpp('{0}({1})'.format(self.name, self.initialization_value if self.initialization_value else ''))
 
 
 # noinspection PyUnresolvedReferences
