@@ -67,7 +67,7 @@ def wheel_path():
 
 
 def uninstall_wheel():
-    f"""
+    """
     pip.exe uninstall -y {PACKAGE_NAME_DASH}
     """
     run([PIP, 'uninstall', '-y', PACKAGE_NAME_DASH])
