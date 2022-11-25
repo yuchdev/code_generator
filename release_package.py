@@ -106,7 +106,7 @@ def uninstall_wheel():
 
 
 def publish_pypi():
-    """
+    f"""
     Publish the package to PyPI
     Example:
     twine upload dist/{PACKAGE_NAME}-2.9.34-py3-none-any.whl
@@ -135,14 +135,14 @@ def install_wheel():
 
 
 def install_wheel_devmode():
-    """
+    f"""
     pip.exe install -e ./dist/{PACKAGE_NAME}-{VERSION}-py3-none-any.whl
     """
     run([PIP, 'install', '-e', '.'])
 
 
 def cleanup_old_wheels():
-    """
+    f"""
     Remove all previous {PACKAGE_NAME}-{}-py3-none-any.whl in dist
     """
     if os.path.isdir(os.path.join(PROJECT_DIR, 'dist')):
@@ -180,7 +180,7 @@ def tag_release():
 
 
 def create_release(release_file):
-    """
+    f"""
     Create a release on GitHub
     Example:
     gh release create release.2.9.34 dist/{PACKAGE_NAME}-2.9.34-py3-none-any.whl --title 2.9.34 --notes-file RELEASE.md
