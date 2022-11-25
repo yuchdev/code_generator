@@ -143,7 +143,7 @@ def install_wheel_devmode():
 
 def cleanup_old_wheels():
     f"""
-    Remove all previous {PACKAGE_NAME}-{}-py3-none-any.whl in dist
+    Remove all previous {PACKAGE_NAME}-{VERSION}-py3-none-any.whl in dist
     """
     if os.path.isdir(os.path.join(PROJECT_DIR, 'dist')):
         for file in os.listdir(os.path.join(PROJECT_DIR, 'dist')):
