@@ -3,6 +3,7 @@ import os
 import sys
 import argparse
 import platform
+import pathlib
 import json
 from subprocess import run
 from configparser import ConfigParser
@@ -10,6 +11,9 @@ from configparser import ConfigParser
 cfg = ConfigParser()
 cfg.read(filenames=['setup.cfg'])
 VERSION = cfg.get('metadata', 'version')
+
+# Home dir
+HOME = pathlib.Path.home()
 
 # Name with underscore (wheel filename)
 PACKAGE_NAME = cfg.get('metadata', 'name')
@@ -51,12 +55,40 @@ elif is_windows():
     PIP = "pip"
 
 
-def sanity_check():
+def executable_exists(executable):
     """
-    Check src/{PACKAGE_NAME} exists
+    :param executable: Name of the executable
+    :return: True if executable exists, False otherwise
+    """
+    try:
+        run([executable, '--version'])
+        return True
+    except FileNotFoundError:
+        return False
+
+
+def sanity_check(args):
+    """
+    Check if all required executables and configs are available
     """
     if not os.path.isdir(os.path.join(PROJECT_DIR, 'src', PACKAGE_NAME)):
-        raise RuntimeError(f'Cannot find src/{PACKAGE_NAME}')
+        print(f'Cannot find src/{PACKAGE_NAME}')
+        sys.exit(1)
+    if args.create_release and not release_version_exists(VERSION):
+        print(f'No release notes found for version {VERSION}')
+        sys.exit(1)
+    if args.upload_s3 and not executable_exists('aws'):
+        print('awscli not installed')
+        sys.exit(1)
+    if args.create_release and not executable_exists('gh'):
+        print('GitHub CLI not installed')
+        sys.exit(1)
+    if args.publish_pypi and not executable_exists('twine'):
+        print('twine not installed')
+        sys.exit(1)
+    if args.publish_pypi and not os.path.isfile(os.path.join(HOME, '.pypirc')):
+        print('No ~/.pypirc file found')
+        sys.exit(1)
 
 
 def wheel_path():
@@ -67,14 +99,14 @@ def wheel_path():
 
 
 def uninstall_wheel():
-    f"""
+    """
     pip.exe uninstall -y {PACKAGE_NAME_DASH}
     """
     run([PIP, 'uninstall', '-y', PACKAGE_NAME_DASH])
 
 
 def publish_pypi():
-    """
+    f"""
     Publish the package to PyPI
     Example:
     twine upload dist/{PACKAGE_NAME}-2.9.34-py3-none-any.whl
@@ -103,14 +135,14 @@ def install_wheel():
 
 
 def install_wheel_devmode():
-    """
+    f"""
     pip.exe install -e ./dist/{PACKAGE_NAME}-{VERSION}-py3-none-any.whl
     """
     run([PIP, 'install', '-e', '.'])
 
 
 def cleanup_old_wheels():
-    """
+    f"""
     Remove all previous {PACKAGE_NAME}-{}-py3-none-any.whl in dist
     """
     if os.path.isdir(os.path.join(PROJECT_DIR, 'dist')):
@@ -148,7 +180,7 @@ def tag_release():
 
 
 def create_release(release_file):
-    """
+    f"""
     Create a release on GitHub
     Example:
     gh release create release.2.9.34 dist/{PACKAGE_NAME}-2.9.34-py3-none-any.whl --title 2.9.34 --notes-file RELEASE.md
@@ -222,11 +254,7 @@ def main():
     print(f'Package name: {PACKAGE_NAME}')
     print(f'Package name2: {PACKAGE_NAME_DASH}')
     print(f'Version: {VERSION}')
-    sanity_check()
-
-    if args.create_release and not release_version_exists(VERSION):
-        print(f'No release notes found for version {VERSION}')
-        sys.exit(1)
+    sanity_check(args)
 
     if args.mode == "build":
         build_wheel()
