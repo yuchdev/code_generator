@@ -1,4 +1,5 @@
-from code_generation.cpp_generator import CppLanguageElement, CppFunction, CppDeclaration, CppImplementation
+from code_generation.cpp_generator import CppLanguageElement, CppDeclaration, CppImplementation
+from code_generation.cpp_function import CppFunction
 from textwrap import dedent
 
 
@@ -68,7 +69,7 @@ class CppClass(CppLanguageElement):
                          implementation_handle = functionBody)
 
         // Generated code
-        int GetAnswer()
+        int MyClass::GetAnswer()
         {
             return 42;
         }
@@ -86,19 +87,18 @@ class CppClass(CppLanguageElement):
                                     'documentation'} | CppLanguageElement.availablePropertiesNames
 
         def __init__(self, **properties):
-
-            # check properties
-            input_property_names = set(properties.keys())
-            self.check_input_properties_names(input_property_names)
-            super(CppFunction, self).__init__(properties)
-            self.init_class_properties(current_class_properties=self.availablePropertiesNames,
-                                       input_properties_dict=properties)
-
             # arguments are plain strings
             # e.g. 'int* a', 'const string& s', 'size_t sz = 10'
             self.arguments = []
             self.implementation_handle = properties.get('implementation_handle')
             self.documentation = properties.get('documentation')
+
+            # check properties
+            input_property_names = set(properties.keys())
+            self.check_input_properties_names(input_property_names)
+            super().__init__(**properties)
+            self.init_class_properties(current_class_properties=self.availablePropertiesNames,
+                                       input_properties_dict=properties)
 
         def is_static(self):
             """
@@ -167,27 +167,27 @@ class CppClass(CppLanguageElement):
             """
             Check whether attributes compose a correct C++ code
             """
-            if not self.is_method and (self.is_static or self.is_const or self.is_virtual or self.is_pure_virtual):
-                raise RuntimeError('Non-member function could not be static, const or (pure)virtual')
-            if self.is_method and self.is_inline and (self.is_virtual or self.is_pure_virtual):
+            if self.is_inline and (self.is_virtual or self.is_pure_virtual):
                 raise RuntimeError('Inline method could not be virtual')
-            if self.is_method and self.is_constexpr and (self.is_virtual or self.is_pure_virtual):
+            if self.is_constexpr and (self.is_virtual or self.is_pure_virtual):
                 raise RuntimeError('Constexpr method could not be virtual')
-            if self.is_method and self.is_const and self.is_static:
+            if self.is_const and self.is_static:
                 raise RuntimeError('Static method could not be const')
-            if self.is_method and self.is_const and self.is_virtual:
+            if self.is_const and self.is_virtual:
                 raise RuntimeError('Virtual method could not be const')
-            if self.is_method and self.is_const and self.is_pure_virtual:
+            if self.is_const and self.is_pure_virtual:
                 raise RuntimeError('Pure virtual method could not be const')
-            if self.is_method and self.is_override and not self.is_virtual:
+            if self.is_override and not self.is_virtual:
                 raise RuntimeError('Override method should be virtual')
-            if self.is_method and self.is_final and not self.is_virtual:
+            if self.is_inline and (self.is_virtual or self.is_pure_virtual):
+                raise RuntimeError('Inline method could not be virtual')
+            if self.is_final and not self.is_virtual:
                 raise RuntimeError('Final method should be virtual')
-            if self.is_method and self.is_static and self.is_virtual:
+            if self.is_static and self.is_virtual:
                 raise RuntimeError('Static method could not be virtual')
-            if self.is_method and self.is_pure_virtual and not self.is_virtual:
-                raise RuntimeError('Pure virtual method should have attribute is_virtual=True')
-            if self.is_method and not self.ref_to_parent:
+            if self.is_pure_virtual and not self.is_virtual:
+                raise RuntimeError('Pure virtual method is also a virtual method')
+            if not self.ref_to_parent:
                 raise RuntimeError('Method object could be a child of a CppClass only. Use CppClass.add_method()')
             if self.is_constexpr and not self.implementation_handle:
                 raise RuntimeError("Method object must be initialized when 'constexpr'")
@@ -197,6 +197,12 @@ class CppClass(CppLanguageElement):
             @param: argument string representation of the C++ function argument ('int a', 'void p = NULL' etc)
             """
             self.arguments.append(argument)
+
+        def args(self):
+            """
+            @return: string arguments
+            """
+            return ", ".join(self.arguments)
 
         def implementation(self, cpp):
             """
@@ -236,7 +242,7 @@ class CppClass(CppLanguageElement):
             if self.documentation:
                 cpp(dedent(self.documentation))
             with cpp.block(f'{self.is_virtual()}{self.is_constexpr()}{self.is_inline()}'
-                           f'{self.ret_type()} {self.name}({", ".join(self.arguments)})'
+                           f'{self.ret_type()} {self.fully_qualified_name()}({self.args()})'
                            f'{self.is_const()}{self.is_override()}{self.is_final()}{self.is_pure_virtual()}'):
                 self.implementation(cpp)
 
@@ -255,7 +261,7 @@ class CppClass(CppLanguageElement):
                 self.render_to_string(cpp)
             else:
                 cpp(f'{self.is_virtual()}{self.is_inline()}'
-                    f'{self.ret_type()} {self.name}({", ".join(self.arguments)})'
+                    f'{self.ret_type()} {self.name}({self.args()})'
                     f'{self.is_const()}{self.is_override()}{self.is_final()}{self.is_pure_virtual()};')
 
         def render_to_string_implementation(self, cpp):
@@ -273,17 +279,14 @@ class CppClass(CppLanguageElement):
             self._sanity_check()
             if self.documentation and not self.is_constexpr:
                 cpp(dedent(self.documentation))
-            with cpp.block('{0}{1} {2}{3}({4}){5}{6}'.format(
-                    '/*virtual*/' if self.is_virtual else '',
-                    self.ret_type if self.ret_type else '',
-                    '{0}'.format(self.parent_qualifier()) if self.is_method else '', # TODO: check if it is a method
-                    self.name,
-                    ', '.join(self.arguments),
-                    ' const ' if self.is_const else '',
-                    ' = 0' if self.is_pure_virtual else '')):
+            with cpp.block(f'{self.is_virtual()}{self.is_constexpr()}{self.is_inline()}'
+                           f'{self.ret_type()} {self.fully_qualified_name()}({self.args()})'
+                           f'{self.is_const()}{self.is_override()}{self.is_final()}{self.is_pure_virtual()}'):
                 self.implementation(cpp)
 
     def __init__(self, **properties):
+        self.is_struct = False
+        self.documentation = None
         input_property_names = set(properties.keys())
         self.check_input_properties_names(input_property_names)
         super(CppClass, self).__init__(properties)
@@ -304,6 +307,18 @@ class CppClass(CppLanguageElement):
 
         # class enums
         self.internal_enum_elements = []
+
+    def parent_class(self):
+        """
+        @return: parent class object
+        """
+        return self.parent_class if self.parent_class else ""
+
+    def inherits(self):
+        """
+        @return: string representation of the inheritance
+        """
+        return f' : public {self.parent_class()}'
 
     ########################################
     # ADD CLASS MEMBERS
@@ -460,11 +475,8 @@ class CppClass(CppLanguageElement):
         """
         if self.documentation:
             cpp(dedent(self.documentation))
-        class_type = 'struct' if self.is_struct else 'class'
-        with cpp.block('{0} {1} {2}'.format(class_type,
-                                            self.name,
-                                            ' : public {0}'.format(self.parent_class) if self.parent_class else ''),
-                       ';'):
+
+        with cpp.block(f'{self.class_type()} {self.name} {self.inherits()}', postfix=';'):
 
             # in case of struct all members meant to be public
             if not self.is_struct:
@@ -476,6 +488,12 @@ class CppClass(CppLanguageElement):
             if not self.is_struct:
                 cpp.label('private')
             self.private_class_members(cpp)
+
+    def class_type(self):
+        """
+        @return: 'class' or 'struct' keyword
+        """
+        return 'struct' if self.is_struct else 'class'
 
     def render_to_string_implementation(self, cpp):
         """
