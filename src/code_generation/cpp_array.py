@@ -1,58 +1,5 @@
 from code_generation.cpp_generator import CppLanguageElement
 
-__doc__ = """The module encapsulates C++ code generation logics for main C++ language primitives:
-classes, methods and functions, variables, enums.
-Every C++ element could render its current state to a string that could be evaluated as 
-a legal C++ construction.
-
-Some elements could be rendered to a pair of representations (i.e. declaration and definition)
- 
-Example:
-# Python code
-cpp_class = CppClass(name = 'MyClass', is_struct = True)
-cpp_class.add_variable(CppVariable(name = "m_var",
-    type = 'size_t',
-    is_static = True,
-    is_const = True,
-    initialization_value = 255))
- 
-// Generated C++ declaration
-struct MyClass
-{
-    static const size_t m_var;
-}
- 
-// Generated C++ definition
-const size_t MyClass::m_var = 255;
- 
- 
-That module uses and highly depends on code_generator.py as it uses
-code generating and formatting primitives implemented there.
- 
-The main object referenced from code_generator.py is CppFile, 
-which is passed as a parameter to render_to_string(cpp) Python method
- 
-It could also be used for composing more complicated C++ code,
-that does not supported by cpp_generator
- 
-It support:
-
-- functional calls:
-cpp('int a = 10;')
- 
-- 'with' semantic:
-with cpp.block('class MyClass', ';')
-    class_definition(cpp)
- 
-- append code to the last string without EOL:
-cpp.append(', p = NULL);')
- 
-- empty lines:
-cpp.newline(2)
- 
-For detailed information see code_generator.py documentation.
-"""
-
 
 # noinspection PyUnresolvedReferences
 class CppArray(CppLanguageElement):
@@ -81,7 +28,7 @@ class CppArray(CppLanguageElement):
     availablePropertiesNames = {'type',
                                 'is_static',
                                 'is_const',
-                                'arraySize',
+                                'array_size',
                                 'is_class_member',
                                 'newline_align'} | CppLanguageElement.availablePropertiesNames
 
@@ -93,6 +40,30 @@ class CppArray(CppLanguageElement):
                                    input_properties_dict=properties)
         # array elements
         self.items = []
+
+    def is_static(self):
+        """
+        @return: 'static' prefix if required
+        """
+        return 'static ' if self.is_static else ''
+
+    def is_const(self):
+        """
+        @return: 'const' prefix if required
+        """
+        return 'const ' if self.is_const else ''
+
+    def size(self):
+        """
+        @return: array size
+        """
+        return self.array_size if self.array_size else ''
+
+    def content(self):
+        """
+        @return: array items if any
+        """
+        return ', '.join(self.items) if self.items else 'nullptr'
 
     def declaration(self):
         """
@@ -122,7 +93,7 @@ class CppArray(CppLanguageElement):
         """
         self.items.extend(items)
 
-    def __render_value(self, cpp):
+    def _render_value(self, cpp):
         """
         Render to string array items
         """
@@ -149,20 +120,11 @@ class CppArray(CppLanguageElement):
 
         # newline-formatting of array elements makes sense only if array is not empty
         if self.newline_align and self.items:
-            with cpp.block('{0}{1}{2} {3}{4} = '.format('static ' if self.is_static else '',
-                                                        'const ' if self.is_const else '',
-                                                        self.type,
-                                                        self.name,
-                                                        '[{0}]'.format(self.arraySize if self.arraySize else '')), ';'):
+            with cpp.block(f'{self.is_static()}{self.is_const()}{self.type} {self.name}[{self.size()}] = ', ';'):
                 # iterate over array items
-                self.__render_value(cpp)
+                self._render_value(cpp)
         else:
-            cpp('{0}{1}{2} {3}{4} = {5};'.format('static ' if self.is_static else '',
-                                                 'const ' if self.is_const else '',
-                                                 self.type,
-                                                 self.name,
-                                                 '[{0}]'.format(self.arraySize if self.arraySize else ''),
-                                                 '{{{0}}}'.format(', '.join(self.items)) if self.items else 'NULL'))
+            cpp(f'{self.is_static()}{self.is_const()}{self.type} {self.name}[{self.size()}] = {{{self.content()}}};')
 
     def render_to_string_declaration(self, cpp):
         """
@@ -174,12 +136,7 @@ class CppArray(CppLanguageElement):
         """
         if not self.is_class_member:
             raise RuntimeError('For automatic variable use its render_to_string() method')
-
-        cpp('{0}{1}{2} {3}{4};'.format('static ' if self.is_static else '',
-                                       'const ' if self.is_const else '',
-                                       self.type,
-                                       self.name,
-                                       '[{0}]'.format(self.arraySize if self.arraySize else '')))
+        cpp(f'{self.is_static()}{self.is_const()}{self.type} {self.name}[{self.size()}];')
 
     def render_to_string_implementation(self, cpp):
         """
@@ -204,20 +161,8 @@ class CppArray(CppLanguageElement):
 
         # newline-formatting of array elements makes sense only if array is not empty
         if self.newline_align and self.items:
-            with cpp.block('{0}{1}{2} {3}{4}{5} = '.format('static ' if self.is_static else '',
-                                                           'const ' if self.is_const else '',
-                                                           self.type,
-                                                           '{0}'.format(self.parent_qualifier()),
-                                                           self.name,
-                                                           '[{0}]'.format(self.arraySize if self.arraySize else '')),
-                           ';'):
+            with cpp.block(f'{self.is_static()}{self.is_const()}{self.type} {self.name}[{self.size()}] = ', ';'):
                 # iterate over array items
-                self.__render_value(cpp)
+                self._render_value(cpp)
         else:
-            cpp('{0}{1}{2} {3}{4}{5} = {6};'.format('static ' if self.is_static else '',
-                                                    'const ' if self.is_const else '',
-                                                    self.type,
-                                                    '{0}'.format(self.parent_qualifier()),
-                                                    self.name,
-                                                    '[{0}]'.format(self.arraySize if self.arraySize else ''),
-                                                    '{{{0}}}'.format(', '.join(self.items)) if self.items else 'NULL'))
+            cpp(f'{self.is_static()}{self.is_const()}{self.type} {self.name}[{self.size()}] = {{{self.content()}}};')

@@ -79,6 +79,7 @@ class CppEnum(CppLanguageElement):
     }
     """
     availablePropertiesNames = {'prefix',
+                                'enum_class',
                                 'add_counter'} | CppLanguageElement.availablePropertiesNames
 
     def __init__(self, **properties):
@@ -92,6 +93,9 @@ class CppEnum(CppLanguageElement):
 
         # place enum items here
         self.enum_items = []
+
+    def enum_class(self):
+        return 'class ' if self.enum_class else ''
 
     def add_item(self, item):
         """
@@ -119,10 +123,10 @@ class CppEnum(CppLanguageElement):
         """
         counter = 0
         final_prefix = self.prefix if self.prefix is not None else 'e'
-        with cpp.block('enum {0}'.format(self.name), ';'):
+        with cpp.block(f'enum {self.enum_class()}{self.name}', postfix=';'):
             for item in self.enum_items:
-                cpp('{0}{1} = {2},'.format(final_prefix, item, counter))
+                cpp(f'{final_prefix}{item} = {counter},')
                 counter += 1
             if self.add_counter in [None, True]:
-                last_element = '{0}{1}Count = {2}'.format(final_prefix, self.name, counter)
+                last_element = f'{final_prefix}{self.name}Count = {counter}'
                 cpp(last_element)

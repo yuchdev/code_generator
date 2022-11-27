@@ -70,6 +70,7 @@ class CppVariable(CppLanguageElement):
     is_static - boolean, 'static' prefix
     is_extern - boolean, 'extern' prefix
     is_const - boolean, 'const' prefix
+    is_constexpr - boolean, 'constexpr' prefix
     initialization_value - string, value to be initialized with.
         'a = value;' for automatic variables, 'a(value)' for the class member
     documentation - string, '/// Example doxygen'
@@ -97,6 +98,44 @@ class CppVariable(CppLanguageElement):
         if self.is_static and self.is_extern:
             raise RuntimeError("Variable object can be either 'extern' or 'static', not both")
 
+    def is_static(self):
+        """
+        @return: 'static' prefix, can't be used with 'extern'
+        """
+        return 'static ' if self.is_static else ''
+
+    def is_extern(self):
+        """
+        @return: 'extern' prefix, can't be used with 'static'
+        """
+        return 'extern ' if self.is_extern else ''
+
+    def is_const(self):
+        """
+        @return: 'const' prefix, can't be used with 'constexpr'
+        """
+        return 'const ' if self.is_const else ''
+
+    def is_constexpr(self):
+        """
+        @return: 'constexpr' prefix, can't be used with 'const'
+        """
+        return 'constexpr ' if self.is_constexpr else ''
+
+    def initialization_value(self):
+        """
+        @return: string, value to be initialized with
+        """
+        return self.initialization_value if self.initialization_value else ''
+
+    def assignment(self, value):
+        """
+        Generates assignment statement for the variable, e.g.
+        a = 10;
+        b = 20;
+        """
+        return f'{self.name} = {value};'
+
     def declaration(self):
         """
         @return: CppDeclaration wrapper, that could be used
@@ -123,12 +162,8 @@ class CppVariable(CppLanguageElement):
         else:
             if self.documentation:
                 cpp(dedent(self.documentation))
-            cpp('{0}{1}{2} {3}{4};'.format('static ' if self.is_static else 'extern ' if self.is_extern else '',
-                                           'const ' if self.is_const else 'constexpr ' if self.is_constexpr else '',
-                                           self.type,
-                                           self.name,
-                                           ' = {0}'.format(
-                                               self.initialization_value) if self.initialization_value else ''))
+            cpp(f'{self.is_static}{self.is_extern}{self.is_const}{self.is_constexpr}'
+                f'{self.type} {self.assignment(self.initialization_value())};')
 
     def render_to_string_declaration(self, cpp):
         """
@@ -140,11 +175,8 @@ class CppVariable(CppLanguageElement):
 
         if self.documentation and self.is_class_member:
             cpp(dedent(self.documentation))
-        cpp('{0}{1}{2} {3};'.format(
-            'static ' if self.is_static else '',
-            'const ' if self.is_const else 'constexpr ' if self.is_constexpr else '',
-            self.type,
-            self.name if not self.is_constexpr else '{} = {}'.format(self.name, self.initialization_value)))
+        cpp(f'{self.is_static}{self.is_extern}{self.is_const}{self.is_constexpr}'
+            f'{self.type} {self.name if not self.is_constexpr else self.assignment(self.initialization_value())};')
 
     def render_to_string_implementation(self, cpp):
         """
@@ -165,14 +197,9 @@ class CppVariable(CppLanguageElement):
         # generate definition for the static class member
         if not self.is_constexpr:
             if self.is_static:
-                cpp('{0}{1} {2}{3} {4};'.format('const ' if self.is_const else '',
-                                                self.type,
-                                                '{0}'.format(self.parent_qualifier()),
-                                                self.name,
-                                                ' = {0}'.format(
-                                                    self.initialization_value if self.initialization_value else '')))
-
-            # generate definition for non-static static class member
+                cpp(f'{self.is_static}{self.is_extern}{self.is_const}{self.is_constexpr}'
+                    f'{self.type} {self.fully_qualified_name()} = {self.initialization_value()};')
+            # generate definition for non-static static class member, e.g. m_var(0)
             # (string for the constructor initialization list)
             else:
-                cpp('{0}({1})'.format(self.name, self.initialization_value if self.initialization_value else ''))
+                cpp(f'{self.name}({self.initialization_value()})')

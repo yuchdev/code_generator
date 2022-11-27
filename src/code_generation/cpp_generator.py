@@ -130,7 +130,7 @@ class CppLanguageElement(object):
                 setattr(self, propertyName, default_property_value)
 
         # Set all defined properties values (all undefined will be left with defaults)
-        for (propertyName, propertyValue) in input_properties_dict.items():
+        for (propertyName, propertyValue) in input_properties_dict.content():
             if propertyName not in CppLanguageElement.availablePropertiesNames:
                 setattr(self, propertyName, propertyValue)
 
