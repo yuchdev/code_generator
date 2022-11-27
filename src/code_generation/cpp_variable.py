@@ -1,0 +1,178 @@
+from code_generation.cpp_generator import CppLanguageElement
+
+__doc__ = """The module encapsulates C++ code generation logics for main C++ language primitives:
+classes, methods and functions, variables, enums.
+Every C++ element could render its current state to a string that could be evaluated as 
+a legal C++ construction.
+
+Some elements could be rendered to a pair of representations (i.e. declaration and definition)
+ 
+Example:
+# Python code
+cpp_class = CppClass(name = 'MyClass', is_struct = True)
+cpp_class.add_variable(CppVariable(name = "m_var",
+    type = 'size_t',
+    is_static = True,
+    is_const = True,
+    initialization_value = 255))
+ 
+// Generated C++ declaration
+struct MyClass
+{
+    static const size_t m_var;
+}
+ 
+// Generated C++ definition
+const size_t MyClass::m_var = 255;
+ 
+ 
+That module uses and highly depends on code_generator.py as it uses
+code generating and formatting primitives implemented there.
+ 
+The main object referenced from code_generator.py is CppFile, 
+which is passed as a parameter to render_to_string(cpp) Python method
+ 
+It could also be used for composing more complicated C++ code,
+that does not supported by cpp_generator
+ 
+It support:
+
+- functional calls:
+cpp('int a = 10;')
+ 
+- 'with' semantic:
+with cpp.block('class MyClass', ';')
+    class_definition(cpp)
+ 
+- append code to the last string without EOL:
+cpp.append(', p = NULL);')
+ 
+- empty lines:
+cpp.newline(2)
+ 
+For detailed information see code_generator.py documentation.
+"""
+
+
+# noinspection PyUnresolvedReferences
+class CppVariable(CppLanguageElement):
+    """
+    The Python class that generates string representation for C++ variable (automatic or class member)
+    For example:
+    class MyClass
+    {
+        int m_var1;
+        double m_var2;
+        ...
+    }
+    Available properties:
+    type - string, variable type
+    is_static - boolean, 'static' prefix
+    is_extern - boolean, 'extern' prefix
+    is_const - boolean, 'const' prefix
+    initialization_value - string, value to be initialized with.
+        'a = value;' for automatic variables, 'a(value)' for the class member
+    documentation - string, '/// Example doxygen'
+    is_class_member - boolean, for appropriate definition/declaration rendering
+    """
+    availablePropertiesNames = {'type',
+                                'is_static',
+                                'is_extern',
+                                'is_const',
+                                'is_constexpr',
+                                'initialization_value',
+                                'documentation',
+                                'is_class_member'} | CppLanguageElement.availablePropertiesNames
+
+    def __init__(self, **properties):
+        input_property_names = set(properties.keys())
+        self.check_input_properties_names(input_property_names)
+        super(CppVariable, self).__init__(properties)
+        self.init_class_properties(current_class_properties=self.availablePropertiesNames,
+                                   input_properties_dict=properties)
+        if self.is_const and self.is_constexpr:
+            raise RuntimeError("Variable object can be either 'const' or 'constexpr', not both")
+        if self.is_constexpr and not self.initialization_value:
+            raise RuntimeError("Variable object must be initialized when 'constexpr'")
+        if self.is_static and self.is_extern:
+            raise RuntimeError("Variable object can be either 'extern' or 'static', not both")
+
+    def declaration(self):
+        """
+        @return: CppDeclaration wrapper, that could be used
+        for declaration rendering using render_to_string(cpp) interface
+        """
+        return CppDeclaration(self)
+
+    def definition(self):
+        """
+        @return: CppImplementation wrapper, that could be used
+        for definition rendering using render_to_string(cpp) interface
+        """
+        return CppImplementation(self)
+
+    def render_to_string(self, cpp):
+        """
+        Only automatic variables or static const class members could be rendered using this method
+        Generates complete variable definition, e.g.
+        int a = 10;
+        const double b = M_PI;
+        """
+        if self.is_class_member and not (self.is_static and self.is_const):
+            raise RuntimeError('For class member variables use definition() and declaration() methods')
+        else:
+            if self.documentation:
+                cpp(dedent(self.documentation))
+            cpp('{0}{1}{2} {3}{4};'.format('static ' if self.is_static else 'extern ' if self.is_extern else '',
+                                           'const ' if self.is_const else 'constexpr ' if self.is_constexpr else '',
+                                           self.type,
+                                           self.name,
+                                           ' = {0}'.format(
+                                               self.initialization_value) if self.initialization_value else ''))
+
+    def render_to_string_declaration(self, cpp):
+        """
+        Generates declaration for the class member variables, for example
+        int m_var;
+        """
+        if not self.is_class_member:
+            raise RuntimeError('For automatic variable use its render_to_string() method')
+
+        if self.documentation and self.is_class_member:
+            cpp(dedent(self.documentation))
+        cpp('{0}{1}{2} {3};'.format(
+            'static ' if self.is_static else '',
+            'const ' if self.is_const else 'constexpr ' if self.is_constexpr else '',
+            self.type,
+            self.name if not self.is_constexpr else '{} = {}'.format(self.name, self.initialization_value)))
+
+    def render_to_string_implementation(self, cpp):
+        """
+        Generates definition for the class member variable.
+        Output depends on the variable type
+
+        Generates something like
+        int MyClass::m_my_static_var = 0;
+
+        for static class members, and
+        m_var(0)
+        for non-static class members.
+        That string could be used in constructor initialization string
+        """
+        if not self.is_class_member:
+            raise RuntimeError('For automatic variable use its render_to_string() method')
+
+        # generate definition for the static class member
+        if not self.is_constexpr:
+            if self.is_static:
+                cpp('{0}{1} {2}{3} {4};'.format('const ' if self.is_const else '',
+                                                self.type,
+                                                '{0}'.format(self.parent_qualifier()),
+                                                self.name,
+                                                ' = {0}'.format(
+                                                    self.initialization_value if self.initialization_value else '')))
+
+            # generate definition for non-static static class member
+            # (string for the constructor initialization list)
+            else:
+                cpp('{0}({1})'.format(self.name, self.initialization_value if self.initialization_value else ''))

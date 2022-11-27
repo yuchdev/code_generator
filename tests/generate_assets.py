@@ -1,5 +1,3 @@
-import unittest
-import filecmp
 import os
 import io
 
@@ -7,120 +5,9 @@ from code_generation.code_generator import *
 from code_generation.cpp_generator import *
 
 __doc__ = """
-Unit tests for C++ code generator
 """
 
-
-def handle_to_factorial(_, cpp):
-    cpp('return n < 1 ? 1 : (n * factorial(n - 1));')
-
-
-class TestCppFunctionGenerator(unittest.TestCase):
-
-    @staticmethod
-    def handle_to_factorial(_, cpp):
-        cpp('return n < 1 ? 1 : (n * factorial(n - 1));')
-
-    def test_is_constexpr_raises_error_when_implementation_value_is_none(self):
-        writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
-        func = CppFunction(name="factorial", ret_type="int", is_constexpr=True)
-        self.assertRaises(RuntimeError, func.render_to_string, cpp)
-
-    def test_is_constexpr_render_to_string(self):
-        writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
-        func = CppFunction(name="factorial", ret_type="int",
-                           implementation_handle=TestCppFunctionGenerator.handle_to_factorial, is_constexpr=True)
-        func.add_argument('int n')
-        func.render_to_string(cpp)
-        self.assertIn(dedent("""\
-            constexpr int factorial(int n)
-            {
-            \treturn n < 1 ? 1 : (n * factorial(n - 1));
-            }"""), writer.getvalue())
-
-    def test_is_constexpr_render_to_string_declaration(self):
-        writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
-        func = CppFunction(name="factorial", ret_type="int",
-                           implementation_handle=TestCppFunctionGenerator.handle_to_factorial, is_constexpr=True)
-        func.add_argument('int n')
-        func.render_to_string_declaration(cpp)
-        self.assertIn(dedent("""\
-            constexpr int factorial(int n)
-            {
-            \treturn n < 1 ? 1 : (n * factorial(n - 1));
-            }"""), writer.getvalue())
-
-    def test_README_example(self):
-        writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
-        factorial_function = CppFunction(name='factorial', ret_type='int', is_constexpr=True,
-                                         implementation_handle=handle_to_factorial,
-                                         documentation='/// Calculates and returns the factorial of p @n.')
-        factorial_function.add_argument('int n')
-        factorial_function.render_to_string(cpp)
-        self.assertIn(dedent("""\
-            /// Calculates and returns the factorial of p @n.
-            constexpr int factorial(int n)
-            {
-            \treturn n < 1 ? 1 : (n * factorial(n - 1));
-            }"""), writer.getvalue())
-
-
-class TestCppVariableGenerator(unittest.TestCase):
-
-    def test_cpp_var_via_writer(self):
-        writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
-        variables = CppVariable(name="var1",
-                                type="char*",
-                                is_class_member=False,
-                                is_static=False,
-                                is_const=True,
-                                initialization_value='0')
-        variables.render_to_string(cpp)
-        self.assertEqual('const char* var1 = 0;\n', writer.getvalue())
-
-    def test_is_constexpr_raises_error_when_is_const_true(self):
-        self.assertRaises(RuntimeError, CppVariable, name="COUNT", type="int", is_class_member=True, is_const=True,
-                          is_constexpr=True, initialization_value='0')
-
-    def test_is_constexpr_raises_error_when_initialization_value_is_none(self):
-        self.assertRaises(RuntimeError, CppVariable, name="COUNT", type="int", is_class_member=True, is_constexpr=True)
-
-    def test_is_constexpr_render_to_string(self):
-        writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
-        variables = CppVariable(name="COUNT",
-                                type="int",
-                                is_class_member=False,
-                                is_constexpr=True,
-                                initialization_value='0')
-        variables.render_to_string(cpp)
-        self.assertIn('constexpr int COUNT = 0;', writer.getvalue())
-
-    def test_is_constexpr_render_to_string_declaration(self):
-        writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
-        variables = CppVariable(name="COUNT",
-                                type="int",
-                                is_class_member=True,
-                                is_constexpr=True,
-                                initialization_value='0')
-        variables.render_to_string_declaration(cpp)
-        self.assertIn('constexpr int COUNT = 0;', writer.getvalue())
-
-    def test_is_extern_raises_error_when_is_static_is_true(self):
-        self.assertRaises(RuntimeError, CppVariable, name="var1", type="char*", is_static=True, is_extern=True)
-
-    def test_is_extern_render_to_string(self):
-        writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
-        v = CppVariable(name="var1", type="char*", is_extern=True)
-        v.render_to_string(cpp)
-        self.assertIn('extern char* var1;', writer.getvalue())
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def generate_enum(output_dir='.'):
@@ -282,9 +169,9 @@ def generate_class(output_dir='.'):
     my_class.add_variable(CppVariable(name="m_var3",
                                       type="int",
                                       is_constexpr=True,
-                                      is_static = True,
+                                      is_static=True,
                                       is_class_member=True,
-                                      initialization_value = 42))    
+                                      initialization_value=42))
 
     example_class.add_variable(CppVariable(
         name="m_var1",
@@ -339,17 +226,36 @@ def generate_class(output_dir='.'):
     my_class_h.close()
 
 
+def generate_factorial(output_dir='.'):
+    cpp = CppFile(os.path.join(output_dir, 'factorial.cpp'))
+    h = CppFile(os.path.join(output_dir, 'factorial.h'))
+
+    def handle_to_factorial(_, cpp_file):
+        cpp_file('return n < 1 ? 1 : (n * factorial(n - 1));')
+
+    func = CppFunction(name="factorial", ret_type="int",
+                       implementation_handle=handle_to_factorial,
+                       is_constexpr=True)
+    func.add_argument('int n')
+    func.render_to_string(cpp)
+    func.render_to_string_declaration(h)
+    cpp.close()
+    h.close()
+
+
 def generate_reference_code():
     """
     Generate model data for C++ generator
     Do not call unless generator logic is changed
     """
-    generate_enum(output_dir='test_assets')
-    generate_var(output_dir='test_assets')
-    generate_array(output_dir='test_assets')
-    generate_func(output_dir='test_assets')
-    generate_class(output_dir='test_assets')
+    asset_dir = os.path.join(PROJECT_DIR, 'new_assets')
+    generate_enum(output_dir=asset_dir)
+    generate_var(output_dir=asset_dir)
+    generate_array(output_dir=asset_dir)
+    generate_func(output_dir=asset_dir)
+    generate_class(output_dir=asset_dir)
+    generate_factorial(output_dir=asset_dir)
 
 
 if __name__ == "__main__":
-    unittest.main()
+    generate_reference_code()
