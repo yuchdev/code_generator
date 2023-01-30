@@ -246,7 +246,7 @@ def main():
                         action='store_true',
                         required=False)
     parser.add_argument('--publish-pypi',
-                        help='Publish the package to PyPI',
+                        help='Publish the package to PyPI server',
                         action='store_true',
                         required=False)
     args = parser.parse_args()

@@ -1,10 +1,14 @@
 import unittest
 import filecmp
-import os
 import io
+from textwrap import dedent
 
-from code_generation.code_generator import *
-from code_generation.cpp_generator import *
+from code_generation.code_generator import CppFile
+from code_generation.cpp_variable import CppVariable
+from code_generation.cpp_enum import CppEnum
+from code_generation.cpp_array import CppArray
+from code_generation.cpp_function import CppFunction
+from code_generation.cpp_class import CppClass
 
 __doc__ = """
 Unit tests for C++ code generator
@@ -123,232 +127,176 @@ class TestCppVariableGenerator(unittest.TestCase):
         self.assertIn('extern char* var1;', writer.getvalue())
 
 
-def generate_enum(output_dir='.'):
+class TestCppGenerator(unittest.TestCase):
     """
-    Generate model data (C++ enum)
-    Do not call unless generator logic is changed
+    Test C++ code generation
     """
-    cpp = CppFile(os.path.join(output_dir, 'enum.cpp'))
-    enum_elements = CppEnum(name='Items')
-    for item in ['Chair', 'Table', 'Shelve']:
-        enum_elements.add_item(item)
-    enum_elements.render_to_string(cpp)
 
-    enum_elements_custom = CppEnum(name='Items', prefix='it')
-    for item in ['Chair', 'Table', 'Shelve']:
-        enum_elements_custom.add_item(item)
-    enum_elements_custom.render_to_string(cpp)
+    def test_cpp_variables(self):
+        """
+        Test C++ variables generation
+        """
+        cpp = CppFile('var.cpp')
+        variables = [CppVariable(name="var1",
+                                 type="char*",
+                                 is_class_member=False,
+                                 is_static=False,
+                                 is_const=True,
+                                 initialization_value='0'),
+                     CppVariable(name="var2",
+                                 type="int",
+                                 is_class_member=False,
+                                 is_static=True,
+                                 is_const=False,
+                                 initialization_value='0'),
+                     CppVariable(name="var3",
+                                 type="std::string",
+                                 is_class_member=False,
+                                 is_static=False,
+                                 is_const=False),
+                     CppVariable(name="var3",
+                                 type="std::string",
+                                 is_class_member=False,
+                                 is_static=False,
+                                 is_const=False)]
 
-    enum_elements_custom = CppEnum(name='Items', prefix='')
-    for item in ['Chair', 'Table', 'Shelve']:
-        enum_elements_custom.add_item(item)
-    enum_elements_custom.render_to_string(cpp)
+        for var in variables:
+            var.render_to_string(cpp)
+        self.assertTrue(filecmp.cmpfiles('.', 'tests', 'var.cpp'))
+        cpp.close()
 
-    enum_elements_custom = CppEnum(name='Items', prefix='', add_counter=False)
-    for item in ['Chair', 'Table', 'Shelve']:
-        enum_elements_custom.add_item(item)
-    enum_elements_custom.render_to_string(cpp)
+    def test_cpp_arrays(self):
+        """
+        Test C++ variables generation
+        """
+        cpp = CppFile('array.cpp')
+        arrays = []
+        a1 = CppArray(name='array1', type='int', is_const=True, arraySize=5)
+        a1.add_array_items(['1', '2', '3'])
+        a2 = CppArray(name='array2', type='const char*', is_const=True)
+        a2.add_array_item('"Item1"')
+        a2.add_array_item('"Item2"')
+        a3 = CppArray(name='array3', type='const char*', is_const=True, newline_align=True)
+        a3.add_array_item('"ItemNewline1"')
+        a3.add_array_item('"ItemNewline2"')
 
-    enum_elements_custom = CppEnum(name='Items', add_counter=False)
-    for item in ['Chair', 'Table', 'Shelve']:
-        enum_elements_custom.add_item(item)
-    enum_elements_custom.render_to_string(cpp)
+        arrays.append(a1)
+        arrays.append(a2)
+        arrays.append(a3)
 
-    cpp.close()
+        for arr in arrays:
+            arr.render_to_string(cpp)
+        self.assertTrue(filecmp.cmpfiles('.', 'tests', 'array.cpp'))
+        cpp.close()
 
+    def test_cpp_function(self):
+        """
+        Test C++ functions generation
+        """
+        cpp = CppFile('func.cpp')
+        hpp = CppFile('func.h')
 
-def generate_var(output_dir='.'):
-    """
-    Generate model data (C++ variables)
-    Do not call unless generator logic is changed
-    """
-    cpp = CppFile(os.path.join(output_dir, 'var.cpp'))
-    variables = [CppVariable(name="var1",
-                             type="char*",
-                             is_class_member=False,
-                             is_static=False,
-                             is_const=True,
-                             initialization_value='0'),
-                 CppVariable(name="var2",
-                             type="int",
-                             is_class_member=False,
-                             is_static=True,
-                             is_const=False,
-                             initialization_value='0'),
-                 CppVariable(name="var3",
-                             type="std::string",
-                             is_class_member=False,
-                             is_static=False,
-                             is_const=False),
-                 CppVariable(name="var4",
-                             type="int",
-                             documentation='// A number',
-                             is_class_member=False,
-                             is_static=False,
-                             is_const=False),
-                 ]
+        def function_body(_, cpp1):
+            cpp1('return 42;')
 
-    for var in variables:
-        var.render_to_string(cpp)
+        functions = [CppFunction(name='GetParam', ret_type='int'),
+                     CppFunction(name='Calculate', ret_type='void'),
+                     CppFunction(name='GetAnswer', ret_type='int', implementation_handle=function_body)]
+        for func in functions:
+            func.render_to_string(hpp)
+        for func in functions:
+            func.render_to_string_declaration(hpp)
+        for func in functions:
+            func.render_to_string_implementation(cpp)
+        self.assertTrue(filecmp.cmpfiles('.', 'tests', 'func.cpp'))
+        self.assertTrue(filecmp.cmpfiles('.', 'tests', 'func.h'))
+        cpp.close()
+        hpp.close()
 
-    cpp.close()
+    def test_cpp_enum(self):
+        """
+        Test C++ enums generation
+        """
+        cpp = CppFile('enum.cpp')
+        enum_elements = CppEnum(name='Items')
+        for item in ['Chair', 'Table', 'Shelve']:
+            enum_elements.add_item(item)
+        enum_elements.render_to_string(cpp)
 
+        enum_elements_custom = CppEnum(name='Items', prefix='it')
+        for item in ['Chair', 'Table', 'Shelve']:
+            enum_elements_custom.add_item(item)
+        enum_elements_custom.render_to_string(cpp)
 
-def generate_array(output_dir='.'):
-    cpp = CppFile(os.path.join(output_dir, 'array.cpp'))
-    arrays = []
-    a1 = CppArray(name='array1', type='int', is_const=True, arraySize=5)
-    a1.add_array_items(['1', '2', '3'])
-    a2 = CppArray(name='array2', type='const char*', is_const=True)
-    a2.add_array_item('"Item1"')
-    a2.add_array_item('"Item2"')
-    a3 = CppArray(name='array3', type='const char*', is_const=True, newline_align=True)
-    a3.add_array_item('"ItemNewline1"')
-    a3.add_array_item('"ItemNewline2"')
+        self.assertTrue(filecmp.cmpfiles('.', 'tests', 'enum.cpp'))
+        cpp.close()
 
-    arrays.append(a1)
-    arrays.append(a2)
-    arrays.append(a3)
+    def test_cpp_class(self):
+        """
+        Test C++ classes generation
+        """
+        my_class_cpp = CppFile('class.cpp')
+        my_class_h = CppFile('class.h')
+        my_class = CppClass(name='MyClass')
 
-    for arr in arrays:
-        arr.render_to_string(cpp)
+        enum_elements = CppEnum(name='Items', prefix='wd')
+        for item in ['One', 'Two', 'Three']:
+            enum_elements.add_item(item)
+        my_class.add_enum(enum_elements)
 
-    cpp.close()
+        nested_class = CppClass(name='Nested', is_struct=True)
+        nested_class.add_variable(CppVariable(name="m_gcAnswer",
+                                              type="size_t",
+                                              is_class_member=True,
+                                              is_static=True,
+                                              is_const=True,
+                                              initialization_value='42'))
+        my_class.add_internal_class(nested_class)
 
+        my_class.add_variable(CppVariable(name="m_var1",
+                                          type="int",
+                                          initialization_value='1'))
 
-def generate_func(output_dir='.'):
-    """
-    Generate model data (C++ functions)
-    Do not call unless generator logic is changed
-    """
-    cpp = CppFile(os.path.join(output_dir, 'func.cpp'))
-    hpp = CppFile(os.path.join(output_dir, 'func.h'))
+        my_class.add_variable(CppVariable(name="m_var2",
+                                          type="int*"))
 
-    def function_body(_, cpp1):
-        cpp1('return 42;')
+        a2 = CppArray(name='array2', type='char*', is_const=True, is_static=True, )
+        a2.add_array_item('"Item1"')
+        a2.add_array_item('"Item2"')
+        a3 = CppArray(name='array3', type='char*', is_static=True, is_const=True, newline_align=True)
+        a3.add_array_item('"ItemNewline1"')
+        a3.add_array_item('"ItemNewline2"')
 
-    functions = [CppFunction(name='GetParam', ret_type='int'),
-                 CppFunction(name='Calculate', ret_type='void'),
-                 CppFunction(name='GetAnswer', ret_type='int', implementation_handle=function_body),
-                 CppFunction(name='Help', ret_type='char *', documentation='/// Returns the help documentation.'),
-                 ]
-    for func in functions:
-        func.render_to_string(hpp)
-    for func in functions:
-        func.render_to_string_declaration(hpp)
-    for func in functions:
-        func.render_to_string_implementation(cpp)
-    cpp.close()
-    hpp.close()
+        my_class.add_array(a2)
+        my_class.add_array(a3)
 
+        def method_body(_, cpp):
+            cpp('return m_var1;')
 
-def generate_class(output_dir='.'):
-    """
-    Generate model data (C++ classes)
-    Do not call unless generator logic is changed
-    """
-    my_class_cpp = CppFile(os.path.join(output_dir, 'class.cpp'))
-    my_class_h = CppFile(os.path.join(output_dir, 'class.h'))
-    my_class = CppClass(name='MyClass', ref_to_parent=None)
-    example_class = CppClass(
-        name='Example',
-        documentation="""\
-            /// An example
-            /// class with
-            /// multiline documentation""",
-    )
+        my_class.add_method(CppFunction(name="GetParam",
+                                        ret_type="int",
+                                        is_method=True,
+                                        is_const=True,
+                                        implementation_handle=method_body))
 
-    enum_elements = CppEnum(name='Items', prefix='wd')
-    for item in ['One', 'Two', 'Three']:
-        enum_elements.add_item(item)
-    my_class.add_enum(enum_elements)
+        my_class.add_method(CppFunction(name="VirtualMethod",
+                                        ret_type="int",
+                                        is_method=True,
+                                        is_virtual=True))
 
-    nested_class = CppClass(name='Nested', is_struct=True)
-    nested_class.add_variable(CppVariable(name="m_gcAnswer",
-                                          type="size_t",
-                                          is_class_member=True,
-                                          is_static=True,
-                                          is_const=True,
-                                          initialization_value='42'))
-    my_class.add_internal_class(nested_class)
+        my_class.add_method(CppFunction(name="PureVirtualMethod",
+                                        ret_type="void",
+                                        is_method=True,
+                                        is_virtual=True,
+                                        is_pure_virtual=True))
 
-    my_class.add_variable(CppVariable(name="m_var1",
-                                      type="int",
-                                      initialization_value='1'))
+        my_class.declaration().render_to_string(my_class_h)
+        my_class.definition().render_to_string(my_class_cpp)
 
-    my_class.add_variable(CppVariable(name="m_var2",
-                                      type="int*"))
-
-    my_class.add_variable(CppVariable(name="m_var3",
-                                      type="int",
-                                      is_constexpr=True,
-                                      is_static = True,
-                                      is_class_member=True,
-                                      initialization_value = 42))    
-
-    example_class.add_variable(CppVariable(
-        name="m_var1",
-        documentation="/// A number.",
-        type="int"),
-    )
-
-    a2 = CppArray(name='array2', type='char*', is_const=True, is_static=True, )
-    a2.add_array_item('"Item1"')
-    a2.add_array_item('"Item2"')
-    a3 = CppArray(name='array3', type='char*', is_static=True, is_const=True, newline_align=True)
-    a3.add_array_item('"ItemNewline1"')
-    a3.add_array_item('"ItemNewline2"')
-
-    my_class.add_array(a2)
-    my_class.add_array(a3)
-
-    def method_body(_, cpp1):
-        cpp1('return m_var1;')
-
-    my_class.add_method(CppFunction(name="GetParam",
-                                    ret_type="int",
-                                    is_method=True,
-                                    is_const=True,
-                                    implementation_handle=method_body))
-
-    my_class.add_method(CppFunction(name="VirtualMethod",
-                                    ret_type="int",
-                                    is_method=True,
-                                    is_virtual=True))
-
-    my_class.add_method(CppFunction(name="PureVirtualMethod",
-                                    ret_type="void",
-                                    is_method=True,
-                                    is_virtual=True,
-                                    is_pure_virtual=True))
-
-    example_class.add_method(CppFunction(
-        name="DoNothing",
-        documentation="""\
-            /**
-             * Example multiline documentation.
-             */""",
-        ret_type="void"),
-    )
-
-    my_class.declaration().render_to_string(my_class_h)
-    example_class.declaration().render_to_string(my_class_h)
-    my_class.definition().render_to_string(my_class_cpp)
-    example_class.definition().render_to_string(my_class_cpp)
-    my_class_cpp.close()
-    my_class_h.close()
-
-
-def generate_reference_code():
-    """
-    Generate model data for C++ generator
-    Do not call unless generator logic is changed
-    """
-    generate_enum(output_dir='test_assets')
-    generate_var(output_dir='test_assets')
-    generate_array(output_dir='test_assets')
-    generate_func(output_dir='test_assets')
-    generate_class(output_dir='test_assets')
+        self.assertTrue(filecmp.cmpfiles('.', 'tests', 'class.cpp'))
+        self.assertTrue(filecmp.cmpfiles('.', 'tests', 'class.h'))
+        my_class_cpp.close()
+        my_class_h.close()
 
 
 if __name__ == "__main__":
