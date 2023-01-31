@@ -19,7 +19,7 @@ def handle_to_factorial(_, cpp):
     cpp('return n < 1 ? 1 : (n * factorial(n - 1));')
 
 
-class TestCppFunctionGenerator(unittest.TestCase):
+class TestCppFunctionStringIo(unittest.TestCase):
 
     @staticmethod
     def handle_to_factorial(_, cpp):
@@ -35,7 +35,7 @@ class TestCppFunctionGenerator(unittest.TestCase):
         writer = io.StringIO()
         cpp = CppFile(None, writer=writer)
         func = CppFunction(name="factorial", ret_type="int",
-                           implementation_handle=TestCppFunctionGenerator.handle_to_factorial, is_constexpr=True)
+                           implementation_handle=TestCppFunctionStringIo.handle_to_factorial, is_constexpr=True)
         func.add_argument('int n')
         func.render_to_string(cpp)
         self.assertIn(dedent("""\
@@ -48,7 +48,7 @@ class TestCppFunctionGenerator(unittest.TestCase):
         writer = io.StringIO()
         cpp = CppFile(None, writer=writer)
         func = CppFunction(name="factorial", ret_type="int",
-                           implementation_handle=TestCppFunctionGenerator.handle_to_factorial, is_constexpr=True)
+                           implementation_handle=TestCppFunctionStringIo.handle_to_factorial, is_constexpr=True)
         func.add_argument('int n')
         func.render_to_string_declaration(cpp)
         self.assertIn(dedent("""\
@@ -73,7 +73,7 @@ class TestCppFunctionGenerator(unittest.TestCase):
             }"""), writer.getvalue())
 
 
-class TestCppVariableGenerator(unittest.TestCase):
+class TestCppVariableStringIo(unittest.TestCase):
 
     def test_cpp_var_via_writer(self):
         writer = io.StringIO()
@@ -127,7 +127,7 @@ class TestCppVariableGenerator(unittest.TestCase):
         self.assertIn('extern char* var1;', writer.getvalue())
 
 
-class TestCppGenerator(unittest.TestCase):
+class TestCppFileIo(unittest.TestCase):
     """
     Test C++ code generation
     """
