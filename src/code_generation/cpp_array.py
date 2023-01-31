@@ -33,13 +33,13 @@ class CppArray(CppLanguageElement):
                                 'newline_align'} | CppLanguageElement.availablePropertiesNames
 
     def __init__(self, **properties):
+        # array elements
+        self.items = []
         input_property_names = set(properties.keys())
         self.check_input_properties_names(input_property_names)
         super(CppArray, self).__init__(properties)
         self.init_class_properties(current_class_properties=self.availablePropertiesNames,
                                    input_properties_dict=properties)
-        # array elements
-        self.items = []
 
     def static(self):
         """
