@@ -1,4 +1,5 @@
 from code_generation.cpp_generator import CppLanguageElement, CppDeclaration, CppImplementation
+from textwrap import dedent
 
 __doc__ = """The module encapsulates C++ code generation logics for main C++ language primitives:
 classes, methods and functions, variables, enums.
