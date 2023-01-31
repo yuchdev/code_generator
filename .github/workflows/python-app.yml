@@ -35,6 +35,6 @@ jobs:
       run: |
         python release_package.py --mode install
         python tests/test_cpp_file.py
-        python tests/test_cpp_function_string.py
-        python tests/test_cpp_variable_string.py
-        python tests/test_html_generator.py
+        python tests/test_cpp_function_writer.py
+        python tests/test_cpp_variable_writer.py
+        python tests/test_html_writer.py
