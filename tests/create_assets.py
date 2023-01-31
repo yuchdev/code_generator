@@ -7,7 +7,7 @@ from code_generation.cpp.cpp_array import CppArray
 from code_generation.cpp.cpp_function import CppFunction
 from code_generation.cpp.cpp_class import CppClass
 
-__doc__ = """
+__doc__ = """Do not call this script unless generator logic is changed
 """
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
