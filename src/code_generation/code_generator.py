@@ -1,4 +1,6 @@
 import sys
+from code_generation.code_style import ANSICodeStyle
+
 __doc__ = """
 Simple and straightforward code generator that could be used for generating code 
 on any programming language and to be a 'building block' for creating more complicated
@@ -40,56 +42,6 @@ Class `ANSICodeStyle` is responsible for code formatting.
 Re-implement it if you wish to apply any other formatting style.
 
 """
-
-
-class ANSICodeStyle:
-    """
-    Class represents C++ {} close and its formatting style.
-    It supports ANSI C style with braces on the new lines, like that:
-    // C++ code
-    {
-        // C++ code
-    };
-    finishing postfix is optional (e.g. necessary for classes, unnecessary for namespaces)
-    """
-
-    # EOL symbol
-    endline = "\n"
- 
-    # Tab (indentation) symbol
-    indent = "\t"
- 
-    def __init__(self, owner, text, postfix):
-        """
-        @param: owner - CodeFile where text is written to
-        @param: text - text opening C++ close
-        @param: postfix - optional terminating symbol (e.g. ; for classes)
-        """
-        self.owner = owner
-        if self.owner.last is not None:
-            with self.owner.last:
-                pass
-        self.owner.write("".join(text))
-        self.owner.last = self
-        self.postfix = postfix
-        
-    def __enter__(self):
-        """
-        Open code block
-        """
-        self.owner.write("{")
-        self.owner.current_indent += 1
-        self.owner.last = None
-
-    def __exit__(self, *_):
-        """
-        Close code block
-        """
-        if self.owner.last is not None:
-            with self.owner.last:
-                pass
-        self.owner.current_indent -= 1
-        self.owner.write("}" + self.postfix)
 
 
 class CodeFile:
