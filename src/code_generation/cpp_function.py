@@ -38,6 +38,7 @@ class CppFunction(CppLanguageElement):
         self.ret_type = None
         self.implementation_handle = None
         self.documentation = None
+        self.is_constexpr = False
 
         # check properties
         input_property_names = set(properties.keys())
@@ -46,7 +47,7 @@ class CppFunction(CppLanguageElement):
         self.init_class_properties(current_class_properties=self.availablePropertiesNames,
                                    input_properties_dict=properties)
 
-    def is_constexpr(self):
+    def constexpr(self):
         """
         Before function name, declaration only
         Constexpr functions can't be const, virtual or pure virtual
@@ -97,7 +98,7 @@ class CppFunction(CppLanguageElement):
         # check all properties for the consistency
         if self.documentation:
             cpp(dedent(self.documentation))
-        with cpp(f'{self.is_constexpr()}{self.ret_type}{self.name}({self.args()})'):
+        with cpp.block(f'{self.constexpr()}{self.ret_type}{self.name}({self.args()})'):
             self.implementation(cpp)
 
     def render_to_string_declaration(self, cpp):
@@ -113,7 +114,7 @@ class CppFunction(CppLanguageElement):
                 cpp(dedent(self.documentation))
             self.render_to_string(cpp)
         else:
-            cpp(f'{self.is_constexpr()}{self.ret_type}{self.name}({self.args()});')
+            cpp(f'{self.constexpr()}{self.ret_type}{self.name}({self.args()});')
 
     def render_to_string_implementation(self, cpp):
         """
@@ -129,5 +130,5 @@ class CppFunction(CppLanguageElement):
         # check all properties for the consistency
         if self.documentation and not self.is_constexpr:
             cpp(dedent(self.documentation))
-        with cpp(f'{self.is_constexpr()}{self.ret_type}{self.name}({self.args()})'):
+        with cpp.block(f'{self.constexpr()}{self.ret_type}{self.name}({self.args()})'):
             self.implementation(cpp)

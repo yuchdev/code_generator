@@ -93,9 +93,12 @@ class TestCppFileIo(unittest.TestCase):
         functions = [CppFunction(name='GetParam', ret_type='int'),
                      CppFunction(name='Calculate', ret_type='void'),
                      CppFunction(name='GetAnswer', ret_type='int', implementation_handle=function_body)]
+
         for func in functions:
+            print(f'DEBUG: hpp={hpp}')
             func.render_to_string(hpp)
         for func in functions:
+            print(f'DEBUG: cpp={cpp}')
             func.render_to_string_declaration(hpp)
         for func in functions:
             func.render_to_string_implementation(cpp)
