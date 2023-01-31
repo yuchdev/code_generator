@@ -170,35 +170,36 @@ class CppClass(CppLanguageElement):
             """
             return ' final' if self.is_final else ''
 
-        # noinspection PyUnresolvedReferences
         def _sanity_check(self):
             """
             Check whether attributes compose a correct C++ code
             """
             if self.is_inline and (self.is_virtual or self.is_pure_virtual):
-                raise RuntimeError('Inline method could not be virtual')
+                raise ValueError(f'Inline method {self.name} could not be virtual')
             if self.is_constexpr and (self.is_virtual or self.is_pure_virtual):
-                raise RuntimeError('Constexpr method could not be virtual')
+                raise ValueError(f'Constexpr method {self.name} could not be virtual')
             if self.is_const and self.is_static:
-                raise RuntimeError('Static method could not be const')
+                raise ValueError(f'Static method {self.name} could not be const')
             if self.is_const and self.is_virtual:
-                raise RuntimeError('Virtual method could not be const')
+                raise ValueError(f'Virtual method {self.name} could not be const')
             if self.is_const and self.is_pure_virtual:
-                raise RuntimeError('Pure virtual method could not be const')
+                raise ValueError(f'Pure virtual method {self.name} could not be const')
             if self.is_override and not self.is_virtual:
-                raise RuntimeError('Override method should be virtual')
+                raise ValueError(f'Override method {self.name} should be virtual')
             if self.is_inline and (self.is_virtual or self.is_pure_virtual):
-                raise RuntimeError('Inline method could not be virtual')
+                raise ValueError(f'Inline method {self.name} could not be virtual')
             if self.is_final and not self.is_virtual:
-                raise RuntimeError('Final method should be virtual')
+                raise ValueError(f'Final method {self.name} should be virtual')
             if self.is_static and self.is_virtual:
-                raise RuntimeError('Static method could not be virtual')
+                raise ValueError(f'Static method {self.name} could not be virtual')
             if self.is_pure_virtual and not self.is_virtual:
-                raise RuntimeError('Pure virtual method is also a virtual method')
+                raise ValueError(f'Pure virtual method {self.name} is also a virtual method')
             if not self.ref_to_parent:
-                raise RuntimeError('Method object could be a child of a CppClass only. Use CppClass.add_method()')
-            if self.is_constexpr and not self.implementation_handle:
-                raise RuntimeError("Method object must be initialized when 'constexpr'")
+                raise ValueError(f'Method {self.name} object must be a child of CppClass')
+            if self.is_constexpr and self.implementation_handle is None:
+                raise ValueError(f'Method {self.name} object must be initialized when "constexpr"')
+            if self.is_pure_virtual and self.implementation_handle is not None:
+                raise ValueError(f'Pure virtual method {self.name} could not be implemented')
 
         def add_argument(self, argument):
             """
@@ -291,6 +292,10 @@ class CppClass(CppLanguageElement):
             """
             # check all properties for the consistency
             self._sanity_check()
+
+            if self.implementation_handle is None:
+                raise RuntimeError(f'No implementation handle for the method {self.name}')
+
             if self.documentation and not self.is_constexpr:
                 cpp(dedent(self.documentation))
             with cpp.block(f'{self._render_virtual()}{self._render_constexpr()}{self._render_inline()}'
@@ -456,8 +461,9 @@ class CppClass(CppLanguageElement):
         """
         # generate methods implementation section
         for funcItem in self.internal_method_elements:
-            funcItem.render_to_string_implementation(cpp)
-            cpp.newline()
+            if not funcItem.is_pure_virtual:
+                funcItem.render_to_string_implementation(cpp)
+                cpp.newline()
         # do the same for nested classes
         for classItem in self.internal_class_elements:
             classItem.render_static_members_implementation(cpp)

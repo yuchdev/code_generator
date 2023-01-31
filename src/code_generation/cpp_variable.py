@@ -91,12 +91,17 @@ class CppVariable(CppLanguageElement):
         super(CppVariable, self).__init__(properties)
         self.init_class_properties(current_class_properties=self.availablePropertiesNames,
                                    input_properties_dict=properties)
+
+    def _sanity_check(self):
+        """
+        @raise: ValueError, if some properties are not valid
+        """
         if self.is_const and self.is_constexpr:
-            raise RuntimeError("Variable object can be either 'const' or 'constexpr', not both")
+            raise ValueError("Variable object can be either 'const' or 'constexpr', not both")
         if self.is_constexpr and not self.initialization_value:
-            raise RuntimeError("Variable object must be initialized when 'constexpr'")
+            raise ValueError("Variable object must be initialized when 'constexpr'")
         if self.is_static and self.is_extern:
-            raise RuntimeError("Variable object can be either 'extern' or 'static', not both")
+            raise ValueError("Variable object can be either 'extern' or 'static', not both")
 
     def _render_static(self):
         """
@@ -134,7 +139,7 @@ class CppVariable(CppLanguageElement):
         a = 10;
         b = 20;
         """
-        return f'{self.name} = {value};'
+        return f'{self.name} = {value}'
 
     def declaration(self):
         """
@@ -157,12 +162,15 @@ class CppVariable(CppLanguageElement):
         int a = 10;
         const double b = M_PI;
         """
+        self._sanity_check()
         if self.is_class_member and not (self.is_static and self.is_const):
             raise RuntimeError('For class member variables use definition() and declaration() methods')
+        elif self.is_extern:
+            cpp(f'{self._render_extern()}{self.type} {self.name};')
         else:
             if self.documentation:
                 cpp(dedent(self.documentation))
-            cpp(f'{self._render_static()}{self._render_extern()}{self._render_const()}{self._render_constexpr()}'
+            cpp(f'{self._render_static()}{self._render_const()}{self._render_constexpr()}'
                 f'{self.type} {self.assignment(self._render_init_value())};')
 
     def render_to_string_declaration(self, cpp):
@@ -197,7 +205,7 @@ class CppVariable(CppLanguageElement):
         # generate definition for the static class member
         if not self.is_constexpr:
             if self.is_static:
-                cpp(f'{self._render_static()}{self._render_extern()}{self._render_const()}{self._render_constexpr()}'
+                cpp(f'{self._render_static()}{self._render_const()}{self._render_constexpr()}'
                     f'{self.type} {self.fully_qualified_name()} = {self._render_init_value()};')
             # generate definition for non-static static class member, e.g. m_var(0)
             # (string for the constructor initialization list)

@@ -96,9 +96,9 @@ class HtmlFile:
 
     def block(self, element, **attributes):
         """
-        Returns a stub for C++ {} close
+        Returns a stub for HTML element
         Supports 'with' semantic, i.e.
-        cpp.block(class_name, ';'):
+        html.block(element='p', id='id1', name='name1'):
         """
         return self.Formatter(self, element=element, **attributes)
 
@@ -129,4 +129,3 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
-

@@ -84,17 +84,21 @@ class TestCppFileIo(unittest.TestCase):
         my_class.add_array(a2)
         my_class.add_array(a3)
 
-        def method_body(_, cpp):
+        def const_method_body(_, cpp):
             cpp('return m_var1;')
+
+        def virtual_method_body(_, cpp):
+            cpp('return 0;')
 
         my_class.add_method(CppClass.CppMethod(name="GetParam",
                                                ret_type="int",
                                                is_const=True,
-                                               implementation_handle=method_body))
+                                               implementation_handle=const_method_body))
 
         my_class.add_method(CppClass.CppMethod(name="VirtualMethod",
                                                ret_type="int",
-                                               is_virtual=True))
+                                               is_virtual=True,
+                                               implementation_handle=virtual_method_body))
 
         my_class.add_method(CppClass.CppMethod(name="PureVirtualMethod",
                                                ret_type="void",
@@ -151,8 +155,8 @@ class TestCppFileIo(unittest.TestCase):
             func.render_to_string(hpp)
         for func in functions:
             func.render_to_string_declaration(hpp)
-        for func in functions:
-            func.render_to_string_implementation(cpp)
+        functions[2].render_to_string_implementation(cpp)
+
         self.assertTrue(filecmp.cmpfiles('.', 'tests', 'func.cpp'))
         self.assertTrue(filecmp.cmpfiles('.', 'tests', 'func.h'))
         cpp.close()
