@@ -41,13 +41,13 @@ class CppArray(CppLanguageElement):
         # array elements
         self.items = []
 
-    def is_static(self):
+    def static(self):
         """
         @return: 'static' prefix if required
         """
         return 'static ' if self.is_static else ''
 
-    def is_const(self):
+    def const(self):
         """
         @return: 'const' prefix if required
         """
@@ -120,11 +120,11 @@ class CppArray(CppLanguageElement):
 
         # newline-formatting of array elements makes sense only if array is not empty
         if self.newline_align and self.items:
-            with cpp.block(f'{self.is_static()}{self.is_const()}{self.type} {self.name}[{self.size()}] = ', ';'):
+            with cpp.block(f'{self.static()}{self.const()}{self.type} {self.name}[{self.size()}] = ', ';'):
                 # iterate over array items
                 self._render_value(cpp)
         else:
-            cpp(f'{self.is_static()}{self.is_const()}{self.type} {self.name}[{self.size()}] = {{{self.content()}}};')
+            cpp(f'{self.static()}{self.const()}{self.type} {self.name}[{self.size()}] = {{{self.content()}}};')
 
     def render_to_string_declaration(self, cpp):
         """
@@ -136,7 +136,7 @@ class CppArray(CppLanguageElement):
         """
         if not self.is_class_member:
             raise RuntimeError('For automatic variable use its render_to_string() method')
-        cpp(f'{self.is_static()}{self.is_const()}{self.type} {self.name}[{self.size()}];')
+        cpp(f'{self.static()}{self.const()}{self.type} {self.name}[{self.size()}];')
 
     def render_to_string_implementation(self, cpp):
         """
@@ -155,14 +155,14 @@ class CppArray(CppLanguageElement):
             raise RuntimeError('For automatic variable use its render_to_string() method')
 
         # generate definition for the static class member arrays only
-        # other types does not supported
+        # other types are not supported
         if not self.is_static:
             raise RuntimeError('Only static arrays as class members are supported')
 
         # newline-formatting of array elements makes sense only if array is not empty
         if self.newline_align and self.items:
-            with cpp.block(f'{self.is_static()}{self.is_const()}{self.type} {self.name}[{self.size()}] = ', ';'):
+            with cpp.block(f'{self.static()}{self.const()}{self.type} {self.name}[{self.size()}] = ', ';'):
                 # iterate over array items
                 self._render_value(cpp)
         else:
-            cpp(f'{self.is_static()}{self.is_const()}{self.type} {self.name}[{self.size()}] = {{{self.content()}}};')
+            cpp(f'{self.static()}{self.const()}{self.type} {self.name}[{self.size()}] = {{{self.content()}}};')
