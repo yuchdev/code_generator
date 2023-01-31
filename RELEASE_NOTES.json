@@ -3,6 +3,13 @@
     "download_link": "https://{package_name_dash}-package.s3.amazonaws.com/server/{package_name}-{version}-py3-none-any.whl"
   },
   "releases": {
+    "2.3.0": {
+      "release_notes": [
+        "Migration to Python 3.8",
+        "Split `Cpp*` generators implementation into multiple files",
+        "Implemented HTML code generator"
+      ]
+    },
     "2.1.1": {
       "release_notes": [
         "Application is now available as a package",
