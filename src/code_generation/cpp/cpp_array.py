@@ -1,4 +1,4 @@
-from code_generation.cpp_generator import CppLanguageElement, CppDeclaration, CppImplementation
+from code_generation.cpp.cpp_generator import CppLanguageElement, CppDeclaration, CppImplementation
 
 
 # noinspection PyUnresolvedReferences

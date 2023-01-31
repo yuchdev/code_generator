@@ -1,5 +1,5 @@
 import sys
-from code_generation.code_style import ANSICodeStyle
+from code_generation.core.code_style import ANSICodeStyle
 
 __doc__ = """
 Simple and straightforward code generator that could be used for generating code 
@@ -161,21 +161,3 @@ class CppFile(CodeFile):
         a:
         """
         self.write('{0}:'.format(text), -1)
-
-
-def cpp_example():
-    cpp = CppFile('example.cpp')
-    with cpp.block('class A', ';'):
-        cpp.label('public')
-        cpp('int m_classMember1;')
-        cpp('double m_classMember2;')
-
-
-def main():
-    cpp_example()
-    return 0
-
-
-if __name__ == '__main__':
-    sys.exit(main())
-

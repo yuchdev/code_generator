@@ -1,4 +1,4 @@
-from code_generation.cpp_generator import CppLanguageElement
+from code_generation.cpp.cpp_generator import CppLanguageElement
 
 __doc__ = """The module encapsulates C++ code generation logics for main C++ language primitives:
 classes, methods and functions, variables, enums.

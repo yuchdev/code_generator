@@ -1,5 +1,5 @@
 import sys
-from code_generation.code_style import HTMLStyle
+from code_generation.core.code_style import HTMLStyle
 
 
 class HtmlFile:
@@ -64,18 +64,3 @@ class HtmlFile:
         """
         for _ in range(n):
             self.write('')
-
-
-def html_example():
-    html = HtmlFile('ex.html')
-    with html.block(element='p', id='id1', name='name1'):
-        html('Text')
-
-
-def main():
-    html_example()
-    return 0
-
-
-if __name__ == '__main__':
-    sys.exit(main())

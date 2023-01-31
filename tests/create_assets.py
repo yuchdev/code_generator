@@ -1,11 +1,11 @@
 import os
 
-from code_generation.code_generator import CppFile
-from code_generation.cpp_variable import CppVariable
-from code_generation.cpp_enum import CppEnum
-from code_generation.cpp_array import CppArray
-from code_generation.cpp_function import CppFunction
-from code_generation.cpp_class import CppClass
+from code_generation.core.code_generator import CppFile
+from code_generation.cpp.cpp_variable import CppVariable
+from code_generation.cpp.cpp_enum import CppEnum
+from code_generation.cpp.cpp_array import CppArray
+from code_generation.cpp.cpp_function import CppFunction
+from code_generation.cpp.cpp_class import CppClass
 
 __doc__ = """
 """
