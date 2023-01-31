@@ -1,13 +1,16 @@
+import sys
+from code_generation.code_style import ANSICodeStyle
+
 __doc__ = """
 Simple and straightforward code generator that could be used for generating code 
 on any programming language and to be a 'building block' for creating more complicated
 code generator.
 Thanks to Eric Reynolds, the code mainly based on his article published on
-http://www.codeproject.com/Articles/571645/Really-simple-Cplusplus-code-generation-in-Python
-However, it was both simplified and extended
+https://www.codeproject.com/Articles/571645/Really-simple-Cplusplus-code-generation-in-Python
+However, it was both significantly extended since then and also simplified.
  
 Used under the Code Project Open License
-http://www.codeproject.com/info/cpol10.aspx
+https://www.codeproject.com/info/cpol10.aspx
  
 Examples of usage:
  
@@ -23,7 +26,7 @@ int i = 0;
 # Python code
 cpp = CppFile('example.cpp')
 with cpp.block('class A', ';'):
-    cpp.label('public:')
+    cpp.label('public')
     cpp('int m_classMember1;')
     cpp('double m_classMember2;')
  
@@ -40,56 +43,6 @@ Re-implement it if you wish to apply any other formatting style.
 
 """
 
-
-class ANSICodeStyle:
-    """
-    Class represents C++ {} close and its formatting style.
-    It supports ANSI C style with braces on the new lines, like that:
-    // C++ code
-    {
-        // C++ code
-    };
-    finishing postfix is optional (e.g. necessary for classes, unnecessary for namespaces)
-    """
-
-    # EOL symbol
-    endline = "\n"
- 
-    # Tab (indentation) symbol
-    indent = "\t"
- 
-    def __init__(self, owner, text, postfix):
-        """
-        @param: owner - CodeFile where text is written to
-        @param: text - text opening C++ close
-        @param: postfix - optional terminating symbol (e.g. ; for classes)
-        """
-        self.owner = owner
-        if self.owner.last is not None:
-            with self.owner.last:
-                pass
-        self.owner.write("".join(text))
-        self.owner.last = self
-        self.postfix = postfix
-        
-    def __enter__(self):
-        """
-        Open code block
-        """
-        self.owner.write("{")
-        self.owner.current_indent += 1
-        self.owner.last = None
-
-    def __exit__(self, *_):
-        """
-        Close code block
-        """
-        if self.owner.last is not None:
-            with self.owner.last:
-                pass
-        self.owner.current_indent -= 1
-        self.owner.write("}" + self.postfix)
- 
 
 class CodeFile:
     """
@@ -147,27 +100,27 @@ class CodeFile:
         self.out.close()
         self.out = None
  
-    def write(self, text, indent=0):
+    def write(self, text, indent=0, endline=True):
         """
         Write a new line with line ending
         """
-        self.out.write('{0}{1}{2}'.format(CodeFile.Formatter.indent * (self.current_indent+indent),
+        self.out.write('{0}{1}{2}'.format(self.Formatter.indent * (self.current_indent+indent),
                                           text,
-                                          CodeFile.Formatter.endline))
+                                          self.Formatter.endline if endline else ''))
  
     def append(self, x):
         """
         Append to the existing line without line ending
         """
-        self.out.write(x)        
+        self.out.write(x)
  
-    def __call__(self, text):
+    def __call__(self, text, indent=0, endline=True):
         """
         Supports 'object()' semantic, i.e.
         cpp('#include <iostream>')
         inserts appropriate line
         """
-        self.write(text)
+        self.write(text, indent, endline)
         
     def block(self, text, postfix=''):
         """
@@ -176,7 +129,13 @@ class CodeFile:
         cpp.block(class_name, ';'):
         """
         return CodeFile.Formatter(self, text, postfix)
- 
+
+    def endline(self, count=1):
+        """
+        Insert an endline
+        """
+        self.write(CodeFile.Formatter.endline * count, endline=False)
+
     def newline(self, n=1):
         """
         Insert one or several empty lines
@@ -202,3 +161,21 @@ class CppFile(CodeFile):
         a:
         """
         self.write('{0}:'.format(text), -1)
+
+
+def cpp_example():
+    cpp = CppFile('example.cpp')
+    with cpp.block('class A', ';'):
+        cpp.label('public')
+        cpp('int m_classMember1;')
+        cpp('double m_classMember2;')
+
+
+def main():
+    cpp_example()
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())
+

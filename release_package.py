@@ -230,6 +230,23 @@ def tmp_release_notes():
     return os.path.abspath(release_md)
 
 
+def increment_minor_version(file_path: str):
+    """
+    Increment minor package version number, e.g. 2.2.9 -> 2.2.10
+    :return: New version number
+    """
+    config = ConfigParser()
+    config.read(file_path)
+    version = config['metadata']['version']
+    major, minor, patch = [int(v) for v in version.split('.')]
+    patch += 1
+    new_version = f"{major}.{minor}.{patch}"
+    config['metadata']['version'] = new_version
+    with open(file_path, 'w') as f:
+        config.write(f)
+    return new_version
+
+
 def main():
     parser = argparse.ArgumentParser(description='Command-line params')
     parser.add_argument('--mode',
@@ -246,15 +263,27 @@ def main():
                         action='store_true',
                         required=False)
     parser.add_argument('--publish-pypi',
-                        help='Publish the package to PyPI',
+                        help='Publish the package to PyPI server',
                         action='store_true',
+                        default=False,
+                        required=False)
+    parser.add_argument('--increment-version',
+                        help='Increment minor version number, e.g. 2.2.9 -> 2.2.10',
+                        action='store_true',
+                        default=False,
                         required=False)
     args = parser.parse_args()
 
+    global VERSION
     print(f'Package name: {PACKAGE_NAME}')
     print(f'Package name2: {PACKAGE_NAME_DASH}')
     print(f'Version: {VERSION}')
     sanity_check(args)
+
+    if args.increment_version:
+        new_version = increment_minor_version('setup.cfg')
+        VERSION = new_version
+        print(f'Increment version to {new_version}')
 
     if args.mode == "build":
         build_wheel()
