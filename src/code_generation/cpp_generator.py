@@ -176,7 +176,7 @@ class CppLanguageElement(object):
         """
         full_parent_qualifier = ''
         parent = self.ref_to_parent
-        # walk though all existing parents
+        # walk through all existing parents
         while parent:
             full_parent_qualifier = f'{parent.name}::{full_parent_qualifier}'
             parent = parent.ref_to_parent
