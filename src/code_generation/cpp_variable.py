@@ -122,7 +122,7 @@ class CppVariable(CppLanguageElement):
         """
         return 'constexpr ' if self.is_constexpr else ''
 
-    def initialization_value(self):
+    def init_with(self):
         """
         @return: string, value to be initialized with
         """
@@ -163,7 +163,7 @@ class CppVariable(CppLanguageElement):
             if self.documentation:
                 cpp(dedent(self.documentation))
             cpp(f'{self.is_static}{self.is_extern}{self.is_const}{self.is_constexpr}'
-                f'{self.type} {self.assignment(self.initialization_value())};')
+                f'{self.type} {self.assignment(self.init_with())};')
 
     def render_to_string_declaration(self, cpp):
         """
@@ -176,7 +176,7 @@ class CppVariable(CppLanguageElement):
         if self.documentation and self.is_class_member:
             cpp(dedent(self.documentation))
         cpp(f'{self.is_static}{self.is_extern}{self.is_const}{self.is_constexpr}'
-            f'{self.type} {self.name if not self.is_constexpr else self.assignment(self.initialization_value())};')
+            f'{self.type} {self.name if not self.is_constexpr else self.assignment(self.init_with())};')
 
     def render_to_string_implementation(self, cpp):
         """
@@ -198,8 +198,8 @@ class CppVariable(CppLanguageElement):
         if not self.is_constexpr:
             if self.is_static:
                 cpp(f'{self.is_static}{self.is_extern}{self.is_const}{self.is_constexpr}'
-                    f'{self.type} {self.fully_qualified_name()} = {self.initialization_value()};')
+                    f'{self.type} {self.fully_qualified_name()} = {self.init_with()};')
             # generate definition for non-static static class member, e.g. m_var(0)
             # (string for the constructor initialization list)
             else:
-                cpp(f'{self.name}({self.initialization_value()})')
+                cpp(f'{self.name}({self.init_with()})')

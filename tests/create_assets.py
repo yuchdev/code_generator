@@ -87,7 +87,7 @@ def generate_var(output_dir='.'):
 def generate_array(output_dir='.'):
     cpp = CppFile(os.path.join(output_dir, 'array.cpp'))
     arrays = []
-    a1 = CppArray(name='array1', type='int', is_const=True, arraySize=5)
+    a1 = CppArray(name='array1', type='int', is_const=True, array_size=5)
     a1.add_array_items(['1', '2', '3'])
     a2 = CppArray(name='array2', type='const char*', is_const=True)
     a2.add_array_item('"Item1"')

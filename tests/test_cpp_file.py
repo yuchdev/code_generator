@@ -1,7 +1,6 @@
+import os
 import unittest
 import filecmp
-import io
-from textwrap import dedent
 
 from code_generation.code_generator import CppFile
 from code_generation.cpp_variable import CppVariable
@@ -15,121 +14,9 @@ Unit tests for C++ code generator
 """
 
 
-def handle_to_factorial(_, cpp):
-    cpp('return n < 1 ? 1 : (n * factorial(n - 1));')
-
-
-class TestCppFunctionStringIo(unittest.TestCase):
-
-    @staticmethod
-    def handle_to_factorial(_, cpp):
-        cpp('return n < 1 ? 1 : (n * factorial(n - 1));')
-
-    def test_is_constexpr_raises_error_when_implementation_value_is_none(self):
-        writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
-        func = CppFunction(name="factorial", ret_type="int", is_constexpr=True)
-        self.assertRaises(RuntimeError, func.render_to_string, cpp)
-
-    def test_is_constexpr_render_to_string(self):
-        writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
-        func = CppFunction(name="factorial", ret_type="int",
-                           implementation_handle=TestCppFunctionStringIo.handle_to_factorial, is_constexpr=True)
-        func.add_argument('int n')
-        func.render_to_string(cpp)
-        self.assertIn(dedent("""\
-            constexpr int factorial(int n)
-            {
-            \treturn n < 1 ? 1 : (n * factorial(n - 1));
-            }"""), writer.getvalue())
-
-    def test_is_constexpr_render_to_string_declaration(self):
-        writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
-        func = CppFunction(name="factorial", ret_type="int",
-                           implementation_handle=TestCppFunctionStringIo.handle_to_factorial, is_constexpr=True)
-        func.add_argument('int n')
-        func.render_to_string_declaration(cpp)
-        self.assertIn(dedent("""\
-            constexpr int factorial(int n)
-            {
-            \treturn n < 1 ? 1 : (n * factorial(n - 1));
-            }"""), writer.getvalue())
-
-    def test_README_example(self):
-        writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
-        factorial_function = CppFunction(name='factorial', ret_type='int', is_constexpr=True,
-                                         implementation_handle=handle_to_factorial,
-                                         documentation='/// Calculates and returns the factorial of p @n.')
-        factorial_function.add_argument('int n')
-        factorial_function.render_to_string(cpp)
-        self.assertIn(dedent("""\
-            /// Calculates and returns the factorial of p @n.
-            constexpr int factorial(int n)
-            {
-            \treturn n < 1 ? 1 : (n * factorial(n - 1));
-            }"""), writer.getvalue())
-
-
-class TestCppVariableStringIo(unittest.TestCase):
-
-    def test_cpp_var_via_writer(self):
-        writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
-        variables = CppVariable(name="var1",
-                                type="char*",
-                                is_class_member=False,
-                                is_static=False,
-                                is_const=True,
-                                initialization_value='0')
-        variables.render_to_string(cpp)
-        self.assertEqual('const char* var1 = 0;\n', writer.getvalue())
-
-    def test_is_constexpr_raises_error_when_is_const_true(self):
-        self.assertRaises(RuntimeError, CppVariable, name="COUNT", type="int", is_class_member=True, is_const=True,
-                          is_constexpr=True, initialization_value='0')
-
-    def test_is_constexpr_raises_error_when_initialization_value_is_none(self):
-        self.assertRaises(RuntimeError, CppVariable, name="COUNT", type="int", is_class_member=True, is_constexpr=True)
-
-    def test_is_constexpr_render_to_string(self):
-        writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
-        variables = CppVariable(name="COUNT",
-                                type="int",
-                                is_class_member=False,
-                                is_constexpr=True,
-                                initialization_value='0')
-        variables.render_to_string(cpp)
-        self.assertIn('constexpr int COUNT = 0;', writer.getvalue())
-
-    def test_is_constexpr_render_to_string_declaration(self):
-        writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
-        variables = CppVariable(name="COUNT",
-                                type="int",
-                                is_class_member=True,
-                                is_constexpr=True,
-                                initialization_value='0')
-        variables.render_to_string_declaration(cpp)
-        self.assertIn('constexpr int COUNT = 0;', writer.getvalue())
-
-    def test_is_extern_raises_error_when_is_static_is_true(self):
-        self.assertRaises(RuntimeError, CppVariable, name="var1", type="char*", is_static=True, is_extern=True)
-
-    def test_is_extern_render_to_string(self):
-        writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
-        v = CppVariable(name="var1", type="char*", is_extern=True)
-        v.render_to_string(cpp)
-        self.assertIn('extern char* var1;', writer.getvalue())
-
-
 class TestCppFileIo(unittest.TestCase):
     """
-    Test C++ code generation
+    Test C++ code generation by writing to file
     """
 
     def test_cpp_variables(self):
@@ -164,6 +51,8 @@ class TestCppFileIo(unittest.TestCase):
             var.render_to_string(cpp)
         self.assertTrue(filecmp.cmpfiles('.', 'tests', 'var.cpp'))
         cpp.close()
+        if os.path.exists('var.cpp'):
+            os.remove('var.cpp')
 
     def test_cpp_arrays(self):
         """
@@ -171,7 +60,7 @@ class TestCppFileIo(unittest.TestCase):
         """
         cpp = CppFile('array.cpp')
         arrays = []
-        a1 = CppArray(name='array1', type='int', is_const=True, arraySize=5)
+        a1 = CppArray(name='array1', type='int', is_const=True, array_size=5)
         a1.add_array_items(['1', '2', '3'])
         a2 = CppArray(name='array2', type='const char*', is_const=True)
         a2.add_array_item('"Item1"')
@@ -188,6 +77,8 @@ class TestCppFileIo(unittest.TestCase):
             arr.render_to_string(cpp)
         self.assertTrue(filecmp.cmpfiles('.', 'tests', 'array.cpp'))
         cpp.close()
+        if os.path.exists('array.cpp'):
+            os.remove('array.cpp')
 
     def test_cpp_function(self):
         """
@@ -212,6 +103,10 @@ class TestCppFileIo(unittest.TestCase):
         self.assertTrue(filecmp.cmpfiles('.', 'tests', 'func.h'))
         cpp.close()
         hpp.close()
+        if os.path.exists('func.cpp'):
+            os.remove('func.cpp')
+        if os.path.exists('func.h'):
+            os.remove('func.h')
 
     def test_cpp_enum(self):
         """
@@ -230,6 +125,8 @@ class TestCppFileIo(unittest.TestCase):
 
         self.assertTrue(filecmp.cmpfiles('.', 'tests', 'enum.cpp'))
         cpp.close()
+        if os.path.exists('enum.cpp'):
+            os.remove('enum.cpp')
 
     def test_cpp_class(self):
         """
@@ -297,6 +194,10 @@ class TestCppFileIo(unittest.TestCase):
         self.assertTrue(filecmp.cmpfiles('.', 'tests', 'class.h'))
         my_class_cpp.close()
         my_class_h.close()
+        if os.path.exists('class.cpp'):
+            os.remove('class.cpp')
+        if os.path.exists('class.h'):
+            os.remove('class.h')
 
 
 if __name__ == "__main__":
