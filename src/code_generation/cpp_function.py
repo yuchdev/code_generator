@@ -5,7 +5,7 @@ from textwrap import dedent
 class CppFunction(CppLanguageElement):
     """
     The Python class that generates string representation for C++ function (not method!)
-    Parameters are passed as plain strings('int a', 'void p = NULL' etc)
+    Parameters are passed as plain strings('int a', 'void p = NULL' etc.)
     Available properties:
     ret_type - string, return value for the method ('void', 'int'). Could not be set for constructors
     is_constexpr - boolean, const method prefix
@@ -47,7 +47,7 @@ class CppFunction(CppLanguageElement):
         self.init_class_properties(current_class_properties=self.availablePropertiesNames,
                                    input_properties_dict=properties)
 
-    def constexpr(self):
+    def _render_constexpr(self):
         """
         Before function name, declaration only
         Constexpr functions can't be const, virtual or pure virtual
@@ -98,7 +98,7 @@ class CppFunction(CppLanguageElement):
         # check all properties for the consistency
         if self.documentation:
             cpp(dedent(self.documentation))
-        with cpp.block(f'{self.constexpr()}{self.ret_type}{self.name}({self.args()})'):
+        with cpp.block(f'{self._render_constexpr()}{self.ret_type}{self.name}({self.args()})'):
             self.implementation(cpp)
 
     def render_to_string_declaration(self, cpp):
@@ -114,7 +114,7 @@ class CppFunction(CppLanguageElement):
                 cpp(dedent(self.documentation))
             self.render_to_string(cpp)
         else:
-            cpp(f'{self.constexpr()}{self.ret_type}{self.name}({self.args()});')
+            cpp(f'{self._render_constexpr()}{self.ret_type}{self.name}({self.args()});')
 
     def render_to_string_implementation(self, cpp):
         """
@@ -130,5 +130,5 @@ class CppFunction(CppLanguageElement):
         # check all properties for the consistency
         if self.documentation and not self.is_constexpr:
             cpp(dedent(self.documentation))
-        with cpp.block(f'{self.constexpr()}{self.ret_type}{self.name}({self.args()})'):
+        with cpp.block(f'{self._render_constexpr()}{self.ret_type}{self.name}({self.args()})'):
             self.implementation(cpp)

@@ -134,6 +134,28 @@ class CppLanguageElement(object):
             if propertyName not in CppLanguageElement.availablePropertiesNames:
                 setattr(self, propertyName, propertyValue)
 
+    def process_boolean_properties(self, properties):
+        """
+        For every boolean property starting from 'is_' prefix generate a property without 'is_' prefix
+        """
+        res = {**properties}
+        for prop in self.availablePropertiesNames:
+            if prop.startswith("is_"):
+                res[prop.replace("is_", "")] = properties.get(prop, False)
+        return res
+
+    def init_boolean_properties(self, current_class_properties, input_properties_dict):
+        """
+        Check if input properties contain either 'is_' prefixed properties or non-prefixed properties
+        If so, initialize prefixed properties with non-prefixed values
+        """
+        for prop in self.availablePropertiesNames:
+            if prop.startswith("is_"):
+                non_prefixed = prop.replace("is_", "")
+                if non_prefixed in input_properties_dict:
+                    setattr(self, prop, input_properties_dict[non_prefixed])
+        current_class_properties.update(input_properties_dict)
+
     def render_to_string(self, cpp):
         """
         @param: cpp - handle that supports code generation interface (see code_generator.py)

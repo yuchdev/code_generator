@@ -19,42 +19,7 @@ class TestCppFileIo(unittest.TestCase):
     Test C++ code generation by writing to file
     """
 
-    def test_cpp_variables(self):
-        """
-        Test C++ variables generation
-        """
-        cpp = CppFile('var.cpp')
-        variables = [CppVariable(name="var1",
-                                 type="char*",
-                                 is_class_member=False,
-                                 is_static=False,
-                                 is_const=True,
-                                 initialization_value='0'),
-                     CppVariable(name="var2",
-                                 type="int",
-                                 is_class_member=False,
-                                 is_static=True,
-                                 is_const=False,
-                                 initialization_value='0'),
-                     CppVariable(name="var3",
-                                 type="std::string",
-                                 is_class_member=False,
-                                 is_static=False,
-                                 is_const=False),
-                     CppVariable(name="var3",
-                                 type="std::string",
-                                 is_class_member=False,
-                                 is_static=False,
-                                 is_const=False)]
-
-        for var in variables:
-            var.render_to_string(cpp)
-        self.assertTrue(filecmp.cmpfiles('.', 'tests', 'var.cpp'))
-        cpp.close()
-        if os.path.exists('var.cpp'):
-            os.remove('var.cpp')
-
-    def test_cpp_arrays(self):
+    def test_cpp_array(self):
         """
         Test C++ variables generation
         """
@@ -79,55 +44,6 @@ class TestCppFileIo(unittest.TestCase):
         cpp.close()
         if os.path.exists('array.cpp'):
             os.remove('array.cpp')
-
-    def test_cpp_function(self):
-        """
-        Test C++ functions generation
-        """
-        cpp = CppFile('func.cpp')
-        hpp = CppFile('func.h')
-
-        def function_body(_, cpp1):
-            cpp1('return 42;')
-
-        functions = [CppFunction(name='GetParam', ret_type='int'),
-                     CppFunction(name='Calculate', ret_type='void'),
-                     CppFunction(name='GetAnswer', ret_type='int', implementation_handle=function_body)]
-
-        for func in functions:
-            func.render_to_string(hpp)
-        for func in functions:
-            func.render_to_string_declaration(hpp)
-        for func in functions:
-            func.render_to_string_implementation(cpp)
-        self.assertTrue(filecmp.cmpfiles('.', 'tests', 'func.cpp'))
-        self.assertTrue(filecmp.cmpfiles('.', 'tests', 'func.h'))
-        cpp.close()
-        hpp.close()
-        if os.path.exists('func.cpp'):
-            os.remove('func.cpp')
-        if os.path.exists('func.h'):
-            os.remove('func.h')
-
-    def test_cpp_enum(self):
-        """
-        Test C++ enums generation
-        """
-        cpp = CppFile('enum.cpp')
-        enum_elements = CppEnum(name='Items')
-        for item in ['Chair', 'Table', 'Shelve']:
-            enum_elements.add_item(item)
-        enum_elements.render_to_string(cpp)
-
-        enum_elements_custom = CppEnum(name='Items', prefix='it')
-        for item in ['Chair', 'Table', 'Shelve']:
-            enum_elements_custom.add_item(item)
-        enum_elements_custom.render_to_string(cpp)
-
-        self.assertTrue(filecmp.cmpfiles('.', 'tests', 'enum.cpp'))
-        cpp.close()
-        if os.path.exists('enum.cpp'):
-            os.remove('enum.cpp')
 
     def test_cpp_class(self):
         """
@@ -171,22 +87,19 @@ class TestCppFileIo(unittest.TestCase):
         def method_body(_, cpp):
             cpp('return m_var1;')
 
-        my_class.add_method(CppFunction(name="GetParam",
-                                        ret_type="int",
-                                        is_method=True,
-                                        is_const=True,
-                                        implementation_handle=method_body))
+        my_class.add_method(CppClass.CppMethod(name="GetParam",
+                                               ret_type="int",
+                                               is_const=True,
+                                               implementation_handle=method_body))
 
-        my_class.add_method(CppFunction(name="VirtualMethod",
-                                        ret_type="int",
-                                        is_method=True,
-                                        is_virtual=True))
+        my_class.add_method(CppClass.CppMethod(name="VirtualMethod",
+                                               ret_type="int",
+                                               is_virtual=True))
 
-        my_class.add_method(CppFunction(name="PureVirtualMethod",
-                                        ret_type="void",
-                                        is_method=True,
-                                        is_virtual=True,
-                                        is_pure_virtual=True))
+        my_class.add_method(CppClass.CppMethod(name="PureVirtualMethod",
+                                               ret_type="void",
+                                               is_virtual=True,
+                                               is_pure_virtual=True))
 
         my_class.declaration().render_to_string(my_class_h)
         my_class.definition().render_to_string(my_class_cpp)
@@ -199,6 +112,90 @@ class TestCppFileIo(unittest.TestCase):
             os.remove('class.cpp')
         if os.path.exists('class.h'):
             os.remove('class.h')
+
+    def test_cpp_enum(self):
+        """
+        Test C++ enums generation
+        """
+        cpp = CppFile('enum.cpp')
+        enum_elements = CppEnum(name='Items')
+        for item in ['Chair', 'Table', 'Shelve']:
+            enum_elements.add_item(item)
+        enum_elements.render_to_string(cpp)
+
+        enum_elements_custom = CppEnum(name='Items', prefix='it')
+        for item in ['Chair', 'Table', 'Shelve']:
+            enum_elements_custom.add_item(item)
+        enum_elements_custom.render_to_string(cpp)
+
+        self.assertTrue(filecmp.cmpfiles('.', 'tests', 'enum.cpp'))
+        cpp.close()
+        if os.path.exists('enum.cpp'):
+            os.remove('enum.cpp')
+
+    def test_cpp_function(self):
+        """
+        Test C++ functions generation
+        """
+        cpp = CppFile('func.cpp')
+        hpp = CppFile('func.h')
+
+        def function_body(_, cpp1):
+            cpp1('return 42;')
+
+        functions = [CppFunction(name='GetParam', ret_type='int'),
+                     CppFunction(name='Calculate', ret_type='void'),
+                     CppFunction(name='GetAnswer', ret_type='int', implementation_handle=function_body)]
+
+        for func in functions:
+            func.render_to_string(hpp)
+        for func in functions:
+            func.render_to_string_declaration(hpp)
+        for func in functions:
+            func.render_to_string_implementation(cpp)
+        self.assertTrue(filecmp.cmpfiles('.', 'tests', 'func.cpp'))
+        self.assertTrue(filecmp.cmpfiles('.', 'tests', 'func.h'))
+        cpp.close()
+        hpp.close()
+        if os.path.exists('func.cpp'):
+            os.remove('func.cpp')
+        if os.path.exists('func.h'):
+            os.remove('func.h')
+
+    def test_cpp_variable(self):
+        """
+        Test C++ variables generation
+        """
+        cpp = CppFile('var.cpp')
+        variables = [CppVariable(name="var1",
+                                 type="char*",
+                                 is_class_member=False,
+                                 is_static=False,
+                                 is_const=True,
+                                 initialization_value='0'),
+                     CppVariable(name="var2",
+                                 type="int",
+                                 is_class_member=False,
+                                 is_static=True,
+                                 is_const=False,
+                                 initialization_value='0'),
+                     CppVariable(name="var3",
+                                 type="std::string",
+                                 is_class_member=False,
+                                 is_static=False,
+                                 is_const=False),
+                     CppVariable(name="var3",
+                                 type="std::string",
+                                 is_class_member=False,
+                                 is_static=False,
+                                 is_const=False)]
+
+        for var in variables:
+            var.render_to_string(cpp)
+        self.assertTrue(filecmp.cmpfiles('.', 'tests', 'var.cpp'))
+        cpp.close()
+        if os.path.exists('var.cpp'):
+            os.remove('var.cpp')
 
 
 if __name__ == "__main__":

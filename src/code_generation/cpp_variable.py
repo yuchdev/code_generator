@@ -1,4 +1,4 @@
-from code_generation.cpp_generator import CppLanguageElement
+from code_generation.cpp_generator import CppLanguageElement, CppDeclaration, CppImplementation
 
 __doc__ = """The module encapsulates C++ code generation logics for main C++ language primitives:
 classes, methods and functions, variables, enums.
@@ -14,7 +14,7 @@ cpp_class.add_variable(CppVariable(name = "m_var",
     type = 'size_t',
     is_static = True,
     is_const = True,
-    value = 255))
+    initialization_value = 255))
  
 // Generated C++ declaration
 struct MyClass
@@ -71,8 +71,8 @@ class CppVariable(CppLanguageElement):
     is_extern - boolean, 'extern' prefix
     is_const - boolean, 'const' prefix
     is_constexpr - boolean, 'constexpr' prefix
-    value - string, value to be initialized with.
-        'a = value;' for automatic variables, 'a(value)' for the class member
+    initialization_value - string, initialization_value to be initialized with.
+        'a = initialization_value;' for automatic variables, 'a(initialization_value)' for the class member
     documentation - string, '/// Example doxygen'
     is_class_member - boolean, for appropriate definition/declaration rendering
     """
@@ -81,7 +81,7 @@ class CppVariable(CppLanguageElement):
                                 'is_extern',
                                 'is_const',
                                 'is_constexpr',
-                                'value',
+                                'initialization_value',
                                 'documentation',
                                 'is_class_member'} | CppLanguageElement.availablePropertiesNames
 
@@ -93,40 +93,40 @@ class CppVariable(CppLanguageElement):
                                    input_properties_dict=properties)
         if self.is_const and self.is_constexpr:
             raise RuntimeError("Variable object can be either 'const' or 'constexpr', not both")
-        if self.is_constexpr and not self.value:
+        if self.is_constexpr and not self.initialization_value:
             raise RuntimeError("Variable object must be initialized when 'constexpr'")
         if self.is_static and self.is_extern:
             raise RuntimeError("Variable object can be either 'extern' or 'static', not both")
 
-    def is_static(self):
+    def _render_static(self):
         """
         @return: 'static' prefix, can't be used with 'extern'
         """
         return 'static ' if self.is_static else ''
 
-    def is_extern(self):
+    def _render_extern(self):
         """
         @return: 'extern' prefix, can't be used with 'static'
         """
         return 'extern ' if self.is_extern else ''
 
-    def is_const(self):
+    def _render_const(self):
         """
         @return: 'const' prefix, can't be used with 'constexpr'
         """
         return 'const ' if self.is_const else ''
 
-    def is_constexpr(self):
+    def _render_constexpr(self):
         """
         @return: 'constexpr' prefix, can't be used with 'const'
         """
         return 'constexpr ' if self.is_constexpr else ''
 
-    def value(self):
+    def _render_init_value(self):
         """
-        @return: string, value to be initialized with
+        @return: string, initialization_value to be initialized with
         """
-        return self.value if self.value else ''
+        return self.initialization_value if self.initialization_value else ''
 
     def assignment(self, value):
         """
@@ -162,8 +162,8 @@ class CppVariable(CppLanguageElement):
         else:
             if self.documentation:
                 cpp(dedent(self.documentation))
-            cpp(f'{self.is_static}{self.is_extern}{self.is_const}{self.is_constexpr}'
-                f'{self.type} {self.assignment(self.init_with())};')
+            cpp(f'{self._render_static()}{self._render_extern()}{self._render_const()}{self._render_constexpr()}'
+                f'{self.type} {self.assignment(self._render_init_value())};')
 
     def render_to_string_declaration(self, cpp):
         """
@@ -175,8 +175,8 @@ class CppVariable(CppLanguageElement):
 
         if self.documentation and self.is_class_member:
             cpp(dedent(self.documentation))
-        cpp(f'{self.is_static}{self.is_extern}{self.is_const}{self.is_constexpr}'
-            f'{self.type} {self.name if not self.is_constexpr else self.assignment(self.value())};')
+        cpp(f'{self._render_static()}{self._render_extern()}{self._render_const()}{self._render_constexpr()}'
+            f'{self.type} {self.name if not self.is_constexpr else self.assignment(self._render_init_value())};')
 
     def render_to_string_implementation(self, cpp):
         """
@@ -197,9 +197,9 @@ class CppVariable(CppLanguageElement):
         # generate definition for the static class member
         if not self.is_constexpr:
             if self.is_static:
-                cpp(f'{self.is_static}{self.is_extern}{self.is_const}{self.is_constexpr}'
-                    f'{self.type} {self.fully_qualified_name()} = {self.value()};')
+                cpp(f'{self._render_static()}{self._render_extern()}{self._render_const()}{self._render_constexpr()}'
+                    f'{self.type} {self.fully_qualified_name()} = {self._render_init_value()};')
             # generate definition for non-static static class member, e.g. m_var(0)
             # (string for the constructor initialization list)
             else:
-                cpp(f'{self.name}({self.value()})')
+                cpp(f'{self.name}({self._render_init_value()})')
