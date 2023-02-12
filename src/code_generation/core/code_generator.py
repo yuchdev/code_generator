@@ -92,6 +92,9 @@ class CodeFile:
             self.out = writer
         else:
             self.out = open(filename, "w")
+
+    def __del__(self):
+        self.close()
  
     def close(self):
         """
