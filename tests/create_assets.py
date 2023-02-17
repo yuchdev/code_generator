@@ -1,4 +1,5 @@
 import os
+import argparse
 
 from code_generation.core.code_generator import CppFile
 from code_generation.cpp.cpp_variable import CppVariable
@@ -260,5 +261,25 @@ def generate_reference_code():
     generate_factorial(output_dir=asset_dir)
 
 
+def main():
+    """
+    Command-line arguments:
+    -h, --help: show help
+    -a, --assets: directory to store generated assets
+    Generate reference code for C++ generator
+    :return: system exit code
+    """
+    parser = argparse.ArgumentParser(description='Generate reference code for C++ generator')
+    parser.add_argument('-a', '--assets',
+                        help='Directory to store generated assets',
+                        required=True)
+    args = parser.parse_args()
+    if args.assets:
+        generate_reference_code()
+    return 0
+
+
+
 if __name__ == "__main__":
+    assets_dir =
     generate_reference_code()
