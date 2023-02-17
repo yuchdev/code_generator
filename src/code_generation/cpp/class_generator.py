@@ -1,5 +1,5 @@
-from code_generation.cpp.cpp_generator import CppLanguageElement, CppDeclaration, CppImplementation
-from code_generation.cpp.cpp_function import CppFunction
+from code_generation.cpp.language_element import CppLanguageElement, CppDeclaration, CppImplementation
+from code_generation.cpp.function_generator import CppFunction
 from textwrap import dedent
 
 

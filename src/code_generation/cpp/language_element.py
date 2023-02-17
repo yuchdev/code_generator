@@ -1,3 +1,5 @@
+from code_generation.core.code_generator import CodeFile
+
 __doc__ = """The module encapsulates C++ code generation logics for main C++ language primitives:
 classes, methods and functions, variables, enums.
 Every C++ element could render its current state to a string that could be evaluated as 
@@ -50,6 +52,26 @@ cpp.newline(2)
  
 For detailed information see code_generator.py documentation.
 """
+
+
+class CppFile(CodeFile):
+    """
+    This class extends CodeFile class with some specific C++ constructions
+    """
+
+    def __init__(self, filename, writer=None):
+        """
+        Create C++ source file
+        """
+        CodeFile.__init__(self, filename, writer)
+
+    def label(self, text):
+        """
+        Could be used for access specifiers or ANSI C labels, e.g.
+        private:
+        a:
+        """
+        self.write('{0}:'.format(text), -1)
 
 
 ###########################################################################

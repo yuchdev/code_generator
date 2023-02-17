@@ -1,10 +1,13 @@
-import sys
-from code_generation.core.code_style import ANSIStyle
+__doc__ = """The module encapsulates C++ code generation logics for main Java language primitives:
+classes, methods, variables, enums.
+"""
+
+from code_generation.core.code_style import ANSICodeStyle
 
 
 class JavaFile:
 
-    Formatter = ANSIStyle
+    Formatter = ANSICodeStyle
 
     def __init__(self, filename, writer=None):
         self.current_indent = 0
@@ -64,3 +67,19 @@ class JavaFile:
         """
         for _ in range(n):
             self.write('')
+
+
+class JavaLanguageElement(object):
+    """
+    The base class for all Java language elements.
+    Contains dynamic storage for element properties
+    """
+    availablePropertiesNames = {'name', 'ref_to_parent'}
+
+    def __init__(self, properties):
+        """
+        @param: properties - Basic Java element properties (name, ref_to_parent)
+        class is a parent for method or a member variable
+        """
+        self.name = properties.get('name')
+        self.ref_to_parent = properties.get('ref_to_parent')
