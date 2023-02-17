@@ -42,6 +42,7 @@ class TestCppFileIo(unittest.TestCase):
             arr.render_to_string(cpp)
         self.assertTrue(filecmp.cmpfiles('.', 'tests', 'array.cpp'))
         cpp.close()
+        self.assertTrue(os.path.exists('array.cpp'))
         if os.path.exists('array.cpp'):
             os.remove('array.cpp')
 
@@ -90,6 +91,9 @@ class TestCppFileIo(unittest.TestCase):
         def virtual_method_body(_, cpp):
             cpp('return 0;')
 
+        def static_method_body(_, cpp):
+            cpp('return 0;')
+
         my_class.add_method(CppClass.CppMethod(name="GetParam",
                                                ret_type="int",
                                                is_const=True,
@@ -105,6 +109,11 @@ class TestCppFileIo(unittest.TestCase):
                                                is_virtual=True,
                                                is_pure_virtual=True))
 
+        my_class.add_method(CppClass.CppMethod(name="StaticMethodMethod",
+                                               ret_type="int",
+                                               is_static=True,
+                                               implementation_handle=static_method_body))
+
         my_class.declaration().render_to_string(my_class_h)
         my_class.definition().render_to_string(my_class_cpp)
 
@@ -112,8 +121,10 @@ class TestCppFileIo(unittest.TestCase):
         self.assertTrue(filecmp.cmpfiles('.', 'tests', 'class.h'))
         my_class_cpp.close()
         my_class_h.close()
+        self.assertTrue(os.path.exists('class.cpp'))
         if os.path.exists('class.cpp'):
             os.remove('class.cpp')
+        self.assertTrue(os.path.exists('class.h'))
         if os.path.exists('class.h'):
             os.remove('class.h')
 

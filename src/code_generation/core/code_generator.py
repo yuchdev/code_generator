@@ -93,9 +93,6 @@ class CodeFile:
         else:
             self.out = open(filename, "w")
 
-    def __del__(self):
-        self.close()
- 
     def close(self):
         """
         File created, just close the handle
