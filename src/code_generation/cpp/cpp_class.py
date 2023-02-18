@@ -113,7 +113,7 @@ class CppClass(CppLanguageElement):
             Before function name, declaration only
             Static functions can't be const, virtual or pure virtual
             """
-            return 'static' if self.is_static else ''
+            return 'static ' if self.is_static else ''
 
         def _render_constexpr(self):
             """
@@ -250,7 +250,7 @@ class CppClass(CppLanguageElement):
             self._sanity_check()
             if self.documentation:
                 cpp(dedent(self.documentation))
-            with cpp.block(f'{self._render_virtual()}{self._render_constexpr()}{self._render_inline()}'
+            with cpp.block(f'{self._render_static()}{self._render_virtual()}{self._render_constexpr()}{self._render_inline()}'
                            f'{self._render_ret_type()} {self.fully_qualified_name()}({self.args()})'
                            f'{self._render_const()}'
                            f'{self._render_override()}'
@@ -272,7 +272,7 @@ class CppClass(CppLanguageElement):
                     cpp(dedent(self.documentation))
                 self.render_to_string(cpp)
             else:
-                cpp(f'{self._render_virtual()}{self._render_inline()}'
+                cpp(f'{self._render_static()}{self._render_virtual()}{self._render_inline()}'
                     f'{self._render_ret_type()} {self.name}({self.args()})'
                     f'{self._render_const()}'
                     f'{self._render_override()}'
@@ -341,7 +341,7 @@ class CppClass(CppLanguageElement):
         """
         @return: string representation of the inheritance
         """
-        return f' : public {self._parent_class()}'
+        return f' : public {self._parent_class()}' if self.parent_class else ''
 
     ########################################
     # ADD CLASS MEMBERS

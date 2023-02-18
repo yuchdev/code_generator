@@ -206,7 +206,7 @@ class CppVariable(CppLanguageElement):
         # generate definition for the static class member
         if not self.is_constexpr:
             if self.is_static:
-                cpp(f'{self._render_static()}{self._render_const()}{self._render_constexpr()}'
+                cpp(f'{self._render_const()}{self._render_constexpr()}'
                     f'{self.type} {self.fully_qualified_name()} = {self._render_init_value()};')
             # generate definition for non-static static class member, e.g. m_var(0)
             # (string for the constructor initialization list)

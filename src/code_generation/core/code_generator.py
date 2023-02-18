@@ -92,7 +92,7 @@ class CodeFile:
             self.out = writer
         else:
             self.out = open(filename, "w")
- 
+
     def close(self):
         """
         File created, just close the handle
