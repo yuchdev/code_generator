@@ -319,8 +319,11 @@ class CppClass(CppLanguageElement):
         # aggregated classes
         self.internal_class_elements = []
 
-        # class members
-        self.internal_variable_elements = []
+        # private class variables
+        self.internal_private_variable_elements = []
+
+        # public class variables
+        self.internal_public_variable_elements = []
 
         # array class members
         self.internal_array_elements = []
@@ -352,13 +355,16 @@ class CppClass(CppLanguageElement):
         enum.ref_to_parent = self
         self.internal_enum_elements.append(enum)
 
-    def add_variable(self, cpp_variable):
+    def add_variable(self, cpp_variable, is_private=True):
         """
         @param: cpp_variable CppVariable instance
         """
         cpp_variable.ref_to_parent = self
         cpp_variable.is_class_member = True
-        self.internal_variable_elements.append(cpp_variable)
+        if is_private:
+            self.internal_private_variable_elements.append(cpp_variable)
+        else:
+            self.internal_public_variable_elements.append(cpp_variable)
 
     def add_array(self, cpp_variable):
         """
@@ -405,12 +411,21 @@ class CppClass(CppLanguageElement):
             enumItem.render_to_string(cpp)
             cpp.newline()
 
-    def _render_variables_declaration(self, cpp):
+    def _render_private_variables_declaration(self, cpp):
         """
         Render to string all contained variable class members
         Method is protected as it is used by CppClass only
         """
-        for varItem in self.internal_variable_elements:
+        for varItem in self.internal_private_variable_elements:
+            varItem.declaration().render_to_string(cpp)
+            cpp.newline()
+
+    def _render_public_variables_declaration(self, cpp):
+        """
+        Render to string all contained variable class members
+        Method is protected as it is used by CppClass only
+        """
+        for varItem in self.internal_public_variable_elements:
             varItem.declaration().render_to_string(cpp)
             cpp.newline()
 
@@ -440,7 +455,8 @@ class CppClass(CppLanguageElement):
         int MyClass::my_static_array[] = {}
         """
         # generate definition for static variables
-        static_vars = [variable for variable in self.internal_variable_elements if variable.is_static]
+        static_vars = [variable for variable in self.internal_private_variable_elements if variable.is_static] \
+            + [variable for variable in self.internal_public_variable_elements if variable.is_static]
         for varItem in static_vars:
             varItem.definition().render_to_string(cpp)
             cpp.newline()
@@ -480,13 +496,14 @@ class CppClass(CppLanguageElement):
         self._render_enum_section(cpp)
         self._render_internal_classes_declaration(cpp)
         self._render_methods_declaration(cpp)
+        self._render_public_variables_declaration(cpp)
 
     def private_class_members(self, cpp):
         """
         Generates section of class member variables.
         Should be placed in 'private:' section
         """
-        self._render_variables_declaration(cpp)
+        self._render_private_variables_declaration(cpp)
         self._render_array_declaration(cpp)
 
     def render_to_string(self, cpp):
