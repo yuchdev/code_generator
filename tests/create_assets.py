@@ -117,10 +117,10 @@ def generate_func(output_dir='.'):
     def function_body(_, cpp1):
         cpp1('return 42;')
 
-    functions = [CppFunction(name='GetParam', ret_type='int'),
-                 CppFunction(name='Calculate', ret_type='void'),
+    functions = [CppFunction(name='GetParam', ret_type='int', implementation_handle=lambda _, cpp: cpp("return 1;")),
+                 CppFunction(name='Calculate', ret_type='void', implementation_handle=lambda _, cpp: cpp("return;")),
                  CppFunction(name='GetAnswer', ret_type='int', implementation_handle=function_body),
-                 CppFunction(name='Help', ret_type='char *', documentation='/// Returns the help documentation.'),
+                 CppFunction(name='Help', ret_type='char *', documentation='/// Returns the help documentation.', implementation_handle=lambda _, cpp: cpp("return nullptr;")),
                  ]
     for func in functions:
         func.render_to_string(hpp)
@@ -195,30 +195,27 @@ def generate_class(output_dir='.'):
     def method_body(_, cpp1):
         cpp1('return m_var1;')
 
-    my_class.add_method(CppFunction(name="GetParam",
+    my_class.add_method(CppClass.CppMethod(name="GetParam",
                                     ret_type="int",
-                                    is_method=True,
                                     is_const=True,
                                     implementation_handle=method_body))
 
-    my_class.add_method(CppFunction(name="VirtualMethod",
+    my_class.add_method(CppClass.CppMethod(name="VirtualMethod",
                                     ret_type="int",
-                                    is_method=True,
-                                    is_virtual=True))
+                                    is_virtual=True, implementation_handle=method_body))
 
-    my_class.add_method(CppFunction(name="PureVirtualMethod",
+    my_class.add_method(CppClass.CppMethod(name="PureVirtualMethod",
                                     ret_type="void",
-                                    is_method=True,
                                     is_virtual=True,
                                     is_pure_virtual=True))
 
-    example_class.add_method(CppFunction(
+    example_class.add_method(CppClass.CppMethod(
         name="DoNothing",
         documentation="""\
             /**
              * Example multiline documentation.
              */""",
-        ret_type="void"),
+        ret_type="void", implementation_handle=lambda _, cpp: cpp("return;")),
     )
 
     my_class.declaration().render_to_string(my_class_h)
