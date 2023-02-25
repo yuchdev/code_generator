@@ -8,6 +8,7 @@ from code_generation.cpp.cpp_enum import CppEnum
 from code_generation.cpp.cpp_array import CppArray
 from code_generation.cpp.cpp_function import CppFunction
 from code_generation.cpp.cpp_class import CppClass
+from code_generation.cpp.cpp_using_type import CppUsingType
 
 __doc__ = """
 Unit tests for C++ code generator
@@ -113,6 +114,8 @@ class TestCppFileIo(unittest.TestCase):
                                                ret_type="int",
                                                is_static=True,
                                                implementation_handle=static_method_body))
+
+        my_class.add_using_type(CppUsingType(name='FooType', type='double'))
 
         my_class.declaration().render_to_string(my_class_h)
         my_class.definition().render_to_string(my_class_cpp)

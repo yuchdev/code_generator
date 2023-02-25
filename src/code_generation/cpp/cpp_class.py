@@ -331,6 +331,12 @@ class CppClass(CppLanguageElement):
         # class enums
         self.internal_enum_elements = []
 
+        # class using type definitions
+        self.internal_enum_elements = []
+
+        # class using type definitions
+        self.internal_using_type_elements = []
+
     def _parent_class(self):
         """
         @return: parent class object
@@ -351,6 +357,13 @@ class CppClass(CppLanguageElement):
         """
         enum.ref_to_parent = self
         self.internal_enum_elements.append(enum)
+
+    def add_using_type(self, using):
+        """
+        @param: enum CppEnum instance
+        """
+        using.ref_to_parent = self
+        self.internal_using_type_elements.append(using)
 
     def add_variable(self, cpp_variable):
         """
@@ -403,6 +416,15 @@ class CppClass(CppLanguageElement):
         """
         for enumItem in self.internal_enum_elements:
             enumItem.render_to_string(cpp)
+            cpp.newline()
+
+    def _render_using_type_section(self, cpp):
+        """
+        Render to string all contained enums
+        Method is protected as it is used by CppClass only
+        """
+        for using_typeItem in self.internal_using_type_elements:
+            using_typeItem.render_to_string(cpp)
             cpp.newline()
 
     def _render_variables_declaration(self, cpp):
@@ -478,6 +500,7 @@ class CppClass(CppLanguageElement):
         Should be placed in 'public:' section
         """
         self._render_enum_section(cpp)
+        self._render_using_type_section(cpp)
         self._render_internal_classes_declaration(cpp)
         self._render_methods_declaration(cpp)
 
