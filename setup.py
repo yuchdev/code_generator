@@ -54,5 +54,3 @@ setup(
     include_package_data=True,
     install_requires=DEPENDENCIES,
 )
-
-print(f"\n*** WARNING: `code_generation` is no longer supported. Please run `pip install code_generator2` instead. ***\n")
