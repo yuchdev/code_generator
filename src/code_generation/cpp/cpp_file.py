@@ -22,4 +22,3 @@ class CppFile(CodeFile):
         a:
         """
         self.write('{0}:'.format(text), -1)
-
