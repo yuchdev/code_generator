@@ -24,6 +24,19 @@ Programmatic source code generation can have a wide range of use cases, includin
 
 Overall, programmatic source code generation can help improve development efficiency, reduce human error, and automate repetitive tasks.
 
+## Installation
+
+`pip install code_generation`
+
+## Quick Start
+
+### C++
+
+TODO
+
+```python
+from code_generation import CppFile, CppFunction, CppVariable
+```
 
 ## C++
 
