@@ -142,4 +142,3 @@ class CodeFile:
         """
         for _ in range(n):
             self.write('')
- 
