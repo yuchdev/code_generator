@@ -1,5 +1,4 @@
 # Pythonic Code Generator
-==============
 
 Simple and straightforward generator for algorithmic creating of program code. 
 In general, it could be used for generating code in any programming language,
