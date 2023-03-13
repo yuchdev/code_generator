@@ -1,59 +1,5 @@
 from code_generation.cpp.language_element import CppLanguageElement
 
-__doc__ = """The module encapsulates C++ code generation logics for main C++ language primitives:
-classes, methods and functions, variables, enums.
-Every C++ element could render its current state to a string that could be evaluated as 
-a legal C++ construction.
-
-Some elements could be rendered to a pair of representations (i.e. declaration and definition)
- 
-Example:
-# Python code
-cpp_class = CppClass(name = 'MyClass', is_struct = True)
-cpp_class.add_variable(CppVariable(name = "m_var",
-    type = 'size_t',
-    is_static = True,
-    is_const = True,
-    initialization_value = 255))
- 
-// Generated C++ declaration
-struct MyClass
-{
-    static const size_t m_var;
-}
- 
-// Generated C++ definition
-const size_t MyClass::m_var = 255;
- 
- 
-That module uses and highly depends on code_generator.py as it uses
-code generating and formatting primitives implemented there.
- 
-The main object referenced from code_generator.py is CppFile, 
-which is passed as a parameter to render_to_string(cpp) Python method
- 
-It could also be used for composing more complicated C++ code,
-that does not supported by cpp_generator
- 
-It support:
-
-- functional calls:
-cpp('int a = 10;')
- 
-- 'with' semantic:
-with cpp.block('class MyClass', ';')
-    class_definition(cpp)
- 
-- append code to the last string without EOL:
-cpp.append(', p = NULL);')
- 
-- empty lines:
-cpp.newline(2)
- 
-For detailed information see code_generator.py documentation.
-"""
-
-
 class CppEnum(CppLanguageElement):
     """
     The Python class that generates string representation for C++ enum

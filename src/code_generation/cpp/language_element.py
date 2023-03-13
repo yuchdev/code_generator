@@ -4,7 +4,7 @@ Every C++ element could render its current state to a string that could be evalu
 a legal C++ construction.
 
 Some elements could be rendered to a pair of representations (i.e. declaration and definition)
- 
+
 Example:
 # Python code
 cpp_class = CppClass(name = 'MyClass', is_struct = True)
@@ -13,42 +13,35 @@ cpp_class.add_variable(CppVariable(name = "m_var",
     is_static = True,
     is_const = True,
     initialization_value = 255))
- 
+
 // Generated C++ declaration
 struct MyClass
 {
     static const size_t m_var;
 }
- 
+
 // Generated C++ definition
 const size_t MyClass::m_var = 255;
- 
- 
-That module uses and highly depends on code_generator.py as it uses
-code generating and formatting primitives implemented there.
- 
-The main object referenced from code_generator.py is CppFile, 
-which is passed as a parameter to render_to_string(cpp) Python method
- 
-It could also be used for composing more complicated C++ code,
-that does not supported by cpp_generator
- 
-It support:
+
+You can use CppFile for composing more complicated C++ code,
+which is not supported by CppLanguageElement
+
+It supports:
 
 - functional calls:
 cpp('int a = 10;')
- 
+
 - 'with' semantic:
 with cpp.block('class MyClass', ';')
     class_definition(cpp)
- 
+
 - append code to the last string without EOL:
 cpp.append(', p = NULL);')
- 
+
 - empty lines:
 cpp.newline(2)
- 
-For detailed information see code_generator.py documentation.
+
+For more detailed information see CodeFile and CppFile documentation.
 """
 
 

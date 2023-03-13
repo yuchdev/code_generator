@@ -12,11 +12,20 @@ java_class.add_variable(JavaVariable(name = "m_var",
     is_static = True,
     is_final = True,
     initialization_value = 10)) 
+java_class.add_method(JavaMethod(name = 'main',
+    return_type = 'void',
+    is_static = True,
+    arguments = [JavaArgument(name = 'args', type = 'String[]')]))
+java_class.render_to_file('MyClass.java')
 
 // Generated Java code
 public class MyClass 
 {
     public static final int m_var = 10;
+    static public void main(String[] args)
+    {
+        return;
+    }
 }
 """
 
@@ -93,8 +102,8 @@ class JavaLanguageElement:
     def parent_qualifier(self):
         """
         Generate a string for class name qualifiers
-        Should be used for method implementation and static class members definition.
-        Ex.
+        Should be used for method implementation and static class members' definition.
+        E.g.
         void MyClass.MyMethod()
         static int MyClass.m_staticVar = 0;
 

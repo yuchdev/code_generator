@@ -3,17 +3,15 @@ from code_generation.core.code_style import ANSICodeStyle
 __doc__ = """
 Simple and straightforward code generator that could be used for generating code 
 on any programming language and to be a 'building block' for creating more complicated
-code generator.
+code generators.
 
 Thanks to Eric Reynolds, the code mainly based on his article published on
 https://www.codeproject.com/Articles/571645/Really-simple-Cplusplus-code-generation-in-Python
-However, it was both significantly extended since then and also simplified.
- 
 Used under the Code Project Open License
 https://www.codeproject.com/info/cpol10.aspx
  
 Examples of usage:
- 
+
 1.
 # Python code
 cpp = CodeFile('example.cpp')

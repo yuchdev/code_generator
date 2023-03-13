@@ -69,7 +69,7 @@ class CppFunction(CppLanguageElement):
 
     def add_argument(self, argument):
         """
-        @param: argument string representation of the C++ function argument ('int a', 'void p = NULL' etc)
+        @param: argument string representation of the C++ function argument ('int a', 'void p = nullptr' etc.)
         """
         self.arguments.append(argument)
 
