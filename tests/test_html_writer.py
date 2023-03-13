@@ -1,7 +1,7 @@
 import unittest
 import io
 
-from code_generator.html.html_generator import *
+from code_generation.html.html_generator import *
 
 __doc__ = """
 Unit tests for HTML code generator
