@@ -1,5 +1,5 @@
 import sys
-from code_generation.core.code_style import ANSICodeStyle
+from code_generator.core.code_style import ANSICodeStyle
 
 __doc__ = """
 Simple and straightforward code generator that could be used for generating code 

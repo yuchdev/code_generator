@@ -1,4 +1,4 @@
-from code_generation.cpp.cpp_generator import CppLanguageElement, CppDeclaration, CppImplementation
+from code_generator.cpp.cpp_generator import CppLanguageElement, CppDeclaration, CppImplementation
 from textwrap import dedent
 
 

@@ -1,5 +1,5 @@
-from code_generation import code_generator
-from code_generation import cpp_generator
+from code_generator import code_generator
+from code_generator import cpp_generator
 
 # Create a new code file
 cpp = code_generator.CodeFile('example.cpp')

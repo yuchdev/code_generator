@@ -1,4 +1,4 @@
-from code_generation.core.code_generator import CodeFile
+from code_generator.core.code_generator import CodeFile
 
 __doc__ = """The module encapsulates C++ code generation logics for main C++ language primitives:
 classes, methods and functions, variables, enums.

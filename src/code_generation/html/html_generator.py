@@ -1,5 +1,5 @@
 import sys
-from code_generation.core.code_style import HTMLStyle
+from code_generator.core.code_style import HTMLStyle
 
 
 class HtmlFile:

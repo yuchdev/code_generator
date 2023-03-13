@@ -2,7 +2,7 @@ __doc__ = """The module encapsulates C++ code generation logics for main Java la
 classes, methods, variables, enums.
 """
 
-from code_generation.core.code_style import ANSICodeStyle
+from code_generator.core.code_style import ANSICodeStyle
 
 
 class JavaFile:

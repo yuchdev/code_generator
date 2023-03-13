@@ -19,7 +19,7 @@ HOME = pathlib.Path.home()
 PACKAGE_NAME = cfg.get('metadata', 'name')
 
 # Name with dash (pip name, URL, S3 bucket)
-PACKAGE_NAME_DASH = PACKAGE_NAME.replace('_', '-')
+PACKAGE_NAME_DASH = 'code-generator2'
 
 PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__))))
 PYTHON = "python3"
