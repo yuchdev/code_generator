@@ -56,12 +56,7 @@ class JavaArray(JavaLanguageElement):
         java(f"{self.type}[] {self.name} = {{ {values_str} }};")
 
     def _render_dynamic(self, java):
-        if self.items is None or not self.items:
-            values_str = ', '.join(f'{self.type}()' for _ in range(self.array_size))
-        else:
-            values_str = ', '.join(str(item) for item in self.items)
-
-        java(f"{self.type}[] {self.name} = new {self.type}[{len(self.items)}]{{ {values_str} }};")
+        java(f"{self.type}[] {self.name} = new {self.type}[{self.array_size}];")
 
     def render_to_string(self, java):
         self._sanity_check()
