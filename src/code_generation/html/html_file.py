@@ -50,12 +50,7 @@ class HtmlFile:
         Supports 'with' semantic, i.e.
         html.block(element='p', id='id1', name='name1'):
         """
-        print(f'block: {element}, {attributes}')
-        for a in attributes:
-            print(f'atr: {a}')
-        formatter = self.Formatter(self, element=element, **attributes)
-        print(f'formatter: {formatter}')
-        return formatter
+        return self.Formatter(self, element=element, **attributes)
 
     def endline(self, count=1):
         """

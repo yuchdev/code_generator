@@ -1,3 +1,8 @@
+__doc__ = """This module encapsulates HTML code generation logic for HTML elements,
+including name and attributes. Every HTML element can render its current state to a string.
+"""
+
+
 class HtmlElement:
     availablePropertiesNames = {'name', 'attributes', 'self_closing'}
 
@@ -24,7 +29,7 @@ class HtmlElement:
         Generates HTML code for the self-closing element
         """
         if self.self_closing:
-            html('<{0} {1}/>'.format(self.name, ' '.join(self._render_attributes())))
+            html('<{0} {1}/>'.format(self.name, self._render_attributes()))
         elif content is not None:
             with html.block(element=self.name, **self.attributes):
                 html(content)

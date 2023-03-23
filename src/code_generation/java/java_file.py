@@ -12,10 +12,3 @@ class JavaFile(CodeFile):
 
     def __init__(self, filename, writer=None):
         CodeFile.__init__(self, filename, writer)
-
-    def access(self, text):
-        """
-        Access specifiers, e.g.
-        private:
-        """
-        self.write('{0}:'.format(text), -1)

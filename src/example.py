@@ -4,6 +4,8 @@ import sys
 from code_generation.core.code_file import CodeFile
 from code_generation.cpp.variable_generator import CppVariable
 from code_generation.java.java_file import JavaFile
+from code_generation.java.java_array import JavaArray
+
 from code_generation.html.html_file import HtmlFile
 from code_generation.html.html_element import HtmlElement
 
@@ -40,10 +42,15 @@ def java_example():
     :return:
     """
     java = JavaFile('example.java')
-    with java.block('class A', ';'):
-        java.access('public')
-        java('int m_classMember1;')
-        java('double m_classMember2;')
+    with java.block('class Main', ';'):
+        with java.block('public static void main(String[] args)'):
+            java('System.out.println("Hello World!");')
+            JavaArray(name='my_array1', type='String', dynamic=True, items=['"a"', '"b"', '"c"']
+                      ).render_to_string(java)
+            JavaArray(name='my_array2', type='int', dynamic=False, items=['1', '2', '3']
+                      ).render_to_string(java)
+            JavaArray(name='my_array3', type='int', dynamic=False, array_size=3
+                      ).render_to_string(java)
 
 
 def html_example():
@@ -71,11 +78,6 @@ def html_example2():
             HtmlElement(name='footer', self_closing=False, id='real-footer').render_to_string(html, content='Footer 2')
 
 
-def html_example3():
-    html = HtmlFile('example2.html')
-    HtmlElement(name='footer', self_closing=False, id='real-footer').render_to_string(html, content='Footer 2')
-
-
 def main():
     parser = argparse.ArgumentParser(description='Command-line params')
     parser.add_argument('--language',
@@ -90,7 +92,7 @@ def main():
     elif args.language == 'Java':
         java_example()
     elif args.language == 'HTML':
-        html_example3()
+        html_example2()
     return 0
 
 

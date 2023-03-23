@@ -54,6 +54,15 @@ class CppArray(CppLanguageElement):
         self.init_class_properties(current_class_properties=self.availablePropertiesNames,
                                    input_properties_dict=properties)
 
+    def _sanity_check(self):
+        """
+        Check if all required properties are set
+        """
+        if not self.type:
+            raise RuntimeError('Array type is not set')
+        if self.is_class_member and not self.name:
+            raise RuntimeError('Class member array name is not set')
+
     def _render_static(self):
         """
         @return: 'static' prefix if required

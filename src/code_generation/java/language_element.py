@@ -55,7 +55,7 @@ class JavaLanguageElement:
     Contains dynamic storage for element properties
     (e.g. is_static for the variable is_abstract for the class etc.)
     """
-    AVAILABLE_PROPERTIES_NAMES = {'name', 'ref_to_parent'}
+    available_properties_names = {'name', 'ref_to_parent'}
 
     def __init__(self, properties):
         """
@@ -70,7 +70,7 @@ class JavaLanguageElement:
         Ensure that all properties that are passed to the JavaLanguageElement are recognized.
         Raise an exception otherwise
         """
-        unknown_properties = input_property_names.difference(self.AVAILABLE_PROPERTIES_NAMES)
+        unknown_properties = input_property_names.difference(self.available_properties_names)
         if unknown_properties:
             raise AttributeError(
                 f'Error: try to initialize {self.__class__.__name__} with unknown property: {repr(unknown_properties)}')
@@ -84,12 +84,12 @@ class JavaLanguageElement:
         """
         # Set all available properties to DefaultValue
         for property_name in current_class_properties:
-            if property_name not in self.AVAILABLE_PROPERTIES_NAMES:
+            if property_name not in JavaLanguageElement.available_properties_names:
                 setattr(self, property_name, default_property_value)
 
         # Set all defined properties values (all undefined will be left with defaults)
         for (property_name, property_value) in input_properties_dict.items():
-            if property_name not in self.AVAILABLE_PROPERTIES_NAMES:
+            if property_name not in JavaLanguageElement.available_properties_names:
                 setattr(self, property_name, property_value)
 
     def render_to_string(self, java):
