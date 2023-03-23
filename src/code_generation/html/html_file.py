@@ -1,4 +1,3 @@
-import sys
 from code_generation.core.code_style import HTMLStyle
 
 
@@ -26,9 +25,10 @@ class HtmlFile:
         """
         Write a new line with line ending
         """
-        self.out.write('{0}{1}{2}'.format(self.Formatter.indent * (self.current_indent+indent),
-                                          text,
-                                          self.Formatter.endline if endline else ''))
+        assert isinstance(indent, int), f'indent {indent} is not an integer, but {type(indent)}'
+        assert isinstance(text, str), f'text {text} is not a string, but {type(text)}'
+        indent_str = self.Formatter.indent * (self.current_indent + indent)
+        self.out.write('{0}{1}{2}'.format(indent_str, text, self.Formatter.endline if endline else ''))
 
     def append(self, x):
         """
@@ -50,7 +50,12 @@ class HtmlFile:
         Supports 'with' semantic, i.e.
         html.block(element='p', id='id1', name='name1'):
         """
-        return self.Formatter(self, element=element, **attributes)
+        print(f'block: {element}, {attributes}')
+        for a in attributes:
+            print(f'atr: {a}')
+        formatter = self.Formatter(self, element=element, **attributes)
+        print(f'formatter: {formatter}')
+        return formatter
 
     def endline(self, count=1):
         """

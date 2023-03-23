@@ -128,7 +128,7 @@ class CppLanguageElement(object):
 
     def render_to_string(self, cpp):
         """
-        @param: cpp - handle that supports code generation interface (see code_generator.py)
+        @param: cpp - handle that supports code generation interface (see code_file.py)
         Typically it is passed to all child elements so that render their content
         """
         raise NotImplementedError('CppLanguageElement is an abstract class')

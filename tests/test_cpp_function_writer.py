@@ -2,7 +2,7 @@ import unittest
 import io
 from textwrap import dedent
 
-from code_generation.core.code_generator import CppFile
+from code_generation.core.code_file import CppFile
 from code_generation.cpp.cpp_function import CppFunction
 
 __doc__ = """

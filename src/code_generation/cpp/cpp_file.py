@@ -1,4 +1,4 @@
-from code_generation.core.code_generator import CodeFile
+from code_generation.core.code_file import CodeFile
 
 __doc__ = """
 """

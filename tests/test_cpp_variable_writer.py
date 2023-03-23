@@ -1,7 +1,7 @@
 import unittest
 import io
 
-from code_generation.core.code_generator import CppFile
+from code_generation.core.code_file import CppFile
 from code_generation.cpp.cpp_variable import CppVariable
 
 __doc__ = """Unit tests for C++ code generator
