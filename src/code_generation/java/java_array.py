@@ -41,21 +41,51 @@ class JavaArray(JavaLanguageElement):
         """
         if not self.type:
             raise RuntimeError('Array type is not set')
+        if not isinstance(self.type, str):
+            raise RuntimeError(f'Array type is not a string, but {type(self.type)}')
+        if self.array_size is not None and not isinstance(self.array_size, int):
+            raise RuntimeError(f'Array size is not an integer, but {type(self.array_size)}')
+        if self.items is not None and not isinstance(self.items, list):
+            raise RuntimeError(f'Array items are not a list, but {type(self.items)}')
         if self.is_class_member and not self.name:
             raise RuntimeError('Class member array name is not set')
-        if self.array_size and self.dynamic:
-            raise RuntimeError('Array size is defined and array is dynamic')
         if self.array_size and self.items:
             raise RuntimeError('Array size is defined and array has items')
+        if self.array_size and not self.dynamic:
+            raise RuntimeError('Array size is defined but array is not dynamic')
+
+    def values_str(self):
+        """
+        String representation of array items
+        {1, 2, 3}
+        Can be used for multidimensional arrays as well
+        {{1, 2, 3}, {4, 5, 6}}
+        """
+        if self.items is None or not self.items:
+            return ''
+        return f"{{ {', '.join(str(item) for item in self.items)} }}"
+
+    def __str__(self):
+        """
+        String representation of array
+        """
+        return self.values_str()
 
     def _render_static(self, java):
+        """
+        Render arrays without 'new' keyword
+        int[] anArray;
+        int[] arrayWithItems = {1, 2, 3};
+        """
         if self.items is None or not self.items:
-            values_str = ', '.join(f'{self.type}()' for _ in range(self.array_size))
+            java(f"{self.type}[] {self.name};")
         else:
-            values_str = ', '.join(str(item) for item in self.items)
-        java(f"{self.type}[] {self.name} = {{ {values_str} }};")
+            java(f"{self.type}[] {self.name} = {self.values_str()};")
 
     def _render_dynamic(self, java):
+        """
+        Render arrays with 'new' keyword
+        """
         java(f"{self.type}[] {self.name} = new {self.type}[{self.array_size}];")
 
     def render_to_string(self, java):

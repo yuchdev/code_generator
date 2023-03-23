@@ -45,12 +45,13 @@ def java_example():
     with java.block('class Main', ';'):
         with java.block('public static void main(String[] args)'):
             java('System.out.println("Hello World!");')
-            JavaArray(name='my_array1', type='String', dynamic=True, items=['"a"', '"b"', '"c"']
+            JavaArray(name='dynamicArray', type='String', dynamic=True, array_size=10
                       ).render_to_string(java)
-            JavaArray(name='my_array2', type='int', dynamic=False, items=['1', '2', '3']
-                      ).render_to_string(java)
-            JavaArray(name='my_array3', type='int', dynamic=False, array_size=3
-                      ).render_to_string(java)
+            array1 = JavaArray(name='arrayWithItems1', type='int', dynamic=False, items=['1', '2', '3'])
+            array2 = JavaArray(name='arrayWithItems2', type='int', dynamic=False, items=[4, 5, 6])
+            array1.render_to_string(java)
+            array2.render_to_string(java)
+            JavaArray(name='multiArray', type='int', dynamic=False, items=[array1, array2]).render_to_string(java)
 
 
 def html_example():
