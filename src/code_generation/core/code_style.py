@@ -79,8 +79,14 @@ class HTMLStyle:
             with self.owner.last:
                 pass
         self.element = element
-        attributes = "".join(f' {attr}' for attr in attrs)
-        attributes += "".join(f' {key}="{value}"' for key, value in kwattrs.items())
+        attributes = ""
+        if "attributes" in kwattrs:
+            if isinstance(kwattrs["attributes"], dict):
+                attributes = "".join(f' {key}="{value}"' for key, value in kwattrs["attributes"].items())
+            del kwattrs["attributes"]
+        else:
+            attributes = "".join(f' {attr}' for attr in attrs)
+            attributes += "".join(f' {key}="{value}"' for key, value in kwattrs.items())
         self.attributes = attributes
         self.owner.last = self
 

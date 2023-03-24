@@ -63,6 +63,16 @@ def html_example():
 
 def html_example2():
     html = HtmlFile('example2.html')
+    with html.block('a', href='https://www.google.com'):
+        HtmlElement(
+            name='i',
+            self_closing=False,
+            attributes={'class': "fab fa-facebook-f", "target": "_blank"}
+        ).render_to_string(html)
+
+
+def html_example3():
+    html = HtmlFile('example2.html')
     with html.block('html'):
         with html.block('head', lang='en'):
             HtmlElement(name='meta', self_closing=True, charset='utf-8').render_to_string(html)

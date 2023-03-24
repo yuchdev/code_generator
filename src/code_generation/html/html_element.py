@@ -30,7 +30,8 @@ class HtmlElement:
         """
         if self.self_closing:
             html('<{0} {1}/>'.format(self.name, self._render_attributes()))
-        elif content is not None:
+        else:
+            content = content if content is not None else ''
             with html.block(element=self.name, **self.attributes):
                 html(content)
 
