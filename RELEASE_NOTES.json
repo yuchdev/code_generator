@@ -3,9 +3,16 @@
     "download_link": "https://{package_name_dash}-package.s3.amazonaws.com/server/{package_name}-{version}-py3-none-any.whl"
   },
   "releases": {
-    "2.x.x": {
+    "3.x.x": {
       "release_notes": [
-        "Create subdirectories for core, cpp and html generators"
+        "Change the structure of the project",
+        "HTML report generator",
+        "Java code generator"
+      ]
+    },
+    "2.4.1": {
+      "release_notes": [
+        "Create subdirectories for core, C++, Java and HTML generators"
       ]
     },
     "2.3.0": {

@@ -13,6 +13,7 @@ class HtmlFile:
             self.out = writer
         else:
             self.out = open(filename, "w")
+        self.write('<!DOCTYPE html>')
 
     def close(self):
         """
