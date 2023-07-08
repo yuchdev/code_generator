@@ -12,7 +12,7 @@ java_class.add_variable(JavaVariable(name = "m_var",
     is_static = True,
     is_final = True,
     initialization_value = 10)) 
-java_class.add_method(JavaMethod(name = 'main',
+java_class.add_method(JavaFunction(name = 'main',
     return_type = 'void',
     is_static = True,
     arguments = [JavaArgument(name = 'args', type = 'String[]')]))

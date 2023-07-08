@@ -3,8 +3,8 @@ import sys
 
 from code_generation.core.code_file import CodeFile
 from code_generation.cpp.variable_generator import CppVariable
-from code_generation.java.java_file import JavaFile
-from code_generation.java.java_array import JavaArray
+from code_generation.java.file_writer import JavaFile
+from code_generation.java.array_generator import JavaArray
 
 from code_generation.html.html_file import HtmlFile
 from code_generation.html.html_element import HtmlElement

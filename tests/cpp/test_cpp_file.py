@@ -2,12 +2,12 @@ import os
 import unittest
 import filecmp
 
-from code_generation.core.code_file import CppFile
-from code_generation.cpp.cpp_variable import CppVariable
-from code_generation.cpp.cpp_enum import CppEnum
-from code_generation.cpp.cpp_array import CppArray
-from code_generation.cpp.cpp_function import CppFunction
-from code_generation.cpp.cpp_class import CppClass
+from code_generation.cpp.file_writer import CppFile
+from code_generation.cpp.variable_generator import CppVariable
+from code_generation.cpp.enum_generator import CppEnum
+from code_generation.cpp.array_generator import CppArray
+from code_generation.cpp.function_generator import CppFunction
+from code_generation.cpp.class_generator import CppClass
 
 __doc__ = """
 Unit tests for C++ code generator

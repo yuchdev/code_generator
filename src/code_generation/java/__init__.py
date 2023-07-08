@@ -1,2 +1,2 @@
-from . import java_file
+from . import file_writer
 from . import language_element

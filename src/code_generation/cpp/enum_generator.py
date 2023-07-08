@@ -1,5 +1,6 @@
 from code_generation.cpp.language_element import CppLanguageElement
 
+
 class CppEnum(CppLanguageElement):
     """
     The Python class that generates string representation for C++ enum
@@ -29,6 +30,9 @@ class CppEnum(CppLanguageElement):
                                 'add_counter'} | CppLanguageElement.availablePropertiesNames
 
     def __init__(self, **properties):
+        """
+        :param properties:
+        """
         self.enum_class = False
         # check properties
         input_property_names = set(properties.keys())
