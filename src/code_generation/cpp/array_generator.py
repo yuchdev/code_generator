@@ -60,6 +60,8 @@ class CppArray(CppLanguageElement):
         """
         if not self.type:
             raise RuntimeError('Array type is not set')
+        if not self.name:
+            raise RuntimeError('Array name is not set')
         if self.is_class_member and not self.name:
             raise RuntimeError('Class member array name is not set')
 
@@ -137,6 +139,7 @@ class CppArray(CppLanguageElement):
         That method is used for generating automatic (non-class members) arrays
         For class members use render_to_string_declaration/render_to_string_implementation methods
         """
+        self._sanity_check()
         if self.is_class_member and not (self.is_static and self.is_const):
             raise RuntimeError('For class member variables use definition() and declaration() methods')
 
@@ -158,6 +161,7 @@ class CppArray(CppLanguageElement):
         Example:
         static int my_class_member_array[];
         """
+        self._sanity_check()
         if not self.is_class_member:
             raise RuntimeError('For automatic variable use its render_to_string() method')
         cpp(f'{self._render_static()}{self._render_const()}{self.type} {self.name}[{self._render_size()}];')
@@ -175,6 +179,7 @@ class CppArray(CppLanguageElement):
 
         Non-static arrays-class members do not supported
         """
+        self._sanity_check()
         if not self.is_class_member:
             raise RuntimeError('For automatic variable use its render_to_string() method')
 

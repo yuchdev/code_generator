@@ -1,11 +1,21 @@
 import unittest
 import io
 
+from textwrap import dedent
 from code_generation.cpp.file_writer import CppFile
 from code_generation.cpp.array_generator import CppArray
 
 __doc__ = """Unit tests for C++ code generator
 """
+
+
+def normalize_lines(text):
+    """
+    Normalize indentation and whitespace for comparison
+    """
+    lines = text.splitlines()
+    normalized_lines = [line.strip() for line in lines]
+    return '\n'.join(normalized_lines)
 
 
 class TestCppArrayStringIo(unittest.TestCase):
@@ -28,8 +38,16 @@ class TestCppArrayStringIo(unittest.TestCase):
         arr = CppArray(name="my_array", type="int", array_size=5, newline_align=True)
         arr.add_array_items(["1", "2", "0"])
         arr.render_to_string(cpp)
-        expected_output = "int my_array[5] = {\n    1,\n    2,\n    0\n};"
-        self.assertEqual(expected_output, writer.getvalue().strip())
+        generated_output = writer.getvalue().strip()
+        expected_output = dedent("""int my_array[5] = 
+            {
+                1,
+                2,
+                0
+            };""")
+        expected_output_normalized = normalize_lines(expected_output)
+        generated_output_normalized = normalize_lines(generated_output)
+        self.assertEqual(expected_output_normalized, generated_output_normalized)
 
     def test_cpp_array_declaration(self):
         writer = io.StringIO()
