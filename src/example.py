@@ -3,6 +3,7 @@ import sys
 
 from code_generation.core.code_file import CodeFile
 from code_generation.cpp.variable_generator import CppVariable
+from code_generation.cpp.class_generator import CppClass
 from code_generation.java.file_writer import JavaFile
 from code_generation.java.array_generator import JavaArray
 
@@ -17,24 +18,38 @@ def cpp_example():
     static constexpr int const& x = 42;
     extern char* name;
     """
-    cpp = CodeFile('example.cpp')
-    cpp('int i = 0;')
+    cpp_file = CodeFile('example.cpp')
 
-    # Create a new variable 'x'
-    x_variable = CppVariable(
-        name='x',
-        type='int const&',
-        is_static=True,
-        is_constexpr=True,
-        initialization_value='42')
-    x_variable.render_to_string(cpp)
+    # Create a CppClass instance
+    cpp_class = CppClass(name="MyClass", is_struct=True)
 
-    # Create a new variable 'name'
-    name_variable = CppVariable(
-        name='name',
-        type='char*',
-        is_extern=True)
-    name_variable.render_to_string(cpp)
+    # Add a CppVariable to the class
+    cpp_class.add_variable(
+        CppVariable(
+            name="m_var",
+            type="size_t",
+            is_static=True,
+            is_const=True,
+            initialization_value="255"
+        )
+    )
+
+    # Define a function body for the CppMethod
+    def handle(cpp):
+        cpp('return m_var;')
+
+    # Add a CppMethod to the class
+    cpp_class.add_method(
+        CppClass.CppMethod(
+            name="GetVar",
+            ret_type="size_t",
+            is_static=True,
+            implementation_handle=handle
+        )
+    )
+
+    # Render the class to string
+    cpp_class.render_to_string(cpp_file)
 
 
 def java_example():
@@ -75,8 +90,12 @@ def html_example3():
     html = HtmlFile('example2.html')
     with html.block('html'):
         with html.block('head', lang='en'):
-            HtmlElement(name='meta', self_closing=True, charset='utf-8').render_to_string(html)
-            HtmlElement(name='meta', self_closing=True, viewport='width=device-width, initial-scale=1').render_to_string(html)
+            HtmlElement(name='meta',
+                        self_closing=True,
+                        charset='utf-8').render_to_string(html)
+            HtmlElement(name='meta',
+                        self_closing=True,
+                        viewport='width=device-width, initial-scale=1').render_to_string(html)
         with html.block('body'):
             # with semantic
             with html.block('div', id='container'):
@@ -85,8 +104,11 @@ def html_example3():
                 with html.block('div', id='content'):
                     html('Content')
             # using content parameter
-            HtmlElement(name='div', self_closing=False).render_to_string(html, content='Footer 1')
-            HtmlElement(name='footer', self_closing=False, id='real-footer').render_to_string(html, content='Footer 2')
+            HtmlElement(name='div',
+                        self_closing=False).render_to_string(html, content='Footer 1')
+            HtmlElement(name='footer',
+                        self_closing=False,
+                        id='real-footer').render_to_string(html, content='Footer 2')
 
 
 def main():
@@ -94,7 +116,7 @@ def main():
     parser.add_argument('--language',
                         help='Programming language to show example for',
                         choices=["C++", "Java", "HTML"],
-                        default="Java",
+                        default="C++",
                         required=False)
     args = parser.parse_args()
 

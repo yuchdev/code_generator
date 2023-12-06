@@ -58,9 +58,23 @@ class TestCppClassStringIo(unittest.TestCase):
             {
                 static const size_t m_var;
                 static size_t GetVar();
-            };""")
+            };
+            
+            static const size_t MyClass::m_var = 255;
+
+            size_t MyClass::GetVar()
+            {
+                return m_var;
+            }""")
 
         # Assert the output matches the expected output
+        # Write expected and actual code to temp files
+        with open('expected.cpp', 'w') as expected_file:
+            expected_file.write(expected_output)
+
+        with open('actual.cpp', 'w') as actual_file:
+            actual_file.write(writer.getvalue().strip())
+
         self.assertEqual(expected_output, writer.getvalue().strip())
 
     def test_cpp_class_with_inheritance(self):

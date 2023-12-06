@@ -218,7 +218,7 @@ class CppClass(CppLanguageElement):
             The method calls Python function that creates C++ method body if handle exists
             """
             if self.implementation_handle is not None:
-                self.implementation_handle(self, cpp)
+                self.implementation_handle(cpp)
 
         def declaration(self):
             """
