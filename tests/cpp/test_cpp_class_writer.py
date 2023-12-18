@@ -102,8 +102,6 @@ class TestCppClassStringIo(unittest.TestCase):
         actual_output = writer.getvalue().strip()
         expected_output_normalized = normalize_code(expected_output)
         actual_output_normalized = normalize_code(actual_output)
-        debug_dump(expected_output_normalized, actual_output_normalized)
-
         self.assertEqual(expected_output_normalized, actual_output_normalized)
 
     def test_cpp_class_with_inheritance(self):
