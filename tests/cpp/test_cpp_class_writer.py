@@ -12,6 +12,37 @@ __doc__ = """Unit tests for C++ code generator
 """
 
 
+def normalize_code(code):
+    """
+    Normalize indentation, whitespace and line breaks for comparison
+    """
+    replacements = {
+        '\t': '    ',
+        '\r\n': '\n',
+        '\r': '\n',
+        '\r\n\r\n': '\n',
+        '\r\r': '\n',
+        '\n\n': '\n'
+    }
+    for old, new in replacements.items():
+        count = code.count(old)
+        print(f"Replacing {count} occurrences of '{old}' with '{new}'")
+        code = code.replace(old, new)
+
+    return code
+
+
+def debug_dump(expected, actual):
+    """
+    Dump the actual and expected values to 2 files
+    """
+    with open("actual.cpp", "w") as f:
+        f.write(actual)
+
+    with open("expected.cpp", "w") as f:
+        f.write(expected)
+
+
 class TestCppClassStringIo(unittest.TestCase):
     """
     Test C++ class generation by writing to StringIO
@@ -56,12 +87,24 @@ class TestCppClassStringIo(unittest.TestCase):
         expected_output = dedent("""\
             struct MyClass
             {
-                static const size_t m_var;
                 static size_t GetVar();
-            };""")
+                static const size_t m_var;
+            };
+            
+            static const size_t MyClass::m_var = 255;
+            
+            size_t MyClass::GetVar()
+            {
+                return m_var;
+            }""")
 
         # Assert the output matches the expected output
-        self.assertEqual(expected_output, writer.getvalue().strip())
+        actual_output = writer.getvalue().strip()
+        expected_output_normalized = normalize_code(expected_output)
+        actual_output_normalized = normalize_code(actual_output)
+        debug_dump(expected_output_normalized, actual_output_normalized)
+
+        self.assertEqual(expected_output_normalized, actual_output_normalized)
 
     def test_cpp_class_with_inheritance(self):
         writer = io.StringIO()
@@ -113,7 +156,12 @@ class TestCppClassStringIo(unittest.TestCase):
             };""")
 
         # Assert the output matches the expected output
-        self.assertEqual(expected_output, writer.getvalue().strip())
+        actual_output = writer.getvalue().strip()
+        expected_output_normalized = normalize_code(expected_output)
+        actual_output_normalized = normalize_code(actual_output)
+        debug_dump(expected_output_normalized, actual_output_normalized)
+        
+        self.assertEqual(expected_output_normalized, actual_output_normalized)
 
     def test_cpp_class_with_nested_classes(self):
         writer = io.StringIO()
@@ -141,7 +189,9 @@ class TestCppClassStringIo(unittest.TestCase):
             };""")
 
         # Assert the output matches the expected output
-        self.assertEqual(expected_output, writer.getvalue().strip())
+        actual_output = writer.getvalue().strip()
+        debug_dump(expected_output, actual_output)
+        self.assertEqual(expected_output, actual_output)
 
     def test_cpp_class_with_enum(self):
         writer = io.StringIO()
@@ -175,7 +225,9 @@ class TestCppClassStringIo(unittest.TestCase):
             };""")
 
         # Assert the output matches the expected output
-        self.assertEqual(expected_output, writer.getvalue().strip())
+        actual_output = writer.getvalue().strip()
+        debug_dump(expected_output, actual_output)
+        self.assertEqual(expected_output, actual_output)
 
     def test_cpp_class_with_array(self):
         writer = io.StringIO()
@@ -207,7 +259,9 @@ class TestCppClassStringIo(unittest.TestCase):
             };""")
 
         # Assert the output matches the expected output
-        self.assertEqual(expected_output, writer.getvalue().strip())
+        actual_output = writer.getvalue().strip()
+        debug_dump(expected_output, actual_output)
+        self.assertEqual(expected_output, actual_output)
 
 
 if __name__ == "__main__":

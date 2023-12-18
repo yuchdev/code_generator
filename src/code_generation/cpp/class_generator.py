@@ -113,7 +113,7 @@ class CppClass(CppLanguageElement):
             Before function name, declaration only
             Static functions can't be const, virtual or pure virtual
             """
-            return 'static' if self.is_static else ''
+            return 'static ' if self.is_static else ''
 
         def _render_constexpr(self):
             """
@@ -218,7 +218,7 @@ class CppClass(CppLanguageElement):
             The method calls Python function that creates C++ method body if handle exists
             """
             if self.implementation_handle is not None:
-                self.implementation_handle(self, cpp)
+                self.implementation_handle(cpp)
 
         def declaration(self):
             """
@@ -273,6 +273,7 @@ class CppClass(CppLanguageElement):
                 self.render_to_string(cpp)
             else:
                 cpp(f'{self._render_virtual()}{self._render_inline()}'
+                    f'{self._render_static()}'
                     f'{self._render_ret_type()} {self.name}({self.args()})'
                     f'{self._render_const()}'
                     f'{self._render_override()}'
@@ -341,7 +342,8 @@ class CppClass(CppLanguageElement):
         """
         @return: string representation of the inheritance
         """
-        return f' : public {self._parent_class()}'
+        if self._parent_class():
+            return f' : public {self._parent_class()}'
 
     ########################################
     # ADD CLASS MEMBERS
@@ -394,7 +396,6 @@ class CppClass(CppLanguageElement):
         """
         for classItem in self.internal_class_elements:
             classItem.declaration().render_to_string(cpp)
-            cpp.newline()
 
     def _render_enum_section(self, cpp):
         """
@@ -403,7 +404,6 @@ class CppClass(CppLanguageElement):
         """
         for enumItem in self.internal_enum_elements:
             enumItem.render_to_string(cpp)
-            cpp.newline()
 
     def _render_variables_declaration(self, cpp):
         """
@@ -412,7 +412,6 @@ class CppClass(CppLanguageElement):
         """
         for varItem in self.internal_variable_elements:
             varItem.declaration().render_to_string(cpp)
-            cpp.newline()
 
     def _render_array_declaration(self, cpp):
         """
@@ -421,7 +420,6 @@ class CppClass(CppLanguageElement):
         """
         for arrItem in self.internal_array_elements:
             arrItem.declaration().render_to_string(cpp)
-            cpp.newline()
 
     def _render_methods_declaration(self, cpp):
         """
@@ -431,7 +429,6 @@ class CppClass(CppLanguageElement):
         """
         for funcItem in self.internal_method_elements:
             funcItem.render_to_string_declaration(cpp)
-            cpp.newline()
 
     def render_static_members_implementation(self, cpp):
         """
@@ -506,18 +503,18 @@ class CppClass(CppLanguageElement):
         if self.documentation:
             cpp(dedent(self.documentation))
 
-        with cpp.block(f'{self._render_class_type()} {self.name} {self.inherits()}', postfix=';'):
+        render_str = f'{self._render_class_type()} {self.name}'
+        if self._parent_class():
+            render_str += f" {self.inherits()}"
+
+        with cpp.block(render_str, postfix=';'):
 
             # in case of struct all members meant to be public
             if not self.is_struct:
                 cpp.label('public')
             self.class_interface(cpp)
-            cpp.newline()
-
-            # in case of struct all members meant to be public
-            if not self.is_struct:
-                cpp.label('private')
             self.private_class_members(cpp)
+        cpp.newline()
 
     def _render_class_type(self):
         """
@@ -530,7 +527,6 @@ class CppClass(CppLanguageElement):
         Render to string class definition.
         Typically handle to *.cpp file should be passed as 'cpp' param
         """
-        cpp.newline(2)
         self.render_static_members_implementation(cpp)
         self.render_methods_implementation(cpp)
 
