@@ -54,7 +54,7 @@ class TestCppClassStringIo(unittest.TestCase):
 
         # Create a CppClass instance
         cpp_class = CppClass(name="MyClass", is_struct=True)
-        
+
         # Add a CppVariable to the class
         cpp_class.add_variable(
             CppVariable(
@@ -145,12 +145,21 @@ class TestCppClassStringIo(unittest.TestCase):
         expected_output = dedent("""\
             class ParentClass
             {
-                static const int m_var;
+            public:
                 static int GetVar();
+                static const int m_var;
             };
-
+            
+            static const int ParentClass::m_var = 42;
+            
+            int ParentClass::GetVar()
+            {
+                return m_var;
+            }
+            
             class ChildClass : public ParentClass
             {
+            public:
             };""")
 
         # Assert the output matches the expected output
@@ -158,7 +167,7 @@ class TestCppClassStringIo(unittest.TestCase):
         expected_output_normalized = normalize_code(expected_output)
         actual_output_normalized = normalize_code(actual_output)
         debug_dump(expected_output_normalized, actual_output_normalized)
-        
+
         self.assertEqual(expected_output_normalized, actual_output_normalized)
 
     def test_cpp_class_with_nested_classes(self):

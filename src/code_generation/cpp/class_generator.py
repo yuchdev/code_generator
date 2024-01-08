@@ -505,7 +505,7 @@ class CppClass(CppLanguageElement):
 
         render_str = f'{self._render_class_type()} {self.name}'
         if self._parent_class():
-            render_str += f" {self.inherits()}"
+            render_str += self.inherits()
 
         with cpp.block(render_str, postfix=';'):
 
