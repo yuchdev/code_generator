@@ -31,7 +31,6 @@ def normalize_code(code):
     while count > 0:
         for old, new in replacements.items():
             count = code.count(old)
-            print(f"Replacing {count} occurrences")
             code = code.replace(old, new)
 
     return code
@@ -279,13 +278,9 @@ class TestCppClassStringIo(unittest.TestCase):
             class MyClass
             {
             public:
-                const char* Array[3] = 
-                {
-                    Item1, 
-                    Item2, 
-                    Item3
-                };
-            };""")
+                static const char* Array[];
+            };
+            const char* MyClass::Array[] = {Item1, Item2, Item3};""")
 
         # Assert the output matches the expected output
         actual_output = writer.getvalue().strip()

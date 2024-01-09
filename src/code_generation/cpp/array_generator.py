@@ -164,7 +164,11 @@ class CppArray(CppLanguageElement):
         self._sanity_check()
         if not self.is_class_member:
             raise RuntimeError('For automatic variable use its render_to_string() method')
-        cpp(f'{self._render_static()}{self._render_const()}{self.type} {self.name}[{self._render_size()}];')
+        cpp(f'{self._render_static()}'
+            f'{self._render_const()}'
+            f'{self.type} '
+            f'{self.name}'
+            f'[{self._render_size()}];')
 
     def render_to_string_implementation(self, cpp):
         """
@@ -190,10 +194,10 @@ class CppArray(CppLanguageElement):
 
         # newline-formatting of array elements makes sense only if array is not empty
         if self.newline_align and self.items:
-            with cpp.block(f'{self._render_static()}{self._render_const()}{self.type} '
-                           f'{self.name}[{self._render_size()}] = ', ';'):
+            with cpp.block(f'{self._render_const()}{self.type} '
+                           f'{self.fully_qualified_name()}[{self._render_size()}] = ', ';'):
                 # render array items
                 self._render_value(cpp)
         else:
-            cpp(f'{self._render_static()}{self._render_const()}{self.type} '
-                f'{self.name}[{self._render_size()}] = {{{self._render_content()}}};')
+            cpp(f'{self._render_const()}{self.type} '
+                f'{self.fully_qualified_name()}[{self._render_size()}] = {{{self._render_content()}}};')
