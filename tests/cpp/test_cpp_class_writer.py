@@ -1,59 +1,22 @@
 import unittest
 import io
 from textwrap import dedent
-from collections import OrderedDict
 
 from code_generation.cpp.file_writer import CppFile
 from code_generation.cpp.enum_generator import CppEnum
 from code_generation.cpp.array_generator import CppArray
 from code_generation.cpp.variable_generator import CppVariable
 from code_generation.cpp.class_generator import CppClass
+from comparing_tools import normalize_code, debug_dump, is_debug
 
 __doc__ = """Unit tests for C++ code generator
 """
-
-
-def normalize_code(code):
-    """
-    Normalize indentation, whitespace and line breaks for comparison
-    """
-
-    replacements = OrderedDict()
-    replacements['\r\n'] = '\n'
-    replacements['\r\n\r\n'] = '\n'
-    replacements['\r\r'] = '\n'
-    replacements['\t\n'] = '\n'
-    replacements['\n\n'] = '\n'
-    replacements['\t'] = '    '
-    replacements['\r'] = '\n'
-
-    count = 1
-    while count > 0:
-        for old, new in replacements.items():
-            count = code.count(old)
-            code = code.replace(old, new)
-
-    return code
-
-
-def debug_dump(expected, actual):
-    """
-    Dump the actual and expected values to 2 files
-    """
-    with open("actual.cpp", "w") as f:
-        f.write(actual)
-
-    with open("expected.cpp", "w") as f:
-        f.write(expected)
 
 
 class TestCppClassStringIo(unittest.TestCase):
     """
     Test C++ class generation by writing to StringIO
     """
-
-    # Set to True to dump the actual and expected output to files
-    DEBUG_DUMP = True
 
     def test_cpp_class(self):
         writer = io.StringIO()
@@ -109,7 +72,7 @@ class TestCppClassStringIo(unittest.TestCase):
         actual_output = writer.getvalue().strip()
         expected_output_normalized = normalize_code(expected_output)
         actual_output_normalized = normalize_code(actual_output)
-        if self.DEBUG_DUMP:
+        if is_debug():
             debug_dump(expected_output_normalized, actual_output_normalized)
         self.assertEqual(expected_output_normalized, actual_output_normalized)
 
@@ -175,7 +138,7 @@ class TestCppClassStringIo(unittest.TestCase):
         actual_output = writer.getvalue().strip()
         expected_output_normalized = normalize_code(expected_output)
         actual_output_normalized = normalize_code(actual_output)
-        if self.DEBUG_DUMP:
+        if is_debug():
             debug_dump(expected_output_normalized, actual_output_normalized)
 
         self.assertEqual(expected_output_normalized, actual_output_normalized)
@@ -211,7 +174,7 @@ class TestCppClassStringIo(unittest.TestCase):
         actual_output = writer.getvalue().strip()
         expected_output_normalized = normalize_code(expected_output)
         actual_output_normalized = normalize_code(actual_output)
-        if self.DEBUG_DUMP:
+        if is_debug():
             debug_dump(expected_output_normalized, actual_output_normalized)
         self.assertEqual(expected_output_normalized, actual_output_normalized)
 
@@ -252,7 +215,7 @@ class TestCppClassStringIo(unittest.TestCase):
         actual_output = writer.getvalue().strip()
         expected_output_normalized = normalize_code(expected_output)
         actual_output_normalized = normalize_code(actual_output)
-        if self.DEBUG_DUMP:
+        if is_debug():
             debug_dump(expected_output_normalized, actual_output_normalized)
         self.assertEqual(expected_output_normalized, actual_output_normalized)
 
@@ -286,7 +249,7 @@ class TestCppClassStringIo(unittest.TestCase):
         actual_output = writer.getvalue().strip()
         expected_output_normalized = normalize_code(expected_output)
         actual_output_normalized = normalize_code(actual_output)
-        if self.DEBUG_DUMP:
+        if is_debug():
             debug_dump(expected_output_normalized, actual_output_normalized)
         self.assertEqual(expected_output_normalized, actual_output_normalized)
 

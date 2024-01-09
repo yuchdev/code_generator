@@ -4,6 +4,7 @@ from textwrap import dedent
 
 from code_generation.cpp.file_writer import CppFile
 from code_generation.cpp.enum_generator import CppEnum
+from comparing_tools import normalize_code, debug_dump, is_debug
 
 __doc__ = """Unit tests for C++ code generator
 """
@@ -23,11 +24,18 @@ class TestCppEnumStringIo(unittest.TestCase):
         expected_output = dedent("""\
             enum Items
             {
-                Chair,
-                Table,
-                Shelve
+                eChair = 0,
+                eTable = 1,
+                eShelve = 2,
+                eItemsCount = 3
             };""")
-        self.assertEqual(expected_output, writer.getvalue().strip())
+        actual_output = writer.getvalue().strip()
+        expected_output_normalized = normalize_code(expected_output)
+        actual_output_normalized = normalize_code(actual_output)
+        if is_debug():
+            debug_dump(expected_output_normalized, actual_output_normalized)
+
+        self.assertEqual(expected_output_normalized, actual_output_normalized)
 
     def test_cpp_enum_with_prefix(self):
         writer = io.StringIO()
@@ -38,11 +46,18 @@ class TestCppEnumStringIo(unittest.TestCase):
         expected_output = dedent("""\
             enum Items
             {
-                PrefixA,
-                PrefixB,
-                PrefixC
+                PrefixA = 0,
+                PrefixB = 1,
+                PrefixC = 2,
+                PrefixItemsCount = 3
             };""")
-        self.assertEqual(expected_output, writer.getvalue().strip())
+        actual_output = writer.getvalue().strip()
+        expected_output_normalized = normalize_code(expected_output)
+        actual_output_normalized = normalize_code(actual_output)
+        if is_debug():
+            debug_dump(expected_output_normalized, actual_output_normalized)
+
+        self.assertEqual(expected_output_normalized, actual_output_normalized)
 
     def test_cpp_enum_class(self):
         writer = io.StringIO()
@@ -53,11 +68,18 @@ class TestCppEnumStringIo(unittest.TestCase):
         expected_output = dedent("""\
             enum class Items
             {
-                A,
-                B,
-                C
+                eA = 0,
+                eB = 1,
+                eC = 2,
+                eItemsCount = 3
             };""")
-        self.assertEqual(expected_output, writer.getvalue().strip())
+        actual_output = writer.getvalue().strip()
+        expected_output_normalized = normalize_code(expected_output)
+        actual_output_normalized = normalize_code(actual_output)
+        if is_debug():
+            debug_dump(expected_output_normalized, actual_output_normalized)
+
+        self.assertEqual(expected_output_normalized, actual_output_normalized)
 
 
 if __name__ == "__main__":

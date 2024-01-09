@@ -4,18 +4,10 @@ import io
 from textwrap import dedent
 from code_generation.cpp.file_writer import CppFile
 from code_generation.cpp.array_generator import CppArray
+from comparing_tools import normalize_lines
 
 __doc__ = """Unit tests for C++ code generator
 """
-
-
-def normalize_lines(text):
-    """
-    Normalize indentation and whitespace for comparison
-    """
-    lines = text.splitlines()
-    normalized_lines = [line.strip() for line in lines]
-    return '\n'.join(normalized_lines)
 
 
 class TestCppArrayStringIo(unittest.TestCase):
