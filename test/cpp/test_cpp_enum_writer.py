@@ -4,7 +4,7 @@ from textwrap import dedent
 
 from code_generation.cpp.file_writer import CppFile
 from code_generation.cpp.enum_generator import CppEnum
-from comparing_tools import normalize_code, debug_dump, is_debug
+from test.comparing_tools import normalize_code, debug_dump, is_debug
 
 __doc__ = """Unit tests for C++ code generator
 """
@@ -33,7 +33,7 @@ class TestCppEnumStringIo(unittest.TestCase):
         expected_output_normalized = normalize_code(expected_output)
         actual_output_normalized = normalize_code(actual_output)
         if is_debug():
-            debug_dump(expected_output_normalized, actual_output_normalized)
+            debug_dump(expected_output_normalized, actual_output_normalized, "cpp")
 
         self.assertEqual(expected_output_normalized, actual_output_normalized)
 
@@ -55,7 +55,7 @@ class TestCppEnumStringIo(unittest.TestCase):
         expected_output_normalized = normalize_code(expected_output)
         actual_output_normalized = normalize_code(actual_output)
         if is_debug():
-            debug_dump(expected_output_normalized, actual_output_normalized)
+            debug_dump(expected_output_normalized, actual_output_normalized, cpp)
 
         self.assertEqual(expected_output_normalized, actual_output_normalized)
 
@@ -77,7 +77,7 @@ class TestCppEnumStringIo(unittest.TestCase):
         expected_output_normalized = normalize_code(expected_output)
         actual_output_normalized = normalize_code(actual_output)
         if is_debug():
-            debug_dump(expected_output_normalized, actual_output_normalized)
+            debug_dump(expected_output_normalized, actual_output_normalized, cpp)
 
         self.assertEqual(expected_output_normalized, actual_output_normalized)
 

@@ -1,0 +1,2 @@
+pathlib~=1.0.1
+setuptools~=68.1.2

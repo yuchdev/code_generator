@@ -7,10 +7,9 @@ from code_generation.cpp.enum_generator import CppEnum
 from code_generation.cpp.array_generator import CppArray
 from code_generation.cpp.variable_generator import CppVariable
 from code_generation.cpp.class_generator import CppClass
-from comparing_tools import normalize_code, debug_dump, is_debug
+from test.comparing_tools import normalize_code, debug_dump, is_debug
 
-__doc__ = """Unit tests for C++ code generator
-"""
+__doc__ = """Unit tests for C++ code generator"""
 
 
 class TestCppClassStringIo(unittest.TestCase):
@@ -73,7 +72,7 @@ class TestCppClassStringIo(unittest.TestCase):
         expected_output_normalized = normalize_code(expected_output)
         actual_output_normalized = normalize_code(actual_output)
         if is_debug():
-            debug_dump(expected_output_normalized, actual_output_normalized)
+            debug_dump(expected_output_normalized, actual_output_normalized, "cpp")
         self.assertEqual(expected_output_normalized, actual_output_normalized)
 
     def test_cpp_class_with_inheritance(self):
@@ -139,7 +138,7 @@ class TestCppClassStringIo(unittest.TestCase):
         expected_output_normalized = normalize_code(expected_output)
         actual_output_normalized = normalize_code(actual_output)
         if is_debug():
-            debug_dump(expected_output_normalized, actual_output_normalized)
+            debug_dump(expected_output_normalized, actual_output_normalized, "cpp")
 
         self.assertEqual(expected_output_normalized, actual_output_normalized)
 
@@ -175,7 +174,7 @@ class TestCppClassStringIo(unittest.TestCase):
         expected_output_normalized = normalize_code(expected_output)
         actual_output_normalized = normalize_code(actual_output)
         if is_debug():
-            debug_dump(expected_output_normalized, actual_output_normalized)
+            debug_dump(expected_output_normalized, actual_output_normalized, "cpp")
         self.assertEqual(expected_output_normalized, actual_output_normalized)
 
     def test_cpp_class_with_enum(self):
@@ -216,7 +215,7 @@ class TestCppClassStringIo(unittest.TestCase):
         expected_output_normalized = normalize_code(expected_output)
         actual_output_normalized = normalize_code(actual_output)
         if is_debug():
-            debug_dump(expected_output_normalized, actual_output_normalized)
+            debug_dump(expected_output_normalized, actual_output_normalized, "cpp")
         self.assertEqual(expected_output_normalized, actual_output_normalized)
 
     def test_cpp_class_with_array(self):
@@ -250,7 +249,7 @@ class TestCppClassStringIo(unittest.TestCase):
         expected_output_normalized = normalize_code(expected_output)
         actual_output_normalized = normalize_code(actual_output)
         if is_debug():
-            debug_dump(expected_output_normalized, actual_output_normalized)
+            debug_dump(expected_output_normalized, actual_output_normalized, "cpp")
         self.assertEqual(expected_output_normalized, actual_output_normalized)
 
 

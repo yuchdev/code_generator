@@ -24,14 +24,15 @@ def normalize_code(code):
     return code
 
 
-def debug_dump(expected, actual):
+def debug_dump(expected, actual, extension):
     """
     Dump the actual and expected values to 2 files
+    :param extension:
     """
-    with open("actual.cpp", "w") as f:
+    with open(f"actual.{extension}", "w") as f:
         f.write(actual)
 
-    with open("expected.cpp", "w") as f:
+    with open(f"expected.{extension}", "w") as f:
         f.write(expected)
 
 

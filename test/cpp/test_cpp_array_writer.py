@@ -4,7 +4,7 @@ import io
 from textwrap import dedent
 from code_generation.cpp.file_writer import CppFile
 from code_generation.cpp.array_generator import CppArray
-from comparing_tools import normalize_lines
+from test.comparing_tools import normalize_lines
 
 __doc__ = """Unit tests for C++ code generator
 """
