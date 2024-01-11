@@ -10,7 +10,7 @@ class TestJavaVariableStringIo(unittest.TestCase):
     Test Java variable generation by writing to StringIO
     """
 
-    def test_java_var(self):
+    def test_simple_case(self):
         writer = io.StringIO()
         java = JavaFile(None, writer=writer)
         variable = JavaVariable(name="var1",

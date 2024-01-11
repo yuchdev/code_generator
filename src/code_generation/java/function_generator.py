@@ -18,7 +18,7 @@ class JavaFunction(JavaLanguageElement):
         'is_strictfp',
         'access_specifier',
         'documentation',
-        'implementation_handle'
+        'implementation'
     } | JavaLanguageElement.available_properties_names
 
     def __init__(self, **properties):
@@ -33,7 +33,7 @@ class JavaFunction(JavaLanguageElement):
         self.is_strictfp = False
         self.documentation = ''
         self.access_specifier = 'public'
-        self.implementation_handle = None
+        self.implementation = None
         input_property_names = set(properties.keys())
         self.check_input_properties_names(input_property_names)
         super(JavaFunction, self).__init__(properties)
@@ -79,5 +79,5 @@ class JavaFunction(JavaLanguageElement):
         if self.is_strictfp:
             java('strictfp', end=' ')
         with java.block(f'{self.access_specifier} {self.return_type} {self.name}({self.args_str()})'):
-            if self.implementation_handle:
-                self.implementation_handle(java)
+            if self.implementation:
+                self.implementation(java)

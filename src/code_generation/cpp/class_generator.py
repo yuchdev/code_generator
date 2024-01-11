@@ -26,7 +26,7 @@ class CppClass(CppLanguageElement):
     cpp_class.add_method(CppFunction(name = "GetVar",
         ret_type = 'size_t',
         is_static = True,
-        implementation_handle = handle))
+        implementation = handle))
 
     // Generated C++ declaration
     struct MyClass
@@ -58,7 +58,7 @@ class CppClass(CppLanguageElement):
         is_virtual - boolean, virtual method postfix, could not be static
         is_pure_virtual - boolean, ' = 0' method postfix, could not be static
         documentation - string, '/// Example doxygen'
-        implementation_handle - reference to a function that receives 'self' and C++ code generator handle
+        implementation - reference to a function that receives 'self' and C++ code generator handle
         (see code_generator.cpp) and generates method body without braces
         Ex.
         #Python code
@@ -66,7 +66,7 @@ class CppClass(CppLanguageElement):
         f1 = CppFunction(name = 'GetAnswer',
                          ret_type = 'int',
                          documentation = '// Generated code',
-                         implementation_handle = functionBody)
+                         implementation = functionBody)
 
         // Generated code
         int MyClass::GetAnswer()
@@ -83,7 +83,7 @@ class CppClass(CppLanguageElement):
                                     'is_const',
                                     'is_override',
                                     'is_final',
-                                    'implementation_handle',
+                                    'implementation',
                                     'documentation'} | CppLanguageElement.availablePropertiesNames
 
         def __init__(self, **properties):
@@ -98,7 +98,7 @@ class CppClass(CppLanguageElement):
             self.is_override = False
             self.is_final = False
             self.arguments = []
-            self.implementation_handle = properties.get('implementation_handle')
+            self.implementation = properties.get('implementation')
             self.documentation = properties.get('documentation')
 
             # check properties
@@ -196,9 +196,9 @@ class CppClass(CppLanguageElement):
                 raise ValueError(f'Pure virtual method {self.name} is also a virtual method')
             if not self.ref_to_parent:
                 raise ValueError(f'Method {self.name} object must be a child of CppClass')
-            if self.is_constexpr and self.implementation_handle is None:
+            if self.is_constexpr and self.implementation is None:
                 raise ValueError(f'Method {self.name} object must be initialized when "constexpr"')
-            if self.is_pure_virtual and self.implementation_handle is not None:
+            if self.is_pure_virtual and self.implementation is not None:
                 raise ValueError(f'Pure virtual method {self.name} could not be implemented')
 
         def add_argument(self, argument):
@@ -217,8 +217,8 @@ class CppClass(CppLanguageElement):
             """
             The method calls Python function that creates C++ method body if handle exists
             """
-            if self.implementation_handle is not None:
-                self.implementation_handle(cpp)
+            if self.implementation is not None:
+                self.implementation(cpp)
 
         def declaration(self):
             """
@@ -289,12 +289,12 @@ class CppClass(CppLanguageElement):
             {
             ...
             }
-            Generates method body if self.implementation_handle property exists
+            Generates method body if self.implementation property exists
             """
             # check all properties for the consistency
             self._sanity_check()
 
-            if self.implementation_handle is None:
+            if self.implementation is None:
                 raise RuntimeError(f'No implementation handle for the method {self.name}')
 
             if self.documentation and not self.is_constexpr:

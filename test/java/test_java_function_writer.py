@@ -16,13 +16,13 @@ class TestJavaFunctionStringIo(unittest.TestCase):
     Test Java method generation by writing to StringIO
     """
 
-    def test_java_method(self):
+    def test_simple_case(self):
         writer = io.StringIO()
         java = JavaFile(None, writer=writer)
 
         method = JavaFunction(name="calculateSum",
                               return_type="int",
-                              implementation_handle=handle_to_function)
+                              implementation=handle_to_function)
         method.add_argument("int a")
         method.add_argument("int b")
         method.render_to_string(java)

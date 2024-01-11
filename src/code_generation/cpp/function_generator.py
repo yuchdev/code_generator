@@ -10,7 +10,7 @@ class CppFunction(CppLanguageElement):
     ret_type - string, return value for the method ('void', 'int'). Could not be set for constructors
     is_constexpr - boolean, const method prefix
     documentation - string, '/// Example doxygen'
-    implementation_handle - reference to a function that receives 'self' and C++ code generator handle
+    implementation - reference to a function that receives 'self' and C++ code generator handle
     (see code_generator.cpp) and generates method body without braces
     Ex.
     #Python code
@@ -18,7 +18,7 @@ class CppFunction(CppLanguageElement):
     f1 = CppFunction(name = 'GetAnswer',
                      ret_type = 'int',
                      documentation = '// Generated code',
-                     implementation_handle = functionBody)
+                     implementation = functionBody)
 
     // Generated code
     int GetAnswer()
@@ -28,7 +28,7 @@ class CppFunction(CppLanguageElement):
     """
     availablePropertiesNames = {'ret_type',
                                 'is_constexpr',
-                                'implementation_handle',
+                                'implementation',
                                 'documentation'} | CppLanguageElement.availablePropertiesNames
 
     def __init__(self, **properties):
@@ -36,7 +36,7 @@ class CppFunction(CppLanguageElement):
         # e.g. 'int* a', 'const string& s', 'size_t sz = 10'
         self.arguments = []
         self.ret_type = None
-        self.implementation_handle = None
+        self.implementation = None
         self.documentation = None
         self.is_constexpr = False
 
@@ -51,7 +51,7 @@ class CppFunction(CppLanguageElement):
         """
         Check whether attributes compose a correct C++ code
         """
-        if self.is_constexpr and self.implementation_handle is None:
+        if self.is_constexpr and self.implementation is None:
             raise ValueError(f'Constexpr function {self.name} must have implementation')
 
     def _render_constexpr(self):
@@ -77,8 +77,8 @@ class CppFunction(CppLanguageElement):
         """
         The method calls Python function that creates C++ method body if handle exists
         """
-        if self.implementation_handle is not None:
-            self.implementation_handle(self, cpp)
+        if self.implementation is not None:
+            self.implementation(self, cpp)
 
     def declaration(self):
         """
@@ -133,9 +133,9 @@ class CppFunction(CppLanguageElement):
         {
         ...
         }
-        Generates method body if self.implementation_handle property exists
+        Generates method body if self.implementation property exists
         """
-        if self.implementation_handle is None:
+        if self.implementation is None:
             raise RuntimeError(f'No implementation handle for the function {self.name}')
 
         # check all properties for the consistency

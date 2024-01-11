@@ -48,14 +48,22 @@ class JavaClass(JavaLanguageElement):
 
         self.internal_class_elements = []
         self.internal_variable_elements = []
+        self.internal_enum_elements = []
         self.internal_method_elements = []
 
     def _parent_class(self):
         return self.parent_class if self.parent_class else ""
 
-    def render_to_string(self, java):
+    def _render_documentation(self, java):
         if self.documentation:
-            java(f"/**\n{self.documentation}\n*/")
+            docstring_lines = ["/**"]
+            docstring_lines.extend([f" * {line}" for line in self.documentation.splitlines()])
+            docstring_lines.append(" */")
+            for line in docstring_lines:
+                java(line)
+
+    def render_to_string(self, java):
+        self._render_documentation(java)
         with java.block(f"public {self._render_class_type()} {self.name} {self.inherits()}"):
             self.class_interface(java)
             self.private_class_members(java)
@@ -88,7 +96,7 @@ class JavaClass(JavaLanguageElement):
 
     def _render_methods_declaration(self, java):
         for method_item in self.internal_method_elements:
-            method_item.render_to_string_declaration(java)
+            method_item.render_to_string(java)
             java.newline()
 
     def private_class_members(self, java):

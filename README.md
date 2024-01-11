@@ -84,7 +84,7 @@ cpp = CodeFile('example.cpp')
 factorial_function = CppFunction(name='factorial',
     ret_type='int',
     is_constexpr=True,
-    implementation_handle=handle_to_factorial,
+    implementation=handle_to_factorial,
     documentation='/// Calculates and returns the factorial of \p n.')
 factorial_function.add_argument('int n')
 factorial_function.render_to_string(cpp)

@@ -15,7 +15,7 @@ class TestCppArrayStringIo(unittest.TestCase):
     Test C++ array generation by writing to StringIO
     """
 
-    def test_cpp_array(self):
+    def test_simple_case(self):
         writer = io.StringIO()
         cpp = CppFile(None, writer=writer)
         arr = CppArray(name="my_array", type="int", array_size=5)
@@ -24,7 +24,7 @@ class TestCppArrayStringIo(unittest.TestCase):
         expected_output = "int my_array[5] = {1, 2, 0};"
         self.assertEqual(expected_output, writer.getvalue().strip())
 
-    def test_cpp_array_with_newline_align(self):
+    def test_with_newline_align(self):
         writer = io.StringIO()
         cpp = CppFile(None, writer=writer)
         arr = CppArray(name="my_array", type="int", array_size=5, newline_align=True)
@@ -41,7 +41,7 @@ class TestCppArrayStringIo(unittest.TestCase):
         generated_output_normalized = normalize_lines(generated_output)
         self.assertEqual(expected_output_normalized, generated_output_normalized)
 
-    def test_cpp_array_declaration(self):
+    def test_declaration(self):
         writer = io.StringIO()
         cpp = CppFile(None, writer=writer)
         arr = CppArray(name="my_class_member_array", type="int", array_size=None, is_class_member=True)
@@ -49,7 +49,7 @@ class TestCppArrayStringIo(unittest.TestCase):
         expected_output = "int my_class_member_array[];"
         self.assertEqual(expected_output, writer.getvalue().strip())
 
-    def test_cpp_array_implementation(self):
+    def test_implementation(self):
         writer = io.StringIO()
         cpp = CppFile(None, writer=writer)
         arr = CppArray(name="m_my_static_array", type="int", array_size=None,

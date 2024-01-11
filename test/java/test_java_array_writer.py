@@ -11,7 +11,7 @@ class TestJavaArrayStringIo(unittest.TestCase):
     Test Java array generation by writing to StringIO
     """
 
-    def test_java_array(self):
+    def test_simple_case(self):
         writer = io.StringIO()
         java = JavaFile(None, writer=writer)
         arr = JavaArray(name="myArray", type="int", values=["1", "2", "0"])
@@ -25,7 +25,7 @@ class TestJavaArrayStringIo(unittest.TestCase):
             debug_dump(expected_output_normalized, actual_output_normalized, "java")
         self.assertEqual(expected_output_normalized, actual_output_normalized)
 
-    def test_java_array_with_empty_values(self):
+    def test_with_empty_values(self):
         writer = io.StringIO()
         java = JavaFile(None, writer=writer)
         arr = JavaArray(name="emptyArray", type='int', values=[])
@@ -39,7 +39,7 @@ class TestJavaArrayStringIo(unittest.TestCase):
             debug_dump(expected_output_normalized, actual_output_normalized, "java")
         self.assertEqual(expected_output_normalized, actual_output_normalized)
 
-    def test_java_array_add_item(self):
+    def test_add_item(self):
         writer = io.StringIO()
         java = JavaFile(None, writer=writer)
         arr = JavaArray(name="myArray", type='String', quoted=True)
@@ -55,7 +55,7 @@ class TestJavaArrayStringIo(unittest.TestCase):
             debug_dump(expected_output_normalized, actual_output_normalized, "java")
         self.assertEqual(expected_output_normalized, actual_output_normalized)
 
-    def test_java_array_add_items(self):
+    def test_add_items(self):
         writer = io.StringIO()
         java = JavaFile(None, writer=writer)
         arr = JavaArray(name="myArray", type='String', quoted=True)

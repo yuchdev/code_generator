@@ -120,7 +120,7 @@ def generate_func(output_dir='.'):
 
     functions = [CppFunction(name='GetParam', ret_type='int'),
                  CppFunction(name='Calculate', ret_type='void'),
-                 CppFunction(name='GetAnswer', ret_type='int', implementation_handle=function_body),
+                 CppFunction(name='GetAnswer', ret_type='int', implementation=function_body),
                  CppFunction(name='Help', ret_type='char *', documentation='/// Returns the help documentation.'),
                  ]
     for func in functions:
@@ -200,7 +200,7 @@ def generate_class(output_dir='.'):
                                     ret_type="int",
                                     is_method=True,
                                     is_const=True,
-                                    implementation_handle=method_body))
+                                    implementation=method_body))
 
     my_class.add_method(CppFunction(name="VirtualMethod",
                                     ret_type="int",
@@ -238,7 +238,7 @@ def generate_factorial(output_dir='.'):
         cpp_file('return n < 1 ? 1 : (n * factorial(n - 1));')
 
     func = CppFunction(name="factorial", ret_type="int",
-                       implementation_handle=handle_to_factorial,
+                       implementation=handle_to_factorial,
                        is_constexpr=True)
     func.add_argument('int n')
     func.render_to_string(cpp)

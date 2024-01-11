@@ -17,7 +17,7 @@ class TestCppClassStringIo(unittest.TestCase):
     Test C++ class generation by writing to StringIO
     """
 
-    def test_cpp_class(self):
+    def test_simple_case(self):
         writer = io.StringIO()
         cpp_file = CppFile(None, writer=writer)
 
@@ -36,7 +36,7 @@ class TestCppClassStringIo(unittest.TestCase):
         )
 
         # Define a function body for the CppMethod
-        def handle(cpp):
+        def body(cpp):
             cpp('return m_var;')
 
         # Add a CppMethod to the class
@@ -45,7 +45,7 @@ class TestCppClassStringIo(unittest.TestCase):
                 name="GetVar",
                 ret_type="size_t",
                 is_static=True,
-                implementation_handle=handle
+                implementation=body
             )
         )
 
@@ -75,7 +75,7 @@ class TestCppClassStringIo(unittest.TestCase):
             debug_dump(expected_output_normalized, actual_output_normalized, "cpp")
         self.assertEqual(expected_output_normalized, actual_output_normalized)
 
-    def test_cpp_class_with_inheritance(self):
+    def test_with_inheritance(self):
         writer = io.StringIO()
         cpp = CppFile(None, writer=writer)
 
@@ -102,7 +102,7 @@ class TestCppClassStringIo(unittest.TestCase):
                 name="GetVar",
                 ret_type="int",
                 is_static=True,
-                implementation_handle=lambda cpp_file: cpp_file("return m_var;")
+                implementation=lambda cpp_file: cpp_file("return m_var;")
             )
         )
 
@@ -142,7 +142,7 @@ class TestCppClassStringIo(unittest.TestCase):
 
         self.assertEqual(expected_output_normalized, actual_output_normalized)
 
-    def test_cpp_class_with_nested_classes(self):
+    def test_with_nested_classes(self):
         writer = io.StringIO()
         cpp = CppFile(None, writer=writer)
 
@@ -177,7 +177,7 @@ class TestCppClassStringIo(unittest.TestCase):
             debug_dump(expected_output_normalized, actual_output_normalized, "cpp")
         self.assertEqual(expected_output_normalized, actual_output_normalized)
 
-    def test_cpp_class_with_enum(self):
+    def test_with_enum(self):
         writer = io.StringIO()
         cpp = CppFile(None, writer=writer)
 
@@ -218,7 +218,7 @@ class TestCppClassStringIo(unittest.TestCase):
             debug_dump(expected_output_normalized, actual_output_normalized, "cpp")
         self.assertEqual(expected_output_normalized, actual_output_normalized)
 
-    def test_cpp_class_with_array(self):
+    def test_with_array(self):
         writer = io.StringIO()
         cpp = CppFile(None, writer=writer)
 

@@ -15,7 +15,7 @@ class TestCppEnumStringIo(unittest.TestCase):
     Test C++ enum generation by writing to StringIO
     """
 
-    def test_cpp_enum(self):
+    def test_simple_case(self):
         writer = io.StringIO()
         cpp = CppFile(None, writer=writer)
         enum = CppEnum(name="Items")
@@ -37,7 +37,7 @@ class TestCppEnumStringIo(unittest.TestCase):
 
         self.assertEqual(expected_output_normalized, actual_output_normalized)
 
-    def test_cpp_enum_with_prefix(self):
+    def test_with_prefix(self):
         writer = io.StringIO()
         cpp = CppFile(None, writer=writer)
         enum = CppEnum(name="Items", prefix="Prefix")
@@ -59,7 +59,7 @@ class TestCppEnumStringIo(unittest.TestCase):
 
         self.assertEqual(expected_output_normalized, actual_output_normalized)
 
-    def test_cpp_enum_class(self):
+    def test_class(self):
         writer = io.StringIO()
         cpp = CppFile(None, writer=writer)
         enum = CppEnum(name="Items", enum_class=True)

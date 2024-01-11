@@ -13,7 +13,7 @@ class TestCppVariableStringIo(unittest.TestCase):
     Test C++ variable generation by writing to StringIO
     """
 
-    def test_cpp_var(self):
+    def test_simple_case(self):
         writer = io.StringIO()
         cpp = CppFile(None, writer=writer)
         variables = CppVariable(name="var1",

@@ -93,12 +93,12 @@ class TestCppFileIo(unittest.TestCase):
         my_class.add_method(CppClass.CppMethod(name="GetParam",
                                                ret_type="int",
                                                is_const=True,
-                                               implementation_handle=const_method_body))
+                                               implementation=const_method_body))
 
         my_class.add_method(CppClass.CppMethod(name="VirtualMethod",
                                                ret_type="int",
                                                is_virtual=True,
-                                               implementation_handle=virtual_method_body))
+                                               implementation=virtual_method_body))
 
         my_class.add_method(CppClass.CppMethod(name="PureVirtualMethod",
                                                ret_type="void",
@@ -149,7 +149,7 @@ class TestCppFileIo(unittest.TestCase):
 
         functions = [CppFunction(name='GetParam', ret_type='int'),
                      CppFunction(name='Calculate', ret_type='void'),
-                     CppFunction(name='GetAnswer', ret_type='int', implementation_handle=function_body)]
+                     CppFunction(name='GetAnswer', ret_type='int', implementation=function_body)]
 
         for func in functions:
             func.render_to_string(hpp)

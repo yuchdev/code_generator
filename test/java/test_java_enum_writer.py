@@ -11,7 +11,7 @@ class TestJavaEnumStringIo(unittest.TestCase):
     Test Java enum generation by writing to StringIO
     """
 
-    def test_java_enum(self):
+    def test_simple_case(self):
         writer = io.StringIO()
         java = JavaFile(None, writer=writer)
         enum = JavaEnum(name="Color", values=["RED", "GREEN", "BLUE"])
