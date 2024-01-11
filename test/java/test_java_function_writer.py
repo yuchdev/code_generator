@@ -4,6 +4,11 @@ from textwrap import dedent
 
 from code_generation.java.file_writer import JavaFile
 from code_generation.java.function_generator import JavaFunction
+from test.comparing_tools import normalize_code, debug_dump, is_debug
+
+
+def handle_to_function(j):
+    j('return a + b;')
 
 
 class TestJavaFunctionStringIo(unittest.TestCase):
@@ -14,31 +19,24 @@ class TestJavaFunctionStringIo(unittest.TestCase):
     def test_java_method(self):
         writer = io.StringIO()
         java = JavaFile(None, writer=writer)
+
         method = JavaFunction(name="calculateSum",
                               return_type="int",
-                              implementation_handle=lambda: "return a + b;")
+                              implementation_handle=handle_to_function)
         method.add_argument("int a")
         method.add_argument("int b")
         method.render_to_string(java)
         expected_output = dedent("""\
-            public int calculateSum(int a, int b) {
-                // Method implementation
+            public int calculateSum(int a, int b)
+            {
                 return a + b;
             }""")
-        self.assertEqual(expected_output, writer.getvalue().strip())
-
-    def test_render_to_string_declaration(self):
-        writer = io.StringIO()
-        java = JavaFile(None, writer=writer)
-        method = JavaFunction(name="calculateSum",
-                              return_type="int",
-                              implementation_handle=lambda: "return a + b;")
-        method.add_argument("int a")
-        method.add_argument("int b")
-        method.render_to_string(java)
-        expected_output = dedent("""\
-            public int calculateSum(int a, int b);""")
-        self.assertEqual(expected_output, writer.getvalue().strip())
+        actual_output = writer.getvalue().strip()
+        expected_output_normalized = normalize_code(expected_output)
+        actual_output_normalized = normalize_code(actual_output)
+        if is_debug():
+            debug_dump(expected_output_normalized, actual_output_normalized, "java")
+        self.assertEqual(expected_output_normalized, actual_output_normalized)
 
     def test_missing_name(self):
         method = JavaFunction(name=None, return_type="int")

@@ -8,7 +8,7 @@ class JavaFunction(JavaLanguageElement):
 
     available_properties_names = {
         'name',
-        'ret_type',
+        'return_type',
         'arguments',
         'is_static',
         'is_final',
@@ -16,13 +16,14 @@ class JavaFunction(JavaLanguageElement):
         'is_synchronized',
         'is_native',
         'is_strictfp',
+        'access_specifier',
         'documentation',
         'implementation_handle'
     } | JavaLanguageElement.available_properties_names
 
     def __init__(self, **properties):
         self.name = ''
-        self.ret_type = ''
+        self.return_type = ''
         self.arguments = []
         self.is_static = False
         self.is_final = False
@@ -31,8 +32,8 @@ class JavaFunction(JavaLanguageElement):
         self.is_native = False
         self.is_strictfp = False
         self.documentation = ''
+        self.access_specifier = 'public'
         self.implementation_handle = None
-
         input_property_names = set(properties.keys())
         self.check_input_properties_names(input_property_names)
         super(JavaFunction, self).__init__(properties)
@@ -44,8 +45,8 @@ class JavaFunction(JavaLanguageElement):
             raise RuntimeError('Method name is not set')
         if not isinstance(self.name, str):
             raise RuntimeError(f'Method name is not a string, but {type(self.name)}')
-        if not isinstance(self.ret_type, str):
-            raise RuntimeError(f'Return type is not a string, but {type(self.ret_type)}')
+        if not isinstance(self.return_type, str):
+            raise RuntimeError(f'Return type is not a string, but {type(self.return_type)}')
         if self.arguments is not None and not isinstance(self.arguments, list):
             raise RuntimeError(f'Arguments are not a list, but {type(self.arguments)}')
 
@@ -77,6 +78,6 @@ class JavaFunction(JavaLanguageElement):
             java('native', end=' ')
         if self.is_strictfp:
             java('strictfp', end=' ')
-        with java.block(f'{self.ret_type} {self.name}({self.args_str()})'):
+        with java.block(f'{self.access_specifier} {self.return_type} {self.name}({self.args_str()})'):
             if self.implementation_handle:
                 self.implementation_handle(java)

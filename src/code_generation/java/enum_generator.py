@@ -1,4 +1,3 @@
-from code_generation.core.code_file import CodeFile
 from code_generation.java.language_element import JavaLanguageElement
 
 
@@ -62,7 +61,7 @@ class JavaEnum(JavaLanguageElement):
         if self.values is None or not self.values:
             java(f"enum {self.name} {{}}")
         else:
-            java(f"enum {self.name} {{ {self.values_str()} }}")
+            java(f"enum {self.name} {{ {self.values_str()} }};")
 
     def render_to_string(self, java):
         self._sanity_check()

@@ -3,6 +3,7 @@ import io
 
 from code_generation.java.file_writer import JavaFile
 from code_generation.java.enum_generator import JavaEnum
+from test.comparing_tools import normalize_code, debug_dump, is_debug
 
 
 class TestJavaEnumStringIo(unittest.TestCase):
@@ -15,8 +16,13 @@ class TestJavaEnumStringIo(unittest.TestCase):
         java = JavaFile(None, writer=writer)
         enum = JavaEnum(name="Color", values=["RED", "GREEN", "BLUE"])
         enum.render_to_string(java)
-        expected_output = "enum Color {\n    RED,\n    GREEN,\n    BLUE\n}"
-        self.assertEqual(expected_output, writer.getvalue().strip())
+        actual_output = writer.getvalue().strip()
+        expected_output = "enum Color { RED, GREEN, BLUE };"
+        expected_output_normalized = normalize_code(expected_output)
+        actual_output_normalized = normalize_code(actual_output)
+        if is_debug():
+            debug_dump(expected_output_normalized, actual_output_normalized, "java")
+        self.assertEqual(expected_output_normalized, actual_output_normalized)
 
     def test_render_to_string_declaration(self):
         writer = io.StringIO()

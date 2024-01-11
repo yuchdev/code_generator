@@ -82,15 +82,15 @@ class JavaLanguageElement:
         @param: default_property_value - value for properties that are not initialized
         (None by default, because of the same as False semantic)
         """
-        # Set all available properties to DefaultValue
-        for property_name in current_class_properties:
-            if property_name not in JavaLanguageElement.available_properties_names:
-                setattr(self, property_name, default_property_value)
-
         # Set all defined properties values (all undefined will be left with defaults)
         for (property_name, property_value) in input_properties_dict.items():
             if property_name not in JavaLanguageElement.available_properties_names:
                 setattr(self, property_name, property_value)
+
+        # Set all available properties to DefaultValue if they are not already set
+        for property_name in current_class_properties:
+            if property_name not in JavaLanguageElement.available_properties_names and not hasattr(self, property_name):
+                setattr(self, property_name, default_property_value)
 
     def render_to_string(self, java):
         """
