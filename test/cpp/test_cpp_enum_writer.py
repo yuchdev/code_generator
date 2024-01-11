@@ -55,7 +55,7 @@ class TestCppEnumStringIo(unittest.TestCase):
         expected_output_normalized = normalize_code(expected_output)
         actual_output_normalized = normalize_code(actual_output)
         if is_debug():
-            debug_dump(expected_output_normalized, actual_output_normalized, cpp)
+            debug_dump(expected_output_normalized, actual_output_normalized, "cpp")
 
         self.assertEqual(expected_output_normalized, actual_output_normalized)
 
@@ -77,7 +77,7 @@ class TestCppEnumStringIo(unittest.TestCase):
         expected_output_normalized = normalize_code(expected_output)
         actual_output_normalized = normalize_code(actual_output)
         if is_debug():
-            debug_dump(expected_output_normalized, actual_output_normalized, cpp)
+            debug_dump(expected_output_normalized, actual_output_normalized, "cpp")
 
         self.assertEqual(expected_output_normalized, actual_output_normalized)
 

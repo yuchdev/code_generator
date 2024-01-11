@@ -38,9 +38,10 @@ class TestJavaVariableStringIo(unittest.TestCase):
     def test_render_to_string_declaration(self):
         writer = io.StringIO()
         java = JavaFile(None, writer=writer)
-        variable = JavaVariable(name="var1", type="String", is_class_member=True)
+        variable = JavaVariable(name="var1", type="String")
         variable.render_to_string_declaration(java)
         self.assertEqual("String var1;", writer.getvalue().strip())
+
 
 if __name__ == "__main__":
     unittest.main()

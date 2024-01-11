@@ -34,7 +34,13 @@ jobs:
     - name: Run test
       run: |
         python release_package.py --mode install
-        python tests/test_cpp_file.py
-        python tests/test_cpp_function_writer.py
-        python tests/test_cpp_variable_writer.py
-        python tests/test_html_writer.py
+        python test.cpp.test_cpp_array_writer
+        python test.cpp.test_cpp_enum_writer
+        python test.cpp.test_cpp_class_writer
+        python test.cpp.test_cpp_function_writer
+        python test.cpp.test_cpp_variable_writer
+        python test.java.test_java_array_writer
+        python test.java.test_java_enum_writer
+        python test.java.test_java_class_writer
+        python test.java.test_java_function_writer
+        python test.java.test_java_variable_writer
