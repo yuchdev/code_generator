@@ -1,8 +1,4 @@
-from code_generation.cpp.language_element import (
-    CppLanguageElement,
-    CppDeclaration,
-    CppImplementation,
-)
+from code_generation.cpp.language_element import CppLanguageElement, CppDeclaration, CppImplementation
 from code_generation.cpp.function_generator import CppFunction
 from textwrap import dedent
 
@@ -49,10 +45,10 @@ class CppClass(CppLanguageElement):
     """
 
     availablePropertiesNames = {
-        "is_struct",
-        "documentation",
-        "parent_class",
-    } | CppLanguageElement.availablePropertiesNames
+                                   "is_struct",
+                                   "documentation",
+                                   "parent_class",
+                               } | CppLanguageElement.availablePropertiesNames
 
     class CppMethod(CppFunction):
         """
@@ -82,19 +78,20 @@ class CppClass(CppLanguageElement):
         }
         """
 
-        availablePropertiesNames = {
-            "ret_type",
-            "is_static",
-            "is_constexpr",
-            "is_virtual",
-            "is_inline",
-            "is_pure_virtual",
-            "is_const",
-            "is_override",
-            "is_final",
-            "implementation",
-            "documentation",
-        } | CppLanguageElement.availablePropertiesNames
+        availablePropertiesNames = (
+                {
+                    "ret_type",
+                    "is_static",
+                    "is_constexpr",
+                    "is_virtual",
+                    "is_inline",
+                    "is_pure_virtual",
+                    "is_const",
+                    "is_override",
+                    "is_final",
+                    "implementation",
+                    "documentation",
+                } | CppLanguageElement.availablePropertiesNames)
 
         def __init__(self, **properties):
             # arguments are plain strings
@@ -125,28 +122,28 @@ class CppClass(CppLanguageElement):
             Before function name, declaration only
             Static functions can't be const, virtual or pure virtual
             """
-            return "static " if self.is_static else ""
+            return "static" if self.is_static else ""
 
         def _render_constexpr(self):
             """
             Before function name, declaration only
             Constexpr functions can't be const, virtual or pure virtual
             """
-            return "constexpr " if self.is_constexpr else ""
+            return "constexpr" if self.is_constexpr else ""
 
         def _render_virtual(self):
             """
             Before function name, could be in declaration or definition
             Virtual functions can't be static or constexpr
             """
-            return "virtual " if self.is_virtual else ""
+            return "virtual" if self.is_virtual else ""
 
         def _render_inline(self):
             """
             Before function name, could be in declaration or definition
             Inline functions can't be static, virtual or constexpr
             """
-            return "inline " if self.is_inline else ""
+            return "inline" if self.is_inline else ""
 
         def _render_ret_type(self):
             """
@@ -166,21 +163,21 @@ class CppClass(CppLanguageElement):
             After function name, could be in declaration or definition
             Const functions can't be static, virtual or constexpr
             """
-            return " const" if self.is_const else ""
+            return "const" if self.is_const else ""
 
         def _render_override(self):
             """
             After function name, could be in declaration or definition
             Override functions must be virtual
             """
-            return " override" if self.is_override else ""
+            return "override" if self.is_override else ""
 
         def _render_final(self):
             """
             After function name, could be in declaration or definition
             Final functions must be virtual
             """
-            return " final" if self.is_final else ""
+            return "final" if self.is_final else ""
 
         def _sanity_check(self):
             """
@@ -205,21 +202,13 @@ class CppClass(CppLanguageElement):
             if self.is_static and self.is_virtual:
                 raise ValueError(f"Static method {self.name} could not be virtual")
             if self.is_pure_virtual and not self.is_virtual:
-                raise ValueError(
-                    f"Pure virtual method {self.name} is also a virtual method"
-                )
+                raise ValueError(f"Pure virtual method {self.name} is also a virtual method")
             if not self.ref_to_parent:
-                raise ValueError(
-                    f"Method {self.name} object must be a child of CppClass"
-                )
+                raise ValueError(f"Method {self.name} object must be a child of CppClass")
             if self.is_constexpr and self.implementation is None:
-                raise ValueError(
-                    f'Method {self.name} object must be initialized when "constexpr"'
-                )
+                raise ValueError(f'Method {self.name} object must be initialized when "constexpr"')
             if self.is_pure_virtual and self.implementation is not None:
-                raise ValueError(
-                    f"Pure virtual method {self.name} could not be implemented"
-                )
+                raise ValueError(f"Pure virtual method {self.name} could not be implemented")
 
         def add_argument(self, argument):
             """
@@ -254,6 +243,22 @@ class CppClass(CppLanguageElement):
             """
             return CppImplementation(self)
 
+        def _render_modifiers_front(self):
+            modifiers = [
+                self._render_constexpr(),
+                self._render_virtual(),
+                self._render_inline(),
+            ]
+            return " ".join(modifiers)
+
+        def _render_modifiers_back(self):
+            modifiers = [
+                self._render_const(),
+                self._render_override(),
+                self._render_final()
+            ]
+            return " ".join(modifiers)
+
         def render_to_string(self, cpp):
             """
             By default, method is rendered as a declaration together with implementation,
@@ -271,12 +276,13 @@ class CppClass(CppLanguageElement):
             if self.documentation:
                 cpp(dedent(self.documentation))
             with cpp.block(
-                f"{self._render_virtual()}{self._render_constexpr()}{self._render_inline()}"
-                f"{self._render_ret_type()} {self.fully_qualified_name()}({self.args()})"
-                f"{self._render_const()}"
-                f"{self._render_override()}"
-                f"{self._render_final()}"
-                f"{self._render_pure()}"
+                    f"{self._render_static()}"
+                    f"{self._render_modifiers_front()}"
+                    f"{self._render_ret_type()} "
+                    f"{self.fully_qualified_name()}"
+                    f"({self.args()})"
+                    f"{self._render_modifiers_back()}"
+                    f"{self._render_pure()}"
             ):
                 self.implementation(cpp)
 
@@ -295,12 +301,12 @@ class CppClass(CppLanguageElement):
                 self.render_to_string(cpp)
             else:
                 cpp(
-                    f"{self._render_virtual()}{self._render_inline()}"
                     f"{self._render_static()}"
-                    f"{self._render_ret_type()} {self.name}({self.args()})"
-                    f"{self._render_const()}"
-                    f"{self._render_override()}"
-                    f"{self._render_final()}"
+                    f"{self._render_modifiers_front()}"
+                    f"{self._render_ret_type()} "
+                    f"{self.name}"
+                    f"({self.args()})"
+                    f"{self._render_modifiers_back()}"
                     f"{self._render_pure()};"
                 )
 
@@ -313,25 +319,25 @@ class CppClass(CppLanguageElement):
             {
             ...
             }
-            Generates method body if self.implementation property exists
+            Generates method body if `self.implementation` property exists
             """
             # check all properties for the consistency
             self._sanity_check()
 
             if self.implementation is None:
-                raise RuntimeError(
-                    f"No implementation handle for the method {self.name}"
-                )
+                raise RuntimeError(f"No implementation handle for the method {self.name}")
+
+            if self.is_pure_virtual:
+                raise RuntimeError(f"Pure virtual method {self.name} could not be implemented")
 
             if self.documentation and not self.is_constexpr:
                 cpp(dedent(self.documentation))
             with cpp.block(
-                f"{self._render_virtual()}{self._render_constexpr()}{self._render_inline()}"
-                f"{self._render_ret_type()} {self.fully_qualified_name()}({self.args()})"
-                f"{self._render_const()}"
-                f"{self._render_override()}"
-                f"{self._render_final()}"
-                f"{self._render_pure()}"
+                    f"{self._render_modifiers_front()}"
+                    f"{self._render_ret_type()} "
+                    f"{self.fully_qualified_name()}"
+                    f"({self.args()})"
+                    f"{self._render_modifiers_back()}"
             ):
                 self.implementation(cpp)
 
@@ -351,16 +357,16 @@ class CppClass(CppLanguageElement):
         self.internal_class_elements = []
 
         # class members
-        self.internal_variable_elements = []
+        self.variable_members = []
 
         # array class members
-        self.internal_array_elements = []
+        self.array_members = []
 
         # class methods
-        self.internal_method_elements = []
+        self.methods = []
 
-        # class enums
-        self.internal_enum_elements = []
+        # class scoped enums
+        self.scoped_enums = []
 
     def _parent_class(self):
         """
@@ -382,7 +388,7 @@ class CppClass(CppLanguageElement):
         @param: enum CppEnum instance
         """
         enum.ref_to_parent = self
-        self.internal_enum_elements.append(enum)
+        self.scoped_enums.append(enum)
 
     def add_variable(self, cpp_variable):
         """
@@ -390,7 +396,7 @@ class CppClass(CppLanguageElement):
         """
         cpp_variable.ref_to_parent = self
         cpp_variable.is_class_member = True
-        self.internal_variable_elements.append(cpp_variable)
+        self.variable_members.append(cpp_variable)
 
     def add_array(self, cpp_variable):
         """
@@ -398,7 +404,7 @@ class CppClass(CppLanguageElement):
         """
         cpp_variable.ref_to_parent = self
         cpp_variable.is_class_member = True
-        self.internal_array_elements.append(cpp_variable)
+        self.array_members.append(cpp_variable)
 
     def add_internal_class(self, cpp_class):
         """
@@ -414,7 +420,7 @@ class CppClass(CppLanguageElement):
         """
         method.ref_to_parent = self
         method.is_method = True
-        self.internal_method_elements.append(method)
+        self.methods.append(method)
 
     ########################################
     # RENDER CLASS MEMBERS
@@ -424,32 +430,32 @@ class CppClass(CppLanguageElement):
         Could be placed both in 'private:' or 'public:' sections
         Method is protected as it is used by CppClass only
         """
-        for classItem in self.internal_class_elements:
-            classItem.declaration().render_to_string(cpp)
+        for class_item in self.internal_class_elements:
+            class_item.declaration().render_to_string(cpp)
 
     def _render_enum_section(self, cpp):
         """
         Render to string all contained enums
         Method is protected as it is used by CppClass only
         """
-        for enumItem in self.internal_enum_elements:
-            enumItem.render_to_string(cpp)
+        for enum_item in self.scoped_enums:
+            enum_item.render_to_string(cpp)
 
     def _render_variables_declaration(self, cpp):
         """
         Render to string all contained variable class members
         Method is protected as it is used by CppClass only
         """
-        for varItem in self.internal_variable_elements:
-            varItem.declaration().render_to_string(cpp)
+        for var_item in self.variable_members:
+            var_item.declaration().render_to_string(cpp)
 
     def _render_array_declaration(self, cpp):
         """
         Render to string all contained array class members
         Method is protected as it is used by CppClass only
         """
-        for arrItem in self.internal_array_elements:
-            arrItem.declaration().render_to_string(cpp)
+        for arr_item in self.array_members:
+            arr_item.declaration().render_to_string(cpp)
 
     def _render_methods_declaration(self, cpp):
         """
@@ -457,8 +463,8 @@ class CppClass(CppLanguageElement):
         Should be placed in 'public:' section
         Method is protected as it is used by CppClass only
         """
-        for funcItem in self.internal_method_elements:
-            funcItem.render_to_string_declaration(cpp)
+        for func_item in self.methods:
+            func_item.render_to_string_declaration(cpp)
 
     def render_static_members_implementation(self, cpp):
         """
@@ -469,19 +475,19 @@ class CppClass(CppLanguageElement):
         # generate definition for static variables
         static_vars = [
             variable
-            for variable in self.internal_variable_elements
+            for variable in self.variable_members
             if variable.is_static
         ]
-        for varItem in static_vars:
-            varItem.definition().render_to_string(cpp)
+        for var_item in static_vars:
+            var_item.definition().render_to_string(cpp)
             cpp.newline()
-        for arrItem in self.internal_array_elements:
-            arrItem.definition().render_to_string(cpp)
+        for arr_item in self.array_members:
+            arr_item.definition().render_to_string(cpp)
             cpp.newline()
 
         # do the same for nested classes
-        for classItem in self.internal_class_elements:
-            classItem.render_static_members_implementation(cpp)
+        for class_item in self.internal_class_elements:
+            class_item.render_static_members_implementation(cpp)
             cpp.newline()
 
     def render_methods_implementation(self, cpp):
@@ -491,13 +497,13 @@ class CppClass(CppLanguageElement):
         Method is public, as it could be used for nested classes
         """
         # generate methods implementation section
-        for funcItem in self.internal_method_elements:
-            if not funcItem.is_pure_virtual:
-                funcItem.render_to_string_implementation(cpp)
+        for func_item in self.methods:
+            if not func_item.is_pure_virtual:
+                func_item.render_to_string_implementation(cpp)
                 cpp.newline()
         # do the same for nested classes
-        for classItem in self.internal_class_elements:
-            classItem.render_static_members_implementation(cpp)
+        for class_item in self.internal_class_elements:
+            class_item.render_static_members_implementation(cpp)
             cpp.newline()
 
     ########################################
