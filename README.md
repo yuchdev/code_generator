@@ -58,7 +58,7 @@ a legal C++ construction, in two places: declaration and definition.
 cpp = CodeFile('example.cpp')
 cpp('int i = 0;')
 
-x_variable = CppVariable(name='x', type='int const&', is_static=True, is_constexpr=True, initialization_value='42')
+x_variable = CppVariable(name='x', type='int const&', is_static=True, is_constexpr=True, value='42')
 x_variable.render_to_string(cpp)
 
 name_variable = CppVariable(name='name', type='char*', is_extern=True)
@@ -130,7 +130,7 @@ cpp_class.add_variable(CppVariable(name = "m_var",
     type = 'size_t',
     is_static = True,
     is_const = True,
-    initialization_value = 255))
+    value = 255))
 ```
  
 ###### Generated C++ declaration

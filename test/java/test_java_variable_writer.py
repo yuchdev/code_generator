@@ -18,7 +18,7 @@ class TestJavaVariableStringIo(unittest.TestCase):
                                 is_class_member=False,
                                 is_static=False,
                                 is_final=True,
-                                initialization_value='"Hello"')
+                                value='"Hello"')
         variable.render_to_string(java)
         self.assertEqual("final String var1 = \"Hello\";", writer.getvalue().strip())
 
@@ -39,7 +39,7 @@ class TestJavaVariableStringIo(unittest.TestCase):
         writer = io.StringIO()
         java = JavaFile(None, writer=writer)
         variable = JavaVariable(name="var1", type="String")
-        variable.render_to_string_declaration(java)
+        variable.render_to_string(java)
         self.assertEqual("String var1;", writer.getvalue().strip())
 
 

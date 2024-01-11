@@ -26,7 +26,7 @@ def cpp_example():
         type='int const&',
         is_static=True,
         is_constexpr=True,
-        initialization_value='42')
+        value='42')
     x_variable.render_to_string(cpp)
 
     # Create a new variable 'name'

@@ -12,7 +12,7 @@ cpp_class.add_variable(CppVariable(name = "m_var",
     type = 'size_t',
     is_static = True,
     is_const = True,
-    initialization_value = 255))
+    value = 255))
 
 // Generated C++ declaration
 struct MyClass

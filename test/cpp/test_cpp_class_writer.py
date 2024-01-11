@@ -31,7 +31,7 @@ class TestCppClassStringIo(unittest.TestCase):
                 type="size_t",
                 is_static=True,
                 is_const=True,
-                initialization_value="255"
+                value="255"
             )
         )
 
@@ -92,7 +92,7 @@ class TestCppClassStringIo(unittest.TestCase):
                 type="int",
                 is_static=True,
                 is_const=True,
-                initialization_value="42"
+                value="42"
             )
         )
 

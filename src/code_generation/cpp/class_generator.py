@@ -19,7 +19,7 @@ class CppClass(CppLanguageElement):
         type = 'size_t',
         is_static = True,
         is_const = True,
-        initialization_value = 255))
+        value = 255))
 
     def handle(cpp): cpp('return m_var;')
 

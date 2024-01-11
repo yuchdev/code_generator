@@ -15,7 +15,7 @@ cpp_class.add_variable(CppVariable(name = "m_var",
     type = 'size_t',
     is_static = True,
     is_const = True,
-    initialization_value = 255))
+    value = 255))
  
 // Generated C++ declaration
 struct MyClass
@@ -72,8 +72,8 @@ class CppVariable(CppLanguageElement):
     is_extern - boolean, 'extern' prefix
     is_const - boolean, 'const' prefix
     is_constexpr - boolean, 'constexpr' prefix
-    initialization_value - string, initialization_value to be initialized with.
-        'a = initialization_value;' for automatic variables, 'a(initialization_value)' for the class member
+    value - string, value to be initialized with.
+        'a = value;' for automatic variables, 'a(value)' for the class member
     documentation - string, '/// Example doxygen'
     is_class_member - boolean, for appropriate definition/declaration rendering
     """
@@ -82,7 +82,7 @@ class CppVariable(CppLanguageElement):
                                 'is_extern',
                                 'is_const',
                                 'is_constexpr',
-                                'initialization_value',
+                                'value',
                                 'documentation',
                                 'is_class_member'} | CppLanguageElement.availablePropertiesNames
 
@@ -99,7 +99,7 @@ class CppVariable(CppLanguageElement):
         """
         if self.is_const and self.is_constexpr:
             raise ValueError("Variable object can be either 'const' or 'constexpr', not both")
-        if self.is_constexpr and not self.initialization_value:
+        if self.is_constexpr and not self.value:
             raise ValueError("Variable object must be initialized when 'constexpr'")
         if self.is_static and self.is_extern:
             raise ValueError("Variable object can be either 'extern' or 'static', not both")
@@ -130,9 +130,9 @@ class CppVariable(CppLanguageElement):
 
     def _render_init_value(self):
         """
-        @return: string, initialization_value to be initialized with
+        @return: string, value to be initialized with
         """
-        return self.initialization_value if self.initialization_value else ''
+        return self.value if self.value else ''
 
     def assignment(self, value):
         """

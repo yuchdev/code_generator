@@ -16,7 +16,7 @@ class JavaClass(JavaLanguageElement):
 
     # Python code
     java_class = JavaClass(name='MyClass')
-    java_class.add_variable(JavaVariable(name='myVariable', type='int', is_static=True, is_final=True, initialization_value='10'))
+    java_class.add_variable(JavaVariable(name='myVariable', type='int', is_static=True, is_final=True, value='10'))
     java_class.add_method(JavaFunction(name='getVar', return_type='int', is_static=True, implementation='return myVariable;'))
 
     # Generated Java code

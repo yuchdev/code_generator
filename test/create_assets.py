@@ -59,13 +59,13 @@ def generate_var(output_dir='.'):
                              is_class_member=False,
                              is_static=False,
                              is_const=True,
-                             initialization_value='0'),
+                             value='0'),
                  CppVariable(name="var2",
                              type="int",
                              is_class_member=False,
                              is_static=True,
                              is_const=False,
-                             initialization_value='0'),
+                             value='0'),
                  CppVariable(name="var3",
                              type="std::string",
                              is_class_member=False,
@@ -160,12 +160,12 @@ def generate_class(output_dir='.'):
                                           is_class_member=True,
                                           is_static=True,
                                           is_const=True,
-                                          initialization_value='42'))
+                                          value='42'))
     my_class.add_internal_class(nested_class)
 
     my_class.add_variable(CppVariable(name="m_var1",
                                       type="int",
-                                      initialization_value='1'))
+                                      value='1'))
 
     my_class.add_variable(CppVariable(name="m_var2",
                                       type="int*"))
@@ -175,7 +175,7 @@ def generate_class(output_dir='.'):
                                       is_constexpr=True,
                                       is_static=True,
                                       is_class_member=True,
-                                      initialization_value=42))
+                                      value=42))
 
     example_class.add_variable(CppVariable(
         name="m_var1",

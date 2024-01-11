@@ -21,7 +21,7 @@ class TestCppVariableStringIo(unittest.TestCase):
                                 is_class_member=False,
                                 is_static=False,
                                 is_const=True,
-                                initialization_value='0')
+                                value='0')
         variables.render_to_string(cpp)
         print(writer.getvalue())
         self.assertEqual('const char* var1 = 0;\n', writer.getvalue())
@@ -30,7 +30,7 @@ class TestCppVariableStringIo(unittest.TestCase):
         writer = io.StringIO()
         cpp = CppFile(None, writer=writer)
         var = CppVariable(name="COUNT", type="int", is_class_member=True, is_const=True,
-                          is_constexpr=True, initialization_value='0')
+                          is_constexpr=True, value='0')
         self.assertRaises(ValueError, var.render_to_string, cpp)
 
     def test_is_constexpr_no_implementation_raises(self):
@@ -46,7 +46,7 @@ class TestCppVariableStringIo(unittest.TestCase):
                                 type="int",
                                 is_class_member=False,
                                 is_constexpr=True,
-                                initialization_value='0')
+                                value='0')
         variables.render_to_string(cpp)
         self.assertIn('constexpr int COUNT = 0;', writer.getvalue())
 
@@ -57,7 +57,7 @@ class TestCppVariableStringIo(unittest.TestCase):
                                 type="int",
                                 is_class_member=True,
                                 is_constexpr=True,
-                                initialization_value='0')
+                                value='0')
         variables.render_to_string_declaration(cpp)
         self.assertIn('constexpr int COUNT = 0;', writer.getvalue())
 

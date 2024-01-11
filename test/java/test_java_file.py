@@ -23,7 +23,7 @@ class TestJavaFileIo(unittest.TestCase):
                                            type='int',
                                            is_static=True,
                                            is_final=True,
-                                           initialization_value='10'))
+                                           value='10'))
         my_class.add_method(JavaFunction(name='getVar',
                                          return_type='int',
                                          is_static=True,
@@ -52,8 +52,8 @@ class TestJavaFileIo(unittest.TestCase):
         """
         java_file = JavaFile('MyEnum.java')
         my_enum = JavaClass(name='MyEnum')
-        my_enum.add_variable(JavaVariable(name='ITEM1', type='int', initialization_value='1'))
-        my_enum.add_variable(JavaVariable(name='ITEM2', type='int', initialization_value='2'))
+        my_enum.add_variable(JavaVariable(name='ITEM1', type='int', value='1'))
+        my_enum.add_variable(JavaVariable(name='ITEM2', type='int', value='2'))
         my_enum.add_method(JavaFunction(name='getItem', return_type='int', implementation='return ITEM1;'))
         my_enum.render_to_string(java_file)
         self.assertTrue(filecmp.cmpfiles('.', 'tests', 'MyEnum.java'))
