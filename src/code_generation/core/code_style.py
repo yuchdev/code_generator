@@ -15,10 +15,10 @@ class ANSICodeStyle:
 
     # EOL symbol
     endline = "\n"
- 
+
     # Tab (indentation) symbol
     indent = "\t"
- 
+
     def __init__(self, owner, text, postfix):
         """
         @param: owner - CodeFile where text is written to
@@ -32,7 +32,7 @@ class ANSICodeStyle:
         self.owner.write("".join(text))
         self.owner.last = self
         self.postfix = postfix
-        
+
     def __enter__(self):
         """
         Open code block
@@ -61,6 +61,7 @@ class HTMLStyle:
         // HTML content
     </element>
     """
+
     # EOL symbol
     endline = "\n"
 
@@ -82,10 +83,12 @@ class HTMLStyle:
         attributes = ""
         if "attributes" in kwattrs:
             if isinstance(kwattrs["attributes"], dict):
-                attributes = "".join(f' {key}="{value}"' for key, value in kwattrs["attributes"].items())
+                attributes = "".join(
+                    f' {key}="{value}"' for key, value in kwattrs["attributes"].items()
+                )
             del kwattrs["attributes"]
         else:
-            attributes = "".join(f' {attr}' for attr in attrs)
+            attributes = "".join(f" {attr}" for attr in attrs)
             attributes += "".join(f' {key}="{value}"' for key, value in kwattrs.items())
         self.attributes = attributes
         self.owner.last = self

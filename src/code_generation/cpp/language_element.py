@@ -89,27 +89,36 @@ class CppLanguageElement(object):
     Contains dynamic storage for element properties
     (e.g. is_static for the variable is_virtual for the class method etc.)
     """
-    availablePropertiesNames = {'name', 'ref_to_parent'}
+
+    availablePropertiesNames = {"name", "ref_to_parent"}
 
     def __init__(self, properties):
         """
         @param: properties - Basic C++ element properties (name, ref_to_parent)
         class is a parent for method or a member variable
         """
-        self.name = properties.get('name')
-        self.ref_to_parent = properties.get('ref_to_parent')
+        self.name = properties.get("name")
+        self.ref_to_parent = properties.get("ref_to_parent")
 
     def check_input_properties_names(self, input_property_names):
         """
         Ensure that all properties that passed to the CppLanguageElement are recognized.
         Raise an exception otherwise
         """
-        unknown_properties = input_property_names.difference(self.availablePropertiesNames)
+        unknown_properties = input_property_names.difference(
+            self.availablePropertiesNames
+        )
         if unknown_properties:
             raise AttributeError(
-                f'Error: try to initialize {self.__class__.__name__} with unknown property: {repr(unknown_properties)}')
+                f"Error: try to initialize {self.__class__.__name__} with unknown property: {repr(unknown_properties)}"
+            )
 
-    def init_class_properties(self, current_class_properties, input_properties_dict, default_property_value=None):
+    def init_class_properties(
+        self,
+        current_class_properties,
+        input_properties_dict,
+        default_property_value=None,
+    ):
         """
         @param: current_class_properties - all available properties for the C++ element to be generated
         @param: input_properties_dict - values for the initialized properties (e.g. is_const=True)
@@ -122,7 +131,7 @@ class CppLanguageElement(object):
                 setattr(self, propertyName, default_property_value)
 
         # Set all defined properties values (all undefined will be left with defaults)
-        for (propertyName, propertyValue) in input_properties_dict.items():
+        for propertyName, propertyValue in input_properties_dict.items():
             if propertyName not in CppLanguageElement.availablePropertiesNames:
                 setattr(self, propertyName, propertyValue)
 
@@ -131,7 +140,7 @@ class CppLanguageElement(object):
         @param: cpp - handle that supports code generation interface (see code_file.py)
         Typically it is passed to all child elements so that render their content
         """
-        raise NotImplementedError('CppLanguageElement is an abstract class')
+        raise NotImplementedError("CppLanguageElement is an abstract class")
 
     def parent_qualifier(self):
         """
@@ -144,11 +153,11 @@ class CppLanguageElement(object):
         Supports for nested classes, e.g.
         void MyClass::NestedClass::
         """
-        full_parent_qualifier = ''
+        full_parent_qualifier = ""
         parent = self.ref_to_parent
         # walk through all existing parents
         while parent:
-            full_parent_qualifier = f'{parent.name}::{full_parent_qualifier}'
+            full_parent_qualifier = f"{parent.name}::{full_parent_qualifier}"
             parent = parent.ref_to_parent
         return full_parent_qualifier
 
@@ -158,4 +167,4 @@ class CppLanguageElement(object):
         Ex.
         MyClass::NestedClass::Method()
         """
-        return f'{self.parent_qualifier()}{self.name}'
+        return f"{self.parent_qualifier()}{self.name}"

@@ -1,4 +1,8 @@
-from code_generation.cpp.language_element import CppLanguageElement, CppDeclaration, CppImplementation
+from code_generation.cpp.language_element import (
+    CppLanguageElement,
+    CppDeclaration,
+    CppImplementation,
+)
 
 
 # noinspection PyUnresolvedReferences
@@ -28,15 +32,18 @@ class CppArray(CppLanguageElement):
     NOTE: versions 2.0+ of CodeGenerator support boolean properties without "is_" suffix,
     but old versions preserved for backward compatibility
     """
-    availablePropertiesNames = {'type',
-                                'is_static',
-                                'static',
-                                'is_const',
-                                'const',
-                                'is_class_member',
-                                'class_member',
-                                'array_size',
-                                'newline_align'} | CppLanguageElement.availablePropertiesNames
+
+    availablePropertiesNames = {
+                                   "type",
+                                   "is_static",
+                                   "static",
+                                   "is_const",
+                                   "const",
+                                   "is_class_member",
+                                   "class_member",
+                                   "array_size",
+                                   "newline_align",
+                               } | CppLanguageElement.availablePropertiesNames
 
     def __init__(self, **properties):
         self.is_static = False
@@ -51,53 +58,55 @@ class CppArray(CppLanguageElement):
         input_property_names = set(properties.keys())
         self.check_input_properties_names(input_property_names)
         super(CppArray, self).__init__(properties)
-        self.init_class_properties(current_class_properties=self.availablePropertiesNames,
-                                   input_properties_dict=properties)
+        self.init_class_properties(
+            current_class_properties=self.availablePropertiesNames,
+            input_properties_dict=properties,
+        )
 
     def _sanity_check(self):
         """
         Check if all required properties are set
         """
         if not self.type:
-            raise RuntimeError('Array type is not set')
+            raise RuntimeError("Array type is not set")
         if not self.name:
-            raise RuntimeError('Array name is not set')
+            raise RuntimeError("Array name is not set")
         if self.is_class_member and not self.name:
-            raise RuntimeError('Class member array name is not set')
+            raise RuntimeError("Class member array name is not set")
 
     def _render_static(self):
         """
         @return: 'static' prefix if required
         """
-        return 'static ' if self.is_static else ''
+        return "static " if self.is_static else ""
 
     def _render_const(self):
         """
         @return: 'const' prefix if required
         """
-        return 'const ' if self.is_const else ''
+        return "const " if self.is_const else ""
 
     def _render_size(self):
         """
         @return: array size
         """
-        return self.array_size if self.array_size else ''
+        return self.array_size if self.array_size else ""
 
     def _render_content(self):
         """
         @return: array items if any
         """
-        return ', '.join(self.items) if self.items else 'nullptr'
+        return ", ".join(self.items) if self.items else "nullptr"
 
     def _render_value(self, cpp):
         """
         Render to string array items
         """
         if not self.items:
-            raise RuntimeError('Empty arrays do not supported')
+            raise RuntimeError("Empty arrays do not supported")
         for item in self.items[:-1]:
-            cpp('{0},'.format(item))
-        cpp('{0}'.format(self.items[-1]))
+            cpp("{0},".format(item))
+        cpp("{0}".format(self.items[-1]))
 
     def declaration(self):
         """
@@ -141,17 +150,24 @@ class CppArray(CppLanguageElement):
         """
         self._sanity_check()
         if self.is_class_member and not (self.is_static and self.is_const):
-            raise RuntimeError('For class member variables use definition() and declaration() methods')
+            raise RuntimeError(
+                "For class member variables use definition() and declaration() methods"
+            )
 
         # newline-formatting of array elements makes sense only if array is not empty
         if self.newline_align and self.items:
-            with cpp.block(f'{self._render_static()}{self._render_const()}{self.type} '
-                           f'{self.name}[{self._render_size()}] = ', ';'):
+            with cpp.block(
+                    f"{self._render_static()}{self._render_const()}{self.type} "
+                    f"{self.name}[{self._render_size()}] = ",
+                    ";",
+            ):
                 # render array items
                 self._render_value(cpp)
         else:
-            cpp(f'{self._render_static()}{self._render_const()}{self.type} '
-                f'{self.name}[{self._render_size()}] = {{{self._render_content()}}};')
+            cpp(
+                f"{self._render_static()}{self._render_const()}{self.type} "
+                f"{self.name}[{self._render_size()}] = {{{self._render_content()}}};"
+            )
 
     def render_to_string_declaration(self, cpp):
         """
@@ -163,12 +179,16 @@ class CppArray(CppLanguageElement):
         """
         self._sanity_check()
         if not self.is_class_member:
-            raise RuntimeError('For automatic variable use its render_to_string() method')
-        cpp(f'{self._render_static()}'
-            f'{self._render_const()}'
-            f'{self.type} '
-            f'{self.name}'
-            f'[{self._render_size()}];')
+            raise RuntimeError(
+                "For automatic variable use its render_to_string() method"
+            )
+        cpp(
+            f"{self._render_static()}"
+            f"{self._render_const()}"
+            f"{self.type} "
+            f"{self.name}"
+            f"[{self._render_size()}];"
+        )
 
     def render_to_string_implementation(self, cpp):
         """
@@ -185,19 +205,26 @@ class CppArray(CppLanguageElement):
         """
         self._sanity_check()
         if not self.is_class_member:
-            raise RuntimeError('For automatic variable use its render_to_string() method')
+            raise RuntimeError(
+                "For automatic variable use its render_to_string() method"
+            )
 
         # generate definition for the static class member arrays only
         # other types are not supported
         if not self.is_static:
-            raise RuntimeError('Only static arrays as class members are supported')
+            raise RuntimeError("Only static arrays as class members are supported")
 
         # newline-formatting of array elements makes sense only if array is not empty
         if self.newline_align and self.items:
-            with cpp.block(f'{self._render_const()}{self.type} '
-                           f'{self.fully_qualified_name()}[{self._render_size()}] = ', ';'):
+            with cpp.block(
+                    f"{self._render_const()}{self.type} "
+                    f"{self.fully_qualified_name()}[{self._render_size()}] = ",
+                    ";",
+            ):
                 # render array items
                 self._render_value(cpp)
         else:
-            cpp(f'{self._render_const()}{self.type} '
-                f'{self.fully_qualified_name()}[{self._render_size()}] = {{{self._render_content()}}};')
+            cpp(
+                f"{self._render_const()}{self.type} "
+                f"{self.fully_qualified_name()}[{self._render_size()}] = {{{self._render_content()}}};"
+            )

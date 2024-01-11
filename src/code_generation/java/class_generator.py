@@ -30,20 +30,22 @@ class JavaClass(JavaLanguageElement):
     """
 
     available_properties_names = {
-        'documentation',
-        'parent_class'
+        "documentation",
+        "parent_class",
+        "is_record",
     } | JavaLanguageElement.available_properties_names
 
     def __init__(self, **properties):
         self.documentation = None
         self.parent_class = None
+        self.is_record = False
 
         input_property_names = set(properties.keys())
         self.check_input_properties_names(input_property_names)
         super().__init__(properties)
         self.init_class_properties(
             current_class_properties=self.available_properties_names,
-            input_properties_dict=properties
+            input_properties_dict=properties,
         )
 
         self.internal_class_elements = []
@@ -57,19 +59,15 @@ class JavaClass(JavaLanguageElement):
     def _render_documentation(self, java):
         if self.documentation:
             docstring_lines = ["/**"]
-            docstring_lines.extend([f" * {line}" for line in self.documentation.splitlines()])
+            docstring_lines.extend(
+                [f" * {line}" for line in self.documentation.splitlines()]
+            )
             docstring_lines.append(" */")
             for line in docstring_lines:
                 java(line)
 
-    def render_to_string(self, java):
-        self._render_documentation(java)
-        with java.block(f"public {self._render_class_type()} {self.name} {self.inherits()}"):
-            self.class_interface(java)
-            self.private_class_members(java)
-
     def _render_class_type(self):
-        return "class"
+        return "class" if not self.is_record else "record"
 
     def inherits(self):
         return f"extends {self._parent_class()}" if self.parent_class else ""
@@ -113,3 +111,11 @@ class JavaClass(JavaLanguageElement):
     def add_internal_class(self, java_class):
         java_class.ref_to_parent = self
         self.internal_class_elements.append(java_class)
+
+    def render_to_string(self, java):
+        self._render_documentation(java)
+        with java.block(
+            f"public {self._render_class_type()} {self.name} {self.inherits()}"
+        ):
+            self.class_interface(java)
+            self.private_class_members(java)

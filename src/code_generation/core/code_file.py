@@ -44,38 +44,39 @@ Re-implement it if you wish to apply any other formatting style.
 class CodeFile:
     """
     The class is a main instrument of code generation
-    
+
     It can generate plain strings using functional calls
     Ex:
     code = CodeFile(python_src_file)
     code('import os, sys')
- 
+
     Is supports 'with' semantic for indentation blocks creation
     Ex:
     # Python code
     with code('for i in range(0, 5):'):
         code('lst.append(i*i)')
- 
+
     # Generated code:
     for i in range(0, 5):
         lst.append(i*i)
- 
+
     It can append code to the last line:
     Ex.
     # Python code
     cpp = CodeFile('ex.cpp')
     cpp('class Derived')
     cpp.append(' : public Base')
- 
+
     // Generated code
     class Derived : public Base
- 
+
     And finally, it can insert a number of empty lines
     cpp.newline(3)
     """
+
     # Current formatting style (assigned as a class attribute to generate all files uniformly)
     Formatter = ANSICodeStyle
- 
+
     def __init__(self, filename, writer=None):
         """
         Creates a new source file
@@ -89,28 +90,32 @@ class CodeFile:
             self.out = writer
         else:
             self.out = open(filename, "w")
- 
+
     def close(self):
         """
         File created, just close the handle
         """
         self.out.close()
         self.out = None
- 
+
     def write(self, text, indent=0, endline=True):
         """
         Write a new line with line ending
         """
-        self.out.write('{0}{1}{2}'.format(self.Formatter.indent * (self.current_indent+indent),
-                                          text,
-                                          self.Formatter.endline if endline else ''))
- 
+        self.out.write(
+            "{0}{1}{2}".format(
+                self.Formatter.indent * (self.current_indent + indent),
+                text,
+                self.Formatter.endline if endline else "",
+            )
+        )
+
     def append(self, x):
         """
         Append to the existing line without line ending
         """
         self.out.write(x)
- 
+
     def __call__(self, text, indent=0, endline=True):
         """
         Supports 'object()' semantic, i.e.
@@ -118,8 +123,8 @@ class CodeFile:
         inserts appropriate line
         """
         self.write(text, indent, endline)
-        
-    def block(self, text, postfix=''):
+
+    def block(self, text, postfix=""):
         """
         Returns a stub for C++ {} close
         Supports 'with' semantic, i.e.
@@ -138,4 +143,4 @@ class CodeFile:
         Insert one or several empty lines
         """
         for _ in range(n):
-            self.write('')
+            self.write("")

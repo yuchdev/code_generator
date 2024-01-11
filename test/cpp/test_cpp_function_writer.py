@@ -10,7 +10,7 @@ Unit tests for C++ code generator
 """
 
 
-def handle_to_factorial(_, cpp):
+def handle_to_factorial(cpp):
     cpp('return n < 1 ? 1 : (n * factorial(n - 1));')
 
 

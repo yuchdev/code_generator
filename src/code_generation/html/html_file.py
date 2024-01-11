@@ -2,7 +2,6 @@ from code_generation.core.code_style import HTMLStyle
 
 
 class HtmlFile:
-
     Formatter = HTMLStyle
 
     def __init__(self, filename, writer=None):
@@ -13,7 +12,7 @@ class HtmlFile:
             self.out = writer
         else:
             self.out = open(filename, "w")
-        self.write('<!DOCTYPE html>')
+        self.write("<!DOCTYPE html>")
 
     def close(self):
         """
@@ -26,10 +25,16 @@ class HtmlFile:
         """
         Write a new line with line ending
         """
-        assert isinstance(indent, int), f'indent {indent} is not an integer, but {type(indent)}'
-        assert isinstance(text, str), f'text {text} is not a string, but {type(text)}'
+        assert isinstance(
+            indent, int
+        ), f"indent {indent} is not an integer, but {type(indent)}"
+        assert isinstance(text, str), f"text {text} is not a string, but {type(text)}"
         indent_str = self.Formatter.indent * (self.current_indent + indent)
-        self.out.write('{0}{1}{2}'.format(indent_str, text, self.Formatter.endline if endline else ''))
+        self.out.write(
+            "{0}{1}{2}".format(
+                indent_str, text, self.Formatter.endline if endline else ""
+            )
+        )
 
     def append(self, x):
         """
@@ -64,4 +69,4 @@ class HtmlFile:
         Insert one or several empty lines
         """
         for _ in range(n):
-            self.write('')
+            self.write("")

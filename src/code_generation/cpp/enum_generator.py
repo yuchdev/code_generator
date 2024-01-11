@@ -25,9 +25,12 @@ class CppEnum(CppLanguageElement):
         eItemsCount = 3
     }
     """
-    availablePropertiesNames = {'prefix',
-                                'enum_class',
-                                'add_counter'} | CppLanguageElement.availablePropertiesNames
+
+    availablePropertiesNames = {
+        "prefix",
+        "enum_class",
+        "add_counter",
+    } | CppLanguageElement.availablePropertiesNames
 
     def __init__(self, **properties):
         """
@@ -39,14 +42,16 @@ class CppEnum(CppLanguageElement):
         self.check_input_properties_names(input_property_names)
         super(CppEnum, self).__init__(properties)
 
-        self.init_class_properties(current_class_properties=self.availablePropertiesNames,
-                                   input_properties_dict=properties)
+        self.init_class_properties(
+            current_class_properties=self.availablePropertiesNames,
+            input_properties_dict=properties,
+        )
 
         # place enum items here
         self.enum_items = []
 
     def _render_class(self):
-        return 'class ' if self.enum_class else ''
+        return "class " if self.enum_class else ""
 
     def add_item(self, item):
         """
@@ -73,11 +78,11 @@ class CppEnum(CppLanguageElement):
         }
         """
         counter = 0
-        final_prefix = self.prefix if self.prefix is not None else 'e'
-        with cpp.block(f'enum {self._render_class()}{self.name}', postfix=';'):
+        final_prefix = self.prefix if self.prefix is not None else "e"
+        with cpp.block(f"enum {self._render_class()}{self.name}", postfix=";"):
             for item in self.enum_items:
-                cpp(f'{final_prefix}{item} = {counter},')
+                cpp(f"{final_prefix}{item} = {counter},")
                 counter += 1
             if self.add_counter in [None, True]:
-                last_element = f'{final_prefix}{self.name}Count = {counter}'
+                last_element = f"{final_prefix}{self.name}Count = {counter}"
                 cpp(last_element)

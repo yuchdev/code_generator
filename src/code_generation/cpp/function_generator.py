@@ -1,4 +1,8 @@
-from code_generation.cpp.language_element import CppLanguageElement, CppDeclaration, CppImplementation
+from code_generation.cpp.language_element import (
+    CppLanguageElement,
+    CppDeclaration,
+    CppImplementation,
+)
 from textwrap import dedent
 
 
@@ -26,10 +30,13 @@ class CppFunction(CppLanguageElement):
         return 42;
     }
     """
-    availablePropertiesNames = {'ret_type',
-                                'is_constexpr',
-                                'implementation',
-                                'documentation'} | CppLanguageElement.availablePropertiesNames
+
+    availablePropertiesNames = {
+        "ret_type",
+        "is_constexpr",
+        "implementation",
+        "documentation",
+    } | CppLanguageElement.availablePropertiesNames
 
     def __init__(self, **properties):
         # arguments are plain strings
@@ -44,22 +51,24 @@ class CppFunction(CppLanguageElement):
         input_property_names = set(properties.keys())
         self.check_input_properties_names(input_property_names)
         super(CppFunction, self).__init__(properties)
-        self.init_class_properties(current_class_properties=self.availablePropertiesNames,
-                                   input_properties_dict=properties)
+        self.init_class_properties(
+            current_class_properties=self.availablePropertiesNames,
+            input_properties_dict=properties,
+        )
 
     def _sanity_check(self):
         """
         Check whether attributes compose a correct C++ code
         """
         if self.is_constexpr and self.implementation is None:
-            raise ValueError(f'Constexpr function {self.name} must have implementation')
+            raise ValueError(f"Constexpr function {self.name} must have implementation")
 
     def _render_constexpr(self):
         """
         Before function name, declaration only
         Constexpr functions can't be const, virtual or pure virtual
         """
-        return 'constexpr ' if self.is_constexpr else ''
+        return "constexpr " if self.is_constexpr else ""
 
     def args(self):
         """
@@ -106,7 +115,9 @@ class CppFunction(CppLanguageElement):
         self._sanity_check()
         if self.documentation:
             cpp(dedent(self.documentation))
-        with cpp.block(f'{self._render_constexpr()}{self.ret_type} {self.name}({self.args()})'):
+        with cpp.block(
+            f"{self._render_constexpr()}{self.ret_type} {self.name}({self.args()})"
+        ):
             self.implementation(cpp)
 
     def render_to_string_declaration(self, cpp):
@@ -122,7 +133,9 @@ class CppFunction(CppLanguageElement):
                 cpp(dedent(self.documentation))
             self.render_to_string(cpp)
         else:
-            cpp(f'{self._render_constexpr()}{self.ret_type} {self.name}({self.args()});')
+            cpp(
+                f"{self._render_constexpr()}{self.ret_type} {self.name}({self.args()});"
+            )
 
     def render_to_string_implementation(self, cpp):
         """
@@ -136,10 +149,12 @@ class CppFunction(CppLanguageElement):
         Generates method body if self.implementation property exists
         """
         if self.implementation is None:
-            raise RuntimeError(f'No implementation handle for the function {self.name}')
+            raise RuntimeError(f"No implementation handle for the function {self.name}")
 
         # check all properties for the consistency
         if self.documentation and not self.is_constexpr:
             cpp(dedent(self.documentation))
-        with cpp.block(f'{self._render_constexpr()}{self.ret_type} {self.name}({self.args()})'):
+        with cpp.block(
+            f"{self._render_constexpr()}{self.ret_type} {self.name}({self.args()})"
+        ):
             self.implementation(cpp)

@@ -46,7 +46,7 @@ class JavaFile(CodeFile):
         Could be used for Java class access specifiers
         private:
         """
-        self.write('{0}:'.format(text), -1)
+        self.write("{0}:".format(text), -1)
 
 
 class JavaLanguageElement:
@@ -55,27 +55,36 @@ class JavaLanguageElement:
     Contains dynamic storage for element properties
     (e.g. is_static for the variable is_abstract for the class etc.)
     """
-    available_properties_names = {'name', 'ref_to_parent'}
+
+    available_properties_names = {"name", "ref_to_parent"}
 
     def __init__(self, properties):
         """
         @param: properties - Basic Java element properties (name, ref_to_parent)
         class is a parent for method or a member variable
         """
-        self.name = properties.get('name')
-        self.ref_to_parent = properties.get('ref_to_parent')
+        self.name = properties.get("name")
+        self.ref_to_parent = properties.get("ref_to_parent")
 
     def check_input_properties_names(self, input_property_names):
         """
         Ensure that all properties that are passed to the JavaLanguageElement are recognized.
         Raise an exception otherwise
         """
-        unknown_properties = input_property_names.difference(self.available_properties_names)
+        unknown_properties = input_property_names.difference(
+            self.available_properties_names
+        )
         if unknown_properties:
             raise AttributeError(
-                f'Error: try to initialize {self.__class__.__name__} with unknown property: {repr(unknown_properties)}')
+                f"Error: try to initialize {self.__class__.__name__} with unknown property: {repr(unknown_properties)}"
+            )
 
-    def init_class_properties(self, current_class_properties, input_properties_dict, default_property_value=None):
+    def init_class_properties(
+        self,
+        current_class_properties,
+        input_properties_dict,
+        default_property_value=None,
+    ):
         """
         @param: current_class_properties - all available properties for the Java element to be generated
         @param: input_properties_dict - values for the initialized properties (e.g. is_abstract=True)
@@ -83,13 +92,16 @@ class JavaLanguageElement:
         (None by default, because of the same as False semantic)
         """
         # Set all defined properties values (all undefined will be left with defaults)
-        for (property_name, property_value) in input_properties_dict.items():
+        for property_name, property_value in input_properties_dict.items():
             if property_name not in JavaLanguageElement.available_properties_names:
                 setattr(self, property_name, property_value)
 
         # Set all available properties to DefaultValue if they are not already set
         for property_name in current_class_properties:
-            if property_name not in JavaLanguageElement.available_properties_names and not hasattr(self, property_name):
+            if (
+                property_name not in JavaLanguageElement.available_properties_names
+                and not hasattr(self, property_name)
+            ):
                 setattr(self, property_name, default_property_value)
 
     def render_to_string(self, java):
@@ -97,7 +109,7 @@ class JavaLanguageElement:
         @param: java - handle that supports code generation interface (see code_file.py)
         Typically it is passed to all child elements so that they can render their content
         """
-        raise NotImplementedError('JavaLanguageElement is an abstract class')
+        raise NotImplementedError("JavaLanguageElement is an abstract class")
 
     def parent_qualifier(self):
         """
@@ -110,11 +122,11 @@ class JavaLanguageElement:
         Supports for nested classes, e.g.
         void MyClass.NestedClass.
         """
-        full_parent_qualifier = ''
+        full_parent_qualifier = ""
         parent = self.ref_to_parent
         # walk through all existing parents
         while parent:
-            full_parent_qualifier = f'{parent.name}.{full_parent_qualifier}'
+            full_parent_qualifier = f"{parent.name}.{full_parent_qualifier}"
             parent = parent.ref_to_parent
         return full_parent_qualifier
 
@@ -124,4 +136,4 @@ class JavaLanguageElement:
         Ex.
         MyClass.NestedClass.Method()
         """
-        return f'{self.parent_qualifier()}{self.name}'
+        return f"{self.parent_qualifier()}{self.name}"

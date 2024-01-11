@@ -21,32 +21,31 @@ class JavaVariable(JavaLanguageElement):
     documentation - string, '/** Example Javadoc */'
     """
 
-    available_properties_names = (
-            {
-                'type',
-                'name',
-                'value',
-                'access_modifier',
-                'is_static',
-                'static',
-                'is_final',
-                'final',
-                'documentation',
-                'is_transient',
-                'transient',
-                'is_volatile',
-                'volatile',
-                'is_synthetic',
-                'synthetic',
-                'custom_annotations',
-                'custom_modifiers',
-                'is_class_member'
-            } | JavaLanguageElement.available_properties_names)
+    available_properties_names = {
+        "type",
+        "name",
+        "value",
+        "access_modifier",
+        "is_static",
+        "static",
+        "is_final",
+        "final",
+        "documentation",
+        "is_transient",
+        "transient",
+        "is_volatile",
+        "volatile",
+        "is_synthetic",
+        "synthetic",
+        "custom_annotations",
+        "custom_modifiers",
+        "is_class_member",
+    } | JavaLanguageElement.available_properties_names
 
     def __init__(self, **properties):
-        self.type = ''
-        self.name = ''
-        self.value = ''
+        self.type = ""
+        self.name = ""
+        self.value = ""
         self.is_static = False
         self.is_final = False
         self.is_volatile = False
@@ -55,18 +54,17 @@ class JavaVariable(JavaLanguageElement):
         self.custom_annotations = []
         self.custom_modifiers = []
         self.access_modifier = None
-        self.documentation = ''
+        self.documentation = ""
 
         input_property_names = set(properties.keys())
         self.check_input_properties_names(input_property_names)
         super().__init__(properties)
         self.init_class_properties(
             current_class_properties=self.available_properties_names,
-            input_properties_dict=properties
+            input_properties_dict=properties,
         )
 
     def _sanity_check(self):
-
         # Basic checks
         if not self.name:
             raise ValueError("Variable name is not set")
@@ -84,36 +82,36 @@ class JavaVariable(JavaLanguageElement):
             raise ValueError("Cannot use 'final' and 'volatile' modifiers together")
 
         # Check for valid access modifiers
-        valid_access_modifiers = ['public', 'protected', 'private', '', None]
+        valid_access_modifiers = ["public", "protected", "private", "", None]
         if self.access_modifier not in valid_access_modifiers:
             raise ValueError(f"Invalid access modifier: {self.access_modifier}")
 
     def _render_type(self):
-        return f'{self.type} '
+        return f"{self.type} "
 
     def _render_value(self):
-        return f' = {self.value}' if self.value else ''
+        return f" = {self.value}" if self.value else ""
 
     def _render_static(self):
-        return 'static ' if self.is_static else ''
+        return "static " if self.is_static else ""
 
     def _render_final(self):
-        return 'final ' if self.is_final else ''
+        return "final " if self.is_final else ""
 
     def _render_volatile(self):
-        return 'volatile ' if self.is_volatile else ''
+        return "volatile " if self.is_volatile else ""
 
     def _render_transient(self):
-        return 'transient ' if self.is_transient else ''
+        return "transient " if self.is_transient else ""
 
     def _render_synthetic(self):
-        return 'synthetic ' if self.is_synthetic else ''
+        return "synthetic " if self.is_synthetic else ""
 
     def _render_documentation(self):
-        return f"/**\n{self.documentation}\n*/" if self.documentation else ''
+        return f"/**\n{self.documentation}\n*/" if self.documentation else ""
 
     def _render_access_modifier(self):
-        return self.access_modifier if self.access_modifier is not None else ''
+        return self.access_modifier if self.access_modifier is not None else ""
 
     def _render_modifiers(self):
         modifiers = [
@@ -121,22 +119,24 @@ class JavaVariable(JavaLanguageElement):
             self._render_final(),
             self._render_volatile(),
             self._render_transient(),
-            self._render_synthetic()
+            self._render_synthetic(),
         ]
-        return ' '.join(modifier for modifier in modifiers if modifier)
+        return " ".join(modifier for modifier in modifiers if modifier)
 
     def _render_custom_annotations(self):
-        return ' '.join(self.custom_annotations) if self.custom_annotations else ''
+        return " ".join(self.custom_annotations) if self.custom_annotations else ""
 
     def _render_custom_modifiers(self):
-        return ' '.join(self.custom_modifiers) if self.custom_modifiers else ''
+        return " ".join(self.custom_modifiers) if self.custom_modifiers else ""
 
     def render_to_string(self, java):
         self._sanity_check()
-        java(f'{self._render_custom_annotations()}'
-             f'{self._render_custom_modifiers()}'
-             f'{self._render_documentation()}'
-             f'{self._render_modifiers()}'
-             f'{self._render_type()}'
-             f'{self.name}'
-             f'{self._render_value()};')
+        java(
+            f"{self._render_custom_annotations()}"
+            f"{self._render_custom_modifiers()}"
+            f"{self._render_documentation()}"
+            f"{self._render_modifiers()}"
+            f"{self._render_type()}"
+            f"{self.name}"
+            f"{self._render_value()};"
+        )

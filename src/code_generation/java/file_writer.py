@@ -7,7 +7,6 @@ from code_generation.core.code_style import ANSICodeStyle
 
 
 class JavaFile(CodeFile):
-
     Formatter = ANSICodeStyle
 
     def __init__(self, filename, writer=None):

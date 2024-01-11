@@ -21,4 +21,4 @@ class CppFile(CodeFile):
         private:
         a:
         """
-        self.write('{0}:'.format(text), -1)
+        self.write("{0}:".format(text), -1)
