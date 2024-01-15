@@ -4,20 +4,23 @@ __doc__ = """"""
 
 
 class JavaFunction(JavaLanguageElement):
-    available_properties_names = {
-        "name",
-        "return_type",
-        "arguments",
-        "is_static",
-        "is_final",
-        "is_abstract",
-        "is_synchronized",
-        "is_native",
-        "is_strictfp",
-        "access_specifier",
-        "documentation",
-        "implementation",
-    } | JavaLanguageElement.available_properties_names
+    available_properties_names = (
+            {
+                "name",
+                "return_type",
+                "arguments",
+                "is_static",
+                "is_final",
+                "is_abstract",
+                "is_synchronized",
+                "is_native",
+                "is_strictfp",
+                "access_specifier",
+                "documentation",
+                "custom_annotations",
+                "custom_modifiers",
+                "implementation"
+            } | JavaLanguageElement.available_properties_names)
 
     def __init__(self, **properties):
         self.name = ""
@@ -32,6 +35,8 @@ class JavaFunction(JavaLanguageElement):
         self.documentation = ""
         self.access_specifier = "public"
         self.implementation = None
+        self.custom_annotations = []
+        self.custom_modifiers = []
         input_property_names = set(properties.keys())
         self.check_input_properties_names(input_property_names)
         super(JavaFunction, self).__init__(properties)
@@ -66,16 +71,6 @@ class JavaFunction(JavaLanguageElement):
         """
         self.arguments.append(argument)
 
-    def _render_documentation(self, java):
-        if self.documentation:
-            docstring_lines = ["/**"]
-            docstring_lines.extend(
-                [f" * {line}" for line in self.documentation.splitlines()]
-            )
-            docstring_lines.append(" */")
-            for line in docstring_lines:
-                java(line)
-
     def _render_access_specifier(self):
         return self.access_specifier if self.access_specifier else ""
 
@@ -105,11 +100,29 @@ class JavaFunction(JavaLanguageElement):
         ]
         return " ".join(modifier for modifier in modifiers if modifier)
 
+    def _render_custom_annotations(self, java):
+        if self.custom_annotations:
+            for annotation in self.custom_annotations:
+                java(f"@{annotation}")
+
+    def _render_custom_modifiers(self, java):
+        if self.custom_modifiers:
+            for modifier in self.custom_modifiers:
+                java(f"{modifier} ")
+
+    def _render_documentation(self, java):
+        if self.documentation:
+            java("/**")
+            java(f" * {self.documentation}")
+            java(" */")
+
     def render_to_string(self, java):
         self._sanity_check()
         self._render_documentation(java)
+        self._render_custom_annotations(java)
+        self._render_custom_modifiers(java)
         with java.block(
-            f"{self._render_modifiers()} {self.return_type} {self.name}({self.args_str()})"
+                f"{self._render_modifiers()} {self.return_type} {self.name}({self.args_str()})"
         ):
             if self.implementation is not None:
                 self.implementation(java)

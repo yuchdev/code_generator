@@ -33,7 +33,7 @@ java_class.add_variable(
         type="int",
         is_class_member=True,
         access_modifier="private",
-        documentation="/** Example Javadoc class member */"
+        documentation="Example Javadoc class member"
     )
 )
 
@@ -48,7 +48,7 @@ java_class.add_method(
         is_final=True,
         is_synchronized=True,
         implementation=method_implementation,
-        documentation="/** Example Javadoc method */"
+        documentation="Example Javadoc method"
     )
 )
 

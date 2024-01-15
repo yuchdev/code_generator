@@ -21,26 +21,27 @@ class JavaVariable(JavaLanguageElement):
     documentation - string, '/** Example Javadoc */'
     """
 
-    available_properties_names = {
-        "type",
-        "name",
-        "value",
-        "access_modifier",
-        "is_static",
-        "static",
-        "is_final",
-        "final",
-        "documentation",
-        "is_transient",
-        "transient",
-        "is_volatile",
-        "volatile",
-        "is_synthetic",
-        "synthetic",
-        "custom_annotations",
-        "custom_modifiers",
-        "is_class_member",
-    } | JavaLanguageElement.available_properties_names
+    available_properties_names = (
+            {
+                "type",
+                "name",
+                "value",
+                "access_modifier",
+                "is_static",
+                "static",
+                "is_final",
+                "final",
+                "documentation",
+                "is_transient",
+                "transient",
+                "is_volatile",
+                "volatile",
+                "is_synthetic",
+                "synthetic",
+                "custom_annotations",
+                "custom_modifiers",
+                "is_class_member",
+            } | JavaLanguageElement.available_properties_names)
 
     def __init__(self, **properties):
         self.type = ""
@@ -110,9 +111,6 @@ class JavaVariable(JavaLanguageElement):
     def _render_synthetic(self):
         return "synthetic " if self.is_synthetic else ""
 
-    def _render_documentation(self):
-        return f"/**\n{self.documentation}\n*/" if self.documentation else ""
-
     def _render_access_modifier(self):
         return self.access_modifier if self.access_modifier is not None else ""
 
@@ -126,18 +124,28 @@ class JavaVariable(JavaLanguageElement):
         ]
         return " ".join(modifier for modifier in modifiers if modifier)
 
-    def _render_custom_annotations(self):
-        return " ".join(self.custom_annotations) if self.custom_annotations else ""
+    def _render_custom_annotations(self, java):
+        if self.custom_annotations:
+            for annotation in self.custom_annotations:
+                java(f"@{annotation}")
 
-    def _render_custom_modifiers(self):
-        return " ".join(self.custom_modifiers) if self.custom_modifiers else ""
+    def _render_custom_modifiers(self, java):
+        if self.custom_modifiers:
+            for modifier in self.custom_modifiers:
+                java(f"{modifier} ")
+
+    def _render_documentation(self, java):
+        if self.documentation:
+            java("/**")
+            java(f" * {self.documentation}")
+            java(" */")
 
     def render_to_string(self, java):
         self._sanity_check()
+        self._render_custom_annotations(java)
+        self._render_custom_modifiers(java)
+        self._render_documentation(java)
         java(
-            f"{self._render_custom_annotations()}"
-            f"{self._render_custom_modifiers()}"
-            f"{self._render_documentation()}"
             f"{self._render_modifiers()}"
             f"{self._render_type()}"
             f"{self.name}"

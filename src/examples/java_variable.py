@@ -10,7 +10,7 @@ Expected output:
 
 """
 
-java = JavaFile('java_class.java')
+java = JavaFile('java_variable.java')
 
 java_class = JavaClass(name="MyClass")
 
@@ -20,7 +20,7 @@ java_class.add_variable(
         type="int",
         is_class_member=True,
         access_modifier="private",
-        documentation="/** Example Javadoc class member */"
+        documentation="Example Javadoc class member"
     )
 )
 

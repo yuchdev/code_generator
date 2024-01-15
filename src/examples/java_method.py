@@ -19,9 +19,9 @@ public class MyClass {
 
 """
 
-java = JavaFile('java_class.java')
-
+java = JavaFile('java_method.java')
 java_class = JavaClass(name="MyClass")
+
 
 def method_implementation(c):
     c("return 42;")
