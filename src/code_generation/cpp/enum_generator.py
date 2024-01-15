@@ -24,19 +24,29 @@ class CppEnum(CppLanguageElement):
         eShelve = 2,
         eItemsCount = 3
     }
+
+    NOTE: methods responsible for rendering of any element to string start from 'render_*'
+    (e.g. render_value, render_to_string)
+    Methods simply returning string representation of the element start from '_'
     """
 
-    availablePropertiesNames = {
-        "prefix",
-        "enum_class",
-        "add_counter",
-    } | CppLanguageElement.availablePropertiesNames
+    availablePropertiesNames = (
+            {
+                "prefix",
+                "enum_class",
+                "add_counter",
+                "enum_items"
+            } | CppLanguageElement.availablePropertiesNames)
 
     def __init__(self, **properties):
         """
         :param properties:
         """
         self.enum_class = False
+        self.enum_items = []
+        self.prefix = None
+        self.add_counter = True
+
         # check properties
         input_property_names = set(properties.keys())
         self.check_input_properties_names(input_property_names)
@@ -46,12 +56,6 @@ class CppEnum(CppLanguageElement):
             current_class_properties=self.availablePropertiesNames,
             input_properties_dict=properties,
         )
-
-        # place enum items here
-        self.enum_items = []
-
-    def _enum_class(self):
-        return "class " if self.enum_class else ""
 
     def add_item(self, item):
         """
@@ -65,7 +69,6 @@ class CppEnum(CppLanguageElement):
         """
         self.enum_items.extend(items)
 
-    # noinspection PyUnresolvedReferences
     def render_to_string(self, cpp):
         """
         Generates a string representation for the enum
@@ -86,3 +89,6 @@ class CppEnum(CppLanguageElement):
             if self.add_counter in [None, True]:
                 last_element = f"{final_prefix}{self.name}Count = {counter}"
                 cpp(last_element)
+
+    def _enum_class(self):
+        return "class " if self.enum_class else ""

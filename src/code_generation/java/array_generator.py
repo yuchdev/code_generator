@@ -4,14 +4,15 @@ __doc__ = """"""
 
 
 class JavaArray(JavaLanguageElement):
-    available_properties_names = {
-        "name",
-        "type",
-        "values",
-        "quoted",
-        "is_class_member",
-        "add_counter",
-    } | JavaLanguageElement.available_properties_names
+    available_properties_names = (
+            {
+                "name",
+                "type",
+                "values",
+                "quoted",
+                "is_class_member",
+                "add_counter",
+            } | JavaLanguageElement.available_properties_names)
 
     def __init__(self, **properties):
         """

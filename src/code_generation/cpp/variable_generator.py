@@ -82,16 +82,17 @@ class CppVariable(CppLanguageElement):
     is_class_member - boolean, for appropriate definition/declaration rendering
     """
 
-    availablePropertiesNames = {
-        "type",
-        "is_static",
-        "is_extern",
-        "is_const",
-        "is_constexpr",
-        "value",
-        "documentation",
-        "is_class_member",
-    } | CppLanguageElement.availablePropertiesNames
+    availablePropertiesNames = (
+            {
+                "type",
+                "is_static",
+                "is_extern",
+                "is_const",
+                "is_constexpr",
+                "value",
+                "documentation",
+                "is_class_member",
+            } | CppLanguageElement.availablePropertiesNames)
 
     def __init__(self, **properties):
         input_property_names = set(properties.keys())
@@ -101,6 +102,109 @@ class CppVariable(CppLanguageElement):
             current_class_properties=self.availablePropertiesNames,
             input_properties_dict=properties,
         )
+
+    def assignment(self, value):
+        """
+        Generates assignment statement for the variable, e.g.
+        a = 10;
+        b = 20;
+        """
+        return f"{self.name} = {value}"
+
+    def declaration(self):
+        """
+        @return: CppDeclaration wrapper, that could be used
+        for declaration rendering using render_to_string(cpp) interface
+        """
+        return CppDeclaration(self)
+
+    def definition(self):
+        """
+        @return: CppImplementation wrapper, that could be used
+        for definition rendering using render_to_string(cpp) interface
+        """
+        return CppImplementation(self)
+
+    def render_to_string(self, cpp):
+        """
+        Only automatic variables or static const class members could be rendered using this method
+        Generates complete variable definition, e.g.
+        int a = 10;
+        const double b = M_PI;
+        """
+        self._sanity_check()
+        if self.is_class_member and not (self.is_static and self.is_const):
+            raise RuntimeError(
+                "For class member variables use definition() and declaration() methods"
+            )
+        elif self.is_extern:
+            cpp(f"{self._extern()}{self.type} {self.name};")
+        else:
+            if self.documentation:
+                cpp(dedent(self.documentation))
+            cpp(
+                f"{self._static()}"
+                f"{self._const()}"
+                f"{self._constexpr()}"
+                f"{self.type} "
+                f"{self.assignment(self._init_value())};"
+            )
+
+    def render_to_string_declaration(self, cpp):
+        """
+        Generates declaration for the class member variables, for example
+        int m_var;
+        """
+        if not self.is_class_member:
+            raise RuntimeError(
+                "For automatic variable use its render_to_string() method"
+            )
+
+        if self.documentation and self.is_class_member:
+            cpp(dedent(self.documentation))
+        cpp(
+            f"{self._static()}"
+            f"{self._extern()}"
+            f"{self._const()}"
+            f"{self._constexpr()}"
+            f"{self.type} "
+            f"{self.name if not self.is_constexpr else self.assignment(self._init_value())};"
+        )
+
+    def render_to_string_implementation(self, cpp):
+        """
+        Generates definition for the class member variable.
+        Output depends on the variable type
+
+        Generates something like
+        int MyClass::m_my_static_var = 0;
+
+        for static class members, and
+        m_var(0)
+        for non-static class members.
+        That string could be used in constructor initialization string
+        """
+        if not self.is_class_member:
+            raise RuntimeError(
+                "For automatic variable use its render_to_string() method"
+            )
+
+        # generate definition for the static class member
+        if not self.is_constexpr:
+            if self.is_static:
+                cpp(
+                    f"{self._static()}"
+                    f"{self._const()}"
+                    f"{self._constexpr()}"
+                    f"{self.type} "
+                    f"{self.fully_qualified_name()}"
+                    f" = "
+                    f"{self._init_value()};"
+                )
+            # generate definition for non-static static class member, e.g. m_var(0)
+            # (string for the constructor initialization list)
+            else:
+                cpp(f"{self.name}({self._init_value()})")
 
     def _sanity_check(self):
         """
@@ -146,94 +250,3 @@ class CppVariable(CppLanguageElement):
         @return: string, value to be initialized with
         """
         return self.value if self.value else ""
-
-    def assignment(self, value):
-        """
-        Generates assignment statement for the variable, e.g.
-        a = 10;
-        b = 20;
-        """
-        return f"{self.name} = {value}"
-
-    def declaration(self):
-        """
-        @return: CppDeclaration wrapper, that could be used
-        for declaration rendering using render_to_string(cpp) interface
-        """
-        return CppDeclaration(self)
-
-    def definition(self):
-        """
-        @return: CppImplementation wrapper, that could be used
-        for definition rendering using render_to_string(cpp) interface
-        """
-        return CppImplementation(self)
-
-    def render_to_string(self, cpp):
-        """
-        Only automatic variables or static const class members could be rendered using this method
-        Generates complete variable definition, e.g.
-        int a = 10;
-        const double b = M_PI;
-        """
-        self._sanity_check()
-        if self.is_class_member and not (self.is_static and self.is_const):
-            raise RuntimeError(
-                "For class member variables use definition() and declaration() methods"
-            )
-        elif self.is_extern:
-            cpp(f"{self._extern()}{self.type} {self.name};")
-        else:
-            if self.documentation:
-                cpp(dedent(self.documentation))
-            cpp(
-                f"{self._static()}{self._const()}{self._constexpr()}"
-                f"{self.type} {self.assignment(self._init_value())};"
-            )
-
-    def render_to_string_declaration(self, cpp):
-        """
-        Generates declaration for the class member variables, for example
-        int m_var;
-        """
-        if not self.is_class_member:
-            raise RuntimeError(
-                "For automatic variable use its render_to_string() method"
-            )
-
-        if self.documentation and self.is_class_member:
-            cpp(dedent(self.documentation))
-        cpp(
-            f"{self._static()}{self._extern()}{self._const()}{self._constexpr()}"
-            f"{self.type} {self.name if not self.is_constexpr else self.assignment(self._init_value())};"
-        )
-
-    def render_to_string_implementation(self, cpp):
-        """
-        Generates definition for the class member variable.
-        Output depends on the variable type
-
-        Generates something like
-        int MyClass::m_my_static_var = 0;
-
-        for static class members, and
-        m_var(0)
-        for non-static class members.
-        That string could be used in constructor initialization string
-        """
-        if not self.is_class_member:
-            raise RuntimeError(
-                "For automatic variable use its render_to_string() method"
-            )
-
-        # generate definition for the static class member
-        if not self.is_constexpr:
-            if self.is_static:
-                cpp(
-                    f"{self._static()}{self._const()}{self._constexpr()}"
-                    f"{self.type} {self.fully_qualified_name()} = {self._init_value()};"
-                )
-            # generate definition for non-static static class member, e.g. m_var(0)
-            # (string for the constructor initialization list)
-            else:
-                cpp(f"{self.name}({self._init_value()})")

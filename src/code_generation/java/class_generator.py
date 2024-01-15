@@ -1,6 +1,5 @@
 from code_generation.java.language_element import JavaLanguageElement
 
-
 __doc__ = """"""
 
 
@@ -31,11 +30,12 @@ class JavaClass(JavaLanguageElement):
     }
     """
 
-    available_properties_names = {
-        "documentation",
-        "parent_class",
-        "is_record",
-    } | JavaLanguageElement.available_properties_names
+    available_properties_names = (
+            {
+                "documentation",
+                "parent_class",
+                "is_record",
+            } | JavaLanguageElement.available_properties_names)
 
     def __init__(self, **properties):
         self.documentation = None
@@ -55,6 +55,55 @@ class JavaClass(JavaLanguageElement):
         self.internal_enum_elements = []
         self.internal_method_elements = []
 
+    def add_variable(self, java_variable):
+        java_variable.ref_to_parent = self
+        self.internal_variable_elements.append(java_variable)
+
+    def add_method(self, java_method):
+        java_method.ref_to_parent = self
+        self.internal_method_elements.append(java_method)
+
+    def add_internal_class(self, java_class):
+        java_class.ref_to_parent = self
+        self.internal_class_elements.append(java_class)
+
+    def inherits(self):
+        return f"extends {self._parent_class()}" if self.parent_class else ""
+
+    def class_interface(self, java):
+        self.render_internal_classes_declaration(java)
+        self.render_enum_section(java)
+        self.render_methods_declaration(java)
+
+    def private_class_members(self, java):
+        self.render_variables_declaration(java)
+
+    def render_internal_classes_declaration(self, java):
+        for class_item in self.internal_class_elements:
+            class_item.declaration().render_to_string(java)
+            java.newline()
+
+    def render_enum_section(self, java):
+        for enum_item in self.internal_enum_elements:
+            enum_item.render_to_string(java)
+            java.newline()
+
+    def render_variables_declaration(self, java):
+        for var_item in self.internal_variable_elements:
+            var_item.render_to_string(java)
+            java.newline()
+
+    def render_methods_declaration(self, java):
+        for method_item in self.internal_method_elements:
+            method_item.render_to_string(java)
+            java.newline()
+
+    def render_to_string(self, java):
+        self._render_documentation(java)
+        with java.block(f"public {self._class_type()} {self.name} {self.inherits()}"):
+            self.class_interface(java)
+            self.private_class_members(java)
+
     def _parent_class(self):
         return self.parent_class if self.parent_class else ""
 
@@ -70,54 +119,3 @@ class JavaClass(JavaLanguageElement):
 
     def _class_type(self):
         return "class" if not self.is_record else "record"
-
-    def inherits(self):
-        return f"extends {self._parent_class()}" if self.parent_class else ""
-
-    def class_interface(self, java):
-        self._render_internal_classes_declaration(java)
-        self._render_enum_section(java)
-        self._render_methods_declaration(java)
-
-    def _render_internal_classes_declaration(self, java):
-        for class_item in self.internal_class_elements:
-            class_item.declaration().render_to_string(java)
-            java.newline()
-
-    def _render_enum_section(self, java):
-        for enum_item in self.internal_enum_elements:
-            enum_item.render_to_string(java)
-            java.newline()
-
-    def _render_variables_declaration(self, java):
-        for var_item in self.internal_variable_elements:
-            var_item.render_to_string(java)
-            java.newline()
-
-    def _render_methods_declaration(self, java):
-        for method_item in self.internal_method_elements:
-            method_item.render_to_string(java)
-            java.newline()
-
-    def private_class_members(self, java):
-        self._render_variables_declaration(java)
-
-    def add_variable(self, java_variable):
-        java_variable.ref_to_parent = self
-        self.internal_variable_elements.append(java_variable)
-
-    def add_method(self, java_method):
-        java_method.ref_to_parent = self
-        self.internal_method_elements.append(java_method)
-
-    def add_internal_class(self, java_class):
-        java_class.ref_to_parent = self
-        self.internal_class_elements.append(java_class)
-
-    def render_to_string(self, java):
-        self._render_documentation(java)
-        with java.block(
-            f"public {self._class_type()} {self.name} {self.inherits()}"
-        ):
-            self.class_interface(java)
-            self.private_class_members(java)

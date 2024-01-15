@@ -1,15 +1,15 @@
 from code_generation.java.language_element import JavaLanguageElement
 
-
 __doc__ = """"""
 
 
 class JavaEnum(JavaLanguageElement):
-    available_properties_names = {
-        "name",
-        "values",
-        "is_class_member",
-    } | JavaLanguageElement.available_properties_names
+    available_properties_names = (
+            {
+                "name",
+                "values",
+                "is_class_member",
+            } | JavaLanguageElement.available_properties_names)
 
     def __init__(self, **properties):
         """
@@ -26,6 +26,26 @@ class JavaEnum(JavaLanguageElement):
             input_properties_dict=properties,
         )
 
+    def __str__(self):
+        """
+        String representation of enum
+        """
+        return self.values_str()
+
+    def values_str(self):
+        """
+        String representation of enum values
+        Can be used for multiple values as well
+        VALUE1, VALUE2, VALUE3
+        """
+        if self.values is None or not self.values:
+            return ""
+        return ", ".join(str(value) for value in self.values)
+
+    def render_to_string(self, java):
+        self._sanity_check()
+        self._static(java)
+
     def _sanity_check(self):
         """
         Check if all required properties are set
@@ -39,22 +59,6 @@ class JavaEnum(JavaLanguageElement):
         if self.is_class_member and not self.name:
             raise RuntimeError("Class member enum name is not set")
 
-    def values_str(self):
-        """
-        String representation of enum values
-        Can be used for multiple values as well
-        VALUE1, VALUE2, VALUE3
-        """
-        if self.values is None or not self.values:
-            return ""
-        return ", ".join(str(value) for value in self.values)
-
-    def __str__(self):
-        """
-        String representation of enum
-        """
-        return self.values_str()
-
     def _static(self, java):
         """
         Render static enums
@@ -63,7 +67,3 @@ class JavaEnum(JavaLanguageElement):
             java(f"enum {self.name} {{}}")
         else:
             java(f"enum {self.name} {{ {self.values_str()} }};")
-
-    def render_to_string(self, java):
-        self._sanity_check()
-        self._static(java)

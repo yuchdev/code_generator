@@ -47,18 +47,6 @@ class JavaFunction(JavaLanguageElement):
         # strip documentation of /** and */ because it's added in _render_documentation
         self.documentation = self.documentation.strip("/**").strip("*/")
 
-    def _sanity_check(self):
-        if not self.name:
-            raise RuntimeError("Method name is not set")
-        if not isinstance(self.name, str):
-            raise RuntimeError(f"Method name is not a string, but {type(self.name)}")
-        if not isinstance(self.return_type, str):
-            raise RuntimeError(
-                f"Return type is not a string, but {type(self.return_type)}"
-            )
-        if self.arguments is not None and not isinstance(self.arguments, list):
-            raise RuntimeError(f"Arguments are not a list, but {type(self.arguments)}")
-
     def args_str(self):
         if self.arguments is None or not self.arguments:
             return ""
@@ -70,6 +58,46 @@ class JavaFunction(JavaLanguageElement):
         :param argument: The argument to add
         """
         self.arguments.append(argument)
+
+    def render_custom_annotations(self, java):
+        if self.custom_annotations:
+            for annotation in self.custom_annotations:
+                java(f"@{annotation}")
+
+    def render_custom_modifiers(self, java):
+        if self.custom_modifiers:
+            for modifier in self.custom_modifiers:
+                java(f"{modifier} ")
+
+    def render_documentation(self, java):
+        if self.documentation:
+            java("/**")
+            java(f" * {self.documentation}")
+            java(" */")
+
+    def render_to_string(self, java):
+        self._sanity_check()
+        self.render_documentation(java)
+        self.render_custom_annotations(java)
+        self.render_custom_modifiers(java)
+        with java.block(
+                f"{self._modifiers()} "
+                f"{self.return_type} "
+                f"{self.name}"
+                f"({self.args_str()})"
+        ):
+            if self.implementation is not None:
+                self.implementation(java)
+
+    def _sanity_check(self):
+        if not self.name:
+            raise RuntimeError("Method name is not set")
+        if not isinstance(self.name, str):
+            raise RuntimeError(f"Method name is not a string, but {type(self.name)}")
+        if not isinstance(self.return_type, str):
+            raise RuntimeError(f"Return type is not a string, but {type(self.return_type)}")
+        if self.arguments is not None and not isinstance(self.arguments, list):
+            raise RuntimeError(f"Arguments are not a list, but {type(self.arguments)}")
 
     def _access_specifier(self):
         return self.access_specifier if self.access_specifier else ""
@@ -99,30 +127,3 @@ class JavaFunction(JavaLanguageElement):
             self._strictfp(),
         ]
         return " ".join(modifier for modifier in modifiers if modifier)
-
-    def _render_custom_annotations(self, java):
-        if self.custom_annotations:
-            for annotation in self.custom_annotations:
-                java(f"@{annotation}")
-
-    def _render_custom_modifiers(self, java):
-        if self.custom_modifiers:
-            for modifier in self.custom_modifiers:
-                java(f"{modifier} ")
-
-    def _render_documentation(self, java):
-        if self.documentation:
-            java("/**")
-            java(f" * {self.documentation}")
-            java(" */")
-
-    def render_to_string(self, java):
-        self._sanity_check()
-        self._render_documentation(java)
-        self._render_custom_annotations(java)
-        self._render_custom_modifiers(java)
-        with java.block(
-                f"{self._modifiers()} {self.return_type} {self.name}({self.args_str()})"
-        ):
-            if self.implementation is not None:
-                self.implementation(java)

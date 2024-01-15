@@ -27,6 +27,10 @@ class CppArray(CppLanguageElement):
 
     NOTE: versions 2.0+ of CodeGenerator support boolean properties without "is_" suffix,
     but old versions preserved for backward compatibility
+
+    NOTE: methods responsible for rendering of any element to string start from 'render_*'
+    (e.g. render_value, render_to_string)
+    Methods simply returning string representation of the element start from '_'
     """
 
     availablePropertiesNames = (
@@ -59,58 +63,6 @@ class CppArray(CppLanguageElement):
             current_class_properties=self.availablePropertiesNames,
             input_properties_dict=properties,
         )
-
-    def _sanity_check(self):
-        """
-        Check if all required properties are set
-        """
-        if not self.type:
-            raise RuntimeError("Array type is not set")
-        if not self.name:
-            raise RuntimeError("Array name is not set")
-        if self.is_class_member and not self.name:
-            raise RuntimeError("Class member array name is not set")
-
-    def _static(self):
-        """
-        @return: 'static' prefix if required
-        """
-        return "static" if self.is_static else ""
-
-    def _const(self):
-        """
-        @return: 'const' prefix if required
-        """
-        return "const" if self.is_const else ""
-
-    def _modifiers(self):
-        modifiers = [
-            self._static(),
-            self._const()
-        ]
-        return " ".join(modifiers)
-
-    def _size(self):
-        """
-        @return: array size
-        """
-        return self.array_size if self.array_size else ""
-
-    def _render_size(self):
-        """
-        @return: array items if any
-        """
-        return ", ".join(self.items) if self.items else "nullptr"
-
-    def _render_value(self, cpp):
-        """
-        Render to string array items
-        """
-        if not self.items:
-            raise RuntimeError("Empty arrays do not supported")
-        for item in self.items[:-1]:
-            cpp("{0},".format(item))
-        cpp("{0}".format(self.items[-1]))
 
     def declaration(self):
         """
@@ -175,7 +127,7 @@ class CppArray(CppLanguageElement):
                 f"{self.name}"
                 f"[{self._size()}]"
                 f" = "
-                f"{{{self._render_size()}}};"
+                f"{{{self._content()}}};"
             )
 
     def render_to_string_declaration(self, cpp):
@@ -237,5 +189,57 @@ class CppArray(CppLanguageElement):
                 f"{self.fully_qualified_name()}"
                 f"[{self._size()}]"
                 f" = "
-                f"{{{self._render_size()}}};"
+                f"{{{self._content()}}};"
             )
+
+    def _sanity_check(self):
+        """
+        Check if all required properties are set
+        """
+        if not self.type:
+            raise RuntimeError("Array type is not set")
+        if not self.name:
+            raise RuntimeError("Array name is not set")
+        if self.is_class_member and not self.name:
+            raise RuntimeError("Class member array name is not set")
+
+    def _static(self):
+        """
+        @return: 'static' prefix if required
+        """
+        return "static" if self.is_static else ""
+
+    def _const(self):
+        """
+        @return: 'const' prefix if required
+        """
+        return "const" if self.is_const else ""
+
+    def _modifiers(self):
+        modifiers = [
+            self._static(),
+            self._const()
+        ]
+        return " ".join(modifiers)
+
+    def _size(self):
+        """
+        @return: array size
+        """
+        return self.array_size if self.array_size else ""
+
+    def _content(self):
+        """
+        @return: array items if any
+        """
+        return ", ".join(self.items) if self.items else "nullptr"
+
+    def _render_value(self, cpp):
+        """
+        Render to string array items
+        """
+        if not self.items:
+            raise RuntimeError("Empty arrays do not supported")
+        for item in self.items[:-1]:
+            cpp("{0},".format(item))
+        cpp("{0}".format(self.items[-1]))

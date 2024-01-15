@@ -31,12 +31,13 @@ class CppFunction(CppLanguageElement):
     }
     """
 
-    availablePropertiesNames = {
-        "ret_type",
-        "is_constexpr",
-        "implementation",
-        "documentation",
-    } | CppLanguageElement.availablePropertiesNames
+    availablePropertiesNames = (
+            {
+                "ret_type",
+                "is_constexpr",
+                "implementation",
+                "documentation",
+            } | CppLanguageElement.availablePropertiesNames)
 
     def __init__(self, **properties):
         # arguments are plain strings
@@ -82,7 +83,7 @@ class CppFunction(CppLanguageElement):
         """
         self.arguments.append(argument)
 
-    def implementation(self, cpp):
+    def body(self, cpp):
         """
         The method calls Python function that creates C++ method body if handle exists
         """
@@ -116,7 +117,10 @@ class CppFunction(CppLanguageElement):
         if self.documentation:
             cpp(dedent(self.documentation))
         with cpp.block(
-            f"{self._constexpr()}{self.ret_type} {self.name}({self.args()})"
+                f"{self._constexpr()}"
+                f"{self.ret_type} "
+                f"{self.name}"
+                f"({self.args()})"
         ):
             self.implementation(cpp)
 
@@ -134,7 +138,10 @@ class CppFunction(CppLanguageElement):
             self.render_to_string(cpp)
         else:
             cpp(
-                f"{self._constexpr()}{self.ret_type} {self.name}({self.args()});"
+                f"{self._constexpr()}"
+                f"{self.ret_type} "
+                f"{self.name}"
+                f"({self.args()});"
             )
 
     def render_to_string_implementation(self, cpp):
@@ -146,7 +153,7 @@ class CppFunction(CppLanguageElement):
         {
         ...
         }
-        Generates method body if self.implementation property exists
+        Generates method body if `self.implementation` property exists
         """
         if self.implementation is None:
             raise RuntimeError(f"No implementation handle for the function {self.name}")
@@ -155,6 +162,9 @@ class CppFunction(CppLanguageElement):
         if self.documentation and not self.is_constexpr:
             cpp(dedent(self.documentation))
         with cpp.block(
-            f"{self._constexpr()}{self.ret_type} {self.name}({self.args()})"
+                f"{self._constexpr()}"
+                f"{self.ret_type} "
+                f"{self.name}"
+                f"({self.args()})"
         ):
             self.implementation(cpp)

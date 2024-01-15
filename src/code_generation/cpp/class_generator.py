@@ -117,67 +117,120 @@ class CppClass(CppLanguageElement):
                 input_properties_dict=properties,
             )
 
-        def _static(self):
+        def add_argument(self, argument):
             """
-            Before function name, declaration only
-            Static functions can't be const, virtual or pure virtual
+            @param: argument string representation of the C++ function argument ('int a', 'void p = NULL' etc)
             """
-            return "static" if self.is_static else ""
+            self.arguments.append(argument)
 
-        def _constexpr(self):
+        def args(self):
             """
-            Before function name, declaration only
-            Constexpr functions can't be const, virtual or pure virtual
+            @return: string arguments
             """
-            return "constexpr" if self.is_constexpr else ""
+            return ", ".join(self.arguments)
 
-        def _render_virtual(self):
+        def body(self, cpp):
             """
-            Before function name, could be in declaration or definition
-            Virtual functions can't be static or constexpr
+            The method calls Python function that creates C++ method body if handle exists
             """
-            return "virtual" if self.is_virtual else ""
+            if self.implementation is not None:
+                self.implementation(cpp)
 
-        def _render_inline(self):
+        def declaration(self):
             """
-            Before function name, could be in declaration or definition
-            Inline functions can't be static, virtual or constexpr
+            @return: CppDeclaration wrapper, that could be used
+            for declaration rendering using render_to_string(cpp) interface
             """
-            return "inline" if self.is_inline else ""
+            return CppDeclaration(self)
 
-        def _render_ret_type(self):
+        def definition(self):
             """
-            Return type, could be in declaration or definition
+            @return: CppImplementation wrapper, that could be used
+            for definition rendering using render_to_string(cpp) interface
             """
-            return self.ret_type if self.ret_type else ""
+            return CppImplementation(self)
 
-        def _render_pure(self):
+        def render_to_string(self, cpp):
             """
-            After function name, declaration only
-            Pure virtual functions must be virtual
+            By default, method is rendered as a declaration together with implementation,
+            like the method is implemented within the C++ class body, e.g.
+            class A
+            {
+                void f()
+                {
+                ...
+                }
+            }
             """
-            return " = 0" if self.is_pure_virtual else ""
+            # check all properties for the consistency
+            self._sanity_check()
+            if self.documentation:
+                cpp(dedent(self.documentation))
+            with cpp.block(
+                    f"{self._static()}"
+                    f"{self._modifiers_front()}"
+                    f"{self._ret_type()} "
+                    f"{self.fully_qualified_name()}"
+                    f"({self.args()})"
+                    f"{self._modifiers_back()}"
+                    f"{self._pure()}"
+            ):
+                self.implementation(cpp)
 
-        def _const(self):
+        def render_to_string_declaration(self, cpp):
             """
-            After function name, could be in declaration or definition
-            Const functions can't be static, virtual or constexpr
+            Special case for a method declaration string representation.
+            Generates just a function signature terminated by ';'
+            Example:
+            int GetX() const;
             """
-            return "const" if self.is_const else ""
+            # check all properties for the consistency
+            self._sanity_check()
+            if self.is_constexpr:
+                if self.documentation:
+                    cpp(dedent(self.documentation))
+                self.render_to_string(cpp)
+            else:
+                cpp(
+                    f"{self._static()}"
+                    f"{self._modifiers_front()}"
+                    f"{self._ret_type()} "
+                    f"{self.name}"
+                    f"({self.args()})"
+                    f"{self._modifiers_back()}"
+                    f"{self._pure()};"
+                )
 
-        def _render_override(self):
+        def render_to_string_implementation(self, cpp):
             """
-            After function name, could be in declaration or definition
-            Override functions must be virtual
+            Special case for a method implementation string representation.
+            Generates method string in the form
+            Example:
+            int MyClass::GetX() const
+            {
+            ...
+            }
+            Generates method body if `self.implementation` property exists
             """
-            return "override" if self.is_override else ""
+            # check all properties for the consistency
+            self._sanity_check()
 
-        def _final(self):
-            """
-            After function name, could be in declaration or definition
-            Final functions must be virtual
-            """
-            return "final" if self.is_final else ""
+            if self.implementation is None:
+                raise RuntimeError(f"No implementation handle for the method {self.name}")
+
+            if self.is_pure_virtual:
+                raise RuntimeError(f"Pure virtual method {self.name} could not be implemented")
+
+            if self.documentation and not self.is_constexpr:
+                cpp(dedent(self.documentation))
+            with cpp.block(
+                    f"{self._modifiers_front()}"
+                    f"{self._ret_type()} "
+                    f"{self.fully_qualified_name()}"
+                    f"({self.args()})"
+                    f"{self._modifiers_back()}"
+            ):
+                self.implementation(cpp)
 
         def _sanity_check(self):
             """
@@ -210,136 +263,83 @@ class CppClass(CppLanguageElement):
             if self.is_pure_virtual and self.implementation is not None:
                 raise ValueError(f"Pure virtual method {self.name} could not be implemented")
 
-        def add_argument(self, argument):
-            """
-            @param: argument string representation of the C++ function argument ('int a', 'void p = NULL' etc)
-            """
-            self.arguments.append(argument)
-
-        def args(self):
-            """
-            @return: string arguments
-            """
-            return ", ".join(self.arguments)
-
-        def implementation(self, cpp):
-            """
-            The method calls Python function that creates C++ method body if handle exists
-            """
-            if self.implementation is not None:
-                self.implementation(cpp)
-
-        def declaration(self):
-            """
-            @return: CppDeclaration wrapper, that could be used
-            for declaration rendering using render_to_string(cpp) interface
-            """
-            return CppDeclaration(self)
-
-        def definition(self):
-            """
-            @return: CppImplementation wrapper, that could be used
-            for definition rendering using render_to_string(cpp) interface
-            """
-            return CppImplementation(self)
-
         def _modifiers_front(self):
             modifiers = [
                 self._constexpr(),
-                self._render_virtual(),
-                self._render_inline(),
+                self._virtual(),
+                self._inline(),
             ]
             return " ".join(modifiers)
 
         def _modifiers_back(self):
             modifiers = [
                 self._const(),
-                self._render_override(),
+                self._override(),
                 self._final()
             ]
             return " ".join(modifiers)
 
-        def render_to_string(self, cpp):
+        def _static(self):
             """
-            By default, method is rendered as a declaration together with implementation,
-            like the method is implemented within the C++ class body, e.g.
-            class A
-            {
-                void f()
-                {
-                ...
-                }
-            }
+            Before function name, declaration only
+            Static functions can't be const, virtual or pure virtual
             """
-            # check all properties for the consistency
-            self._sanity_check()
-            if self.documentation:
-                cpp(dedent(self.documentation))
-            with cpp.block(
-                    f"{self._static()}"
-                    f"{self._modifiers_front()}"
-                    f"{self._render_ret_type()} "
-                    f"{self.fully_qualified_name()}"
-                    f"({self.args()})"
-                    f"{self._modifiers_back()}"
-                    f"{self._render_pure()}"
-            ):
-                self.implementation(cpp)
+            return "static" if self.is_static else ""
 
-        def render_to_string_declaration(self, cpp):
+        def _constexpr(self):
             """
-            Special case for a method declaration string representation.
-            Generates just a function signature terminated by ';'
-            Example:
-            int GetX() const;
+            Before function name, declaration only
+            Constexpr functions can't be const, virtual or pure virtual
             """
-            # check all properties for the consistency
-            self._sanity_check()
-            if self.is_constexpr:
-                if self.documentation:
-                    cpp(dedent(self.documentation))
-                self.render_to_string(cpp)
-            else:
-                cpp(
-                    f"{self._static()}"
-                    f"{self._modifiers_front()}"
-                    f"{self._render_ret_type()} "
-                    f"{self.name}"
-                    f"({self.args()})"
-                    f"{self._modifiers_back()}"
-                    f"{self._render_pure()};"
-                )
+            return "constexpr" if self.is_constexpr else ""
 
-        def render_to_string_implementation(self, cpp):
+        def _virtual(self):
             """
-            Special case for a method implementation string representation.
-            Generates method string in the form
-            Example:
-            int MyClass::GetX() const
-            {
-            ...
-            }
-            Generates method body if `self.implementation` property exists
+            Before function name, could be in declaration or definition
+            Virtual functions can't be static or constexpr
             """
-            # check all properties for the consistency
-            self._sanity_check()
+            return "virtual" if self.is_virtual else ""
 
-            if self.implementation is None:
-                raise RuntimeError(f"No implementation handle for the method {self.name}")
+        def _inline(self):
+            """
+            Before function name, could be in declaration or definition
+            Inline functions can't be static, virtual or constexpr
+            """
+            return "inline" if self.is_inline else ""
 
-            if self.is_pure_virtual:
-                raise RuntimeError(f"Pure virtual method {self.name} could not be implemented")
+        def _ret_type(self):
+            """
+            Return type, could be in declaration or definition
+            """
+            return self.ret_type if self.ret_type else ""
 
-            if self.documentation and not self.is_constexpr:
-                cpp(dedent(self.documentation))
-            with cpp.block(
-                    f"{self._modifiers_front()}"
-                    f"{self._render_ret_type()} "
-                    f"{self.fully_qualified_name()}"
-                    f"({self.args()})"
-                    f"{self._modifiers_back()}"
-            ):
-                self.implementation(cpp)
+        def _pure(self):
+            """
+            After function name, declaration only
+            Pure virtual functions must be virtual
+            """
+            return " = 0" if self.is_pure_virtual else ""
+
+        def _const(self):
+            """
+            After function name, could be in declaration or definition
+            Const functions can't be static, virtual or constexpr
+            """
+            return "const" if self.is_const else ""
+
+        def _override(self):
+            """
+            After function name, could be in declaration or definition
+            Override functions must be virtual
+            """
+            return "override" if self.is_override else ""
+
+        def _final(self):
+            """
+            After function name, could be in declaration or definition
+            Final functions must be virtual
+            """
+            return "final" if self.is_final else ""
 
     def __init__(self, **properties):
         self.is_struct = False
@@ -367,12 +367,6 @@ class CppClass(CppLanguageElement):
 
         # class scoped enums
         self.scoped_enums = []
-
-    def _parent_class(self):
-        """
-        @return: parent class object
-        """
-        return self.parent_class if self.parent_class else ""
 
     def inherits(self):
         """
@@ -423,8 +417,28 @@ class CppClass(CppLanguageElement):
         self.methods.append(method)
 
     ########################################
+    # GROUP GENERATED SECTIONS
+    def class_interface(self, cpp):
+        """
+        Generates section that generally used as an 'open interface'
+        Generates string representation for enums, internal classes and methods
+        Should be placed in 'public:' section
+        """
+        self.render_enum_section(cpp)
+        self.render_internal_classes_declaration(cpp)
+        self.render_methods_declaration(cpp)
+
+    def private_class_members(self, cpp):
+        """
+        Generates section of class member variables.
+        Should be placed in 'private:' section
+        """
+        self.render_variables_declaration(cpp)
+        self.render_array_declaration(cpp)
+
+    ########################################
     # RENDER CLASS MEMBERS
-    def _render_internal_classes_declaration(self, cpp):
+    def render_internal_classes_declaration(self, cpp):
         """
         Generates section of nested classes
         Could be placed both in 'private:' or 'public:' sections
@@ -433,7 +447,7 @@ class CppClass(CppLanguageElement):
         for class_item in self.internal_class_elements:
             class_item.declaration().render_to_string(cpp)
 
-    def _render_enum_section(self, cpp):
+    def render_enum_section(self, cpp):
         """
         Render to string all contained enums
         Method is protected as it is used by CppClass only
@@ -441,7 +455,7 @@ class CppClass(CppLanguageElement):
         for enum_item in self.scoped_enums:
             enum_item.render_to_string(cpp)
 
-    def _render_variables_declaration(self, cpp):
+    def render_variables_declaration(self, cpp):
         """
         Render to string all contained variable class members
         Method is protected as it is used by CppClass only
@@ -449,7 +463,7 @@ class CppClass(CppLanguageElement):
         for var_item in self.variable_members:
             var_item.declaration().render_to_string(cpp)
 
-    def _render_array_declaration(self, cpp):
+    def render_array_declaration(self, cpp):
         """
         Render to string all contained array class members
         Method is protected as it is used by CppClass only
@@ -457,7 +471,7 @@ class CppClass(CppLanguageElement):
         for arr_item in self.array_members:
             arr_item.declaration().render_to_string(cpp)
 
-    def _render_methods_declaration(self, cpp):
+    def render_methods_declaration(self, cpp):
         """
         Generates all class methods declaration
         Should be placed in 'public:' section
@@ -506,26 +520,6 @@ class CppClass(CppLanguageElement):
             class_item.render_static_members_implementation(cpp)
             cpp.newline()
 
-    ########################################
-    # GROUP GENERATED SECTIONS
-    def class_interface(self, cpp):
-        """
-        Generates section that generally used as an 'open interface'
-        Generates string representation for enums, internal classes and methods
-        Should be placed in 'public:' section
-        """
-        self._render_enum_section(cpp)
-        self._render_internal_classes_declaration(cpp)
-        self._render_methods_declaration(cpp)
-
-    def private_class_members(self, cpp):
-        """
-        Generates section of class member variables.
-        Should be placed in 'private:' section
-        """
-        self._render_variables_declaration(cpp)
-        self._render_array_declaration(cpp)
-
     def render_to_string(self, cpp):
         """
         Render to string both declaration and definition.
@@ -555,12 +549,6 @@ class CppClass(CppLanguageElement):
             self.private_class_members(cpp)
         cpp.newline()
 
-    def _class_type(self):
-        """
-        @return: 'class' or 'struct' keyword
-        """
-        return "struct" if self.is_struct else "class"
-
     def render_to_string_implementation(self, cpp):
         """
         Render to string class definition.
@@ -582,3 +570,17 @@ class CppClass(CppLanguageElement):
         for definition rendering using render_to_string(cpp) interface
         """
         return CppImplementation(self)
+
+    ########################################
+    # PRIVATE METHODS
+    def _class_type(self):
+        """
+        @return: 'class' or 'struct' keyword
+        """
+        return "struct" if self.is_struct else "class"
+
+    def _parent_class(self):
+        """
+        @return: parent class object
+        """
+        return self.parent_class if self.parent_class else ""

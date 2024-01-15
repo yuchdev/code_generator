@@ -68,6 +68,34 @@ class JavaVariable(JavaLanguageElement):
         # strip documentation of /** and */ because it's added in _render_documentation
         self.documentation = self.documentation.strip("/**").strip("*/")
 
+    def render_custom_annotations(self, java):
+        if self.custom_annotations:
+            for annotation in self.custom_annotations:
+                java(f"@{annotation}")
+
+    def render_custom_modifiers(self, java):
+        if self.custom_modifiers:
+            for modifier in self.custom_modifiers:
+                java(f"{modifier} ")
+
+    def render_documentation(self, java):
+        if self.documentation:
+            java("/**")
+            java(f" * {self.documentation}")
+            java(" */")
+
+    def render_to_string(self, java):
+        self._sanity_check()
+        self.render_custom_annotations(java)
+        self.render_custom_modifiers(java)
+        self.render_documentation(java)
+        java(
+            f"{self._modifiers()}"
+            f"{self._type()}"
+            f"{self.name}"
+            f"{self._value()};"
+        )
+
     def _sanity_check(self):
         # Basic checks
         if not self.name:
@@ -123,31 +151,3 @@ class JavaVariable(JavaLanguageElement):
             self._synthetic(),
         ]
         return " ".join(modifier for modifier in modifiers if modifier)
-
-    def _render_custom_annotations(self, java):
-        if self.custom_annotations:
-            for annotation in self.custom_annotations:
-                java(f"@{annotation}")
-
-    def _render_custom_modifiers(self, java):
-        if self.custom_modifiers:
-            for modifier in self.custom_modifiers:
-                java(f"{modifier} ")
-
-    def _render_documentation(self, java):
-        if self.documentation:
-            java("/**")
-            java(f" * {self.documentation}")
-            java(" */")
-
-    def render_to_string(self, java):
-        self._sanity_check()
-        self._render_custom_annotations(java)
-        self._render_custom_modifiers(java)
-        self._render_documentation(java)
-        java(
-            f"{self._modifiers()}"
-            f"{self._type()}"
-            f"{self.name}"
-            f"{self._value()};"
-        )
