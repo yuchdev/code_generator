@@ -37,8 +37,10 @@ java_class.add_variable(
     )
 )
 
+
 def method_implementation(c):
     c("m_my_member_variable = 10;")
+
 
 java_class.add_method(
     JavaFunction(

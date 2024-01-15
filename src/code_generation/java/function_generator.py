@@ -39,6 +39,8 @@ class JavaFunction(JavaLanguageElement):
             current_class_properties=self.available_properties_names,
             input_properties_dict=properties,
         )
+        # strip documentation of /** and */ because it's added in _render_documentation
+        self.documentation = self.documentation.strip("/**").strip("*/")
 
     def _sanity_check(self):
         if not self.name:
