@@ -117,14 +117,14 @@ class CppClass(CppLanguageElement):
                 input_properties_dict=properties,
             )
 
-        def _render_static(self):
+        def _static(self):
             """
             Before function name, declaration only
             Static functions can't be const, virtual or pure virtual
             """
             return "static" if self.is_static else ""
 
-        def _render_constexpr(self):
+        def _constexpr(self):
             """
             Before function name, declaration only
             Constexpr functions can't be const, virtual or pure virtual
@@ -158,7 +158,7 @@ class CppClass(CppLanguageElement):
             """
             return " = 0" if self.is_pure_virtual else ""
 
-        def _render_const(self):
+        def _const(self):
             """
             After function name, could be in declaration or definition
             Const functions can't be static, virtual or constexpr
@@ -172,7 +172,7 @@ class CppClass(CppLanguageElement):
             """
             return "override" if self.is_override else ""
 
-        def _render_final(self):
+        def _final(self):
             """
             After function name, could be in declaration or definition
             Final functions must be virtual
@@ -243,19 +243,19 @@ class CppClass(CppLanguageElement):
             """
             return CppImplementation(self)
 
-        def _render_modifiers_front(self):
+        def _modifiers_front(self):
             modifiers = [
-                self._render_constexpr(),
+                self._constexpr(),
                 self._render_virtual(),
                 self._render_inline(),
             ]
             return " ".join(modifiers)
 
-        def _render_modifiers_back(self):
+        def _modifiers_back(self):
             modifiers = [
-                self._render_const(),
+                self._const(),
                 self._render_override(),
-                self._render_final()
+                self._final()
             ]
             return " ".join(modifiers)
 
@@ -276,12 +276,12 @@ class CppClass(CppLanguageElement):
             if self.documentation:
                 cpp(dedent(self.documentation))
             with cpp.block(
-                    f"{self._render_static()}"
-                    f"{self._render_modifiers_front()}"
+                    f"{self._static()}"
+                    f"{self._modifiers_front()}"
                     f"{self._render_ret_type()} "
                     f"{self.fully_qualified_name()}"
                     f"({self.args()})"
-                    f"{self._render_modifiers_back()}"
+                    f"{self._modifiers_back()}"
                     f"{self._render_pure()}"
             ):
                 self.implementation(cpp)
@@ -301,12 +301,12 @@ class CppClass(CppLanguageElement):
                 self.render_to_string(cpp)
             else:
                 cpp(
-                    f"{self._render_static()}"
-                    f"{self._render_modifiers_front()}"
+                    f"{self._static()}"
+                    f"{self._modifiers_front()}"
                     f"{self._render_ret_type()} "
                     f"{self.name}"
                     f"({self.args()})"
-                    f"{self._render_modifiers_back()}"
+                    f"{self._modifiers_back()}"
                     f"{self._render_pure()};"
                 )
 
@@ -333,11 +333,11 @@ class CppClass(CppLanguageElement):
             if self.documentation and not self.is_constexpr:
                 cpp(dedent(self.documentation))
             with cpp.block(
-                    f"{self._render_modifiers_front()}"
+                    f"{self._modifiers_front()}"
                     f"{self._render_ret_type()} "
                     f"{self.fully_qualified_name()}"
                     f"({self.args()})"
-                    f"{self._render_modifiers_back()}"
+                    f"{self._modifiers_back()}"
             ):
                 self.implementation(cpp)
 
@@ -543,7 +543,7 @@ class CppClass(CppLanguageElement):
         if self.documentation:
             cpp(dedent(self.documentation))
 
-        render_str = f"{self._render_class_type()} {self.name}"
+        render_str = f"{self._class_type()} {self.name}"
         if self._parent_class():
             render_str += self.inherits()
 
@@ -555,7 +555,7 @@ class CppClass(CppLanguageElement):
             self.private_class_members(cpp)
         cpp.newline()
 
-    def _render_class_type(self):
+    def _class_type(self):
         """
         @return: 'class' or 'struct' keyword
         """

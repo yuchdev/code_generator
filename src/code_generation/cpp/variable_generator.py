@@ -117,31 +117,31 @@ class CppVariable(CppLanguageElement):
                 "Variable object can be either 'extern' or 'static', not both"
             )
 
-    def _render_static(self):
+    def _static(self):
         """
         @return: 'static' prefix, can't be used with 'extern'
         """
         return "static " if self.is_static else ""
 
-    def _render_extern(self):
+    def _extern(self):
         """
         @return: 'extern' prefix, can't be used with 'static'
         """
         return "extern " if self.is_extern else ""
 
-    def _render_const(self):
+    def _const(self):
         """
         @return: 'const' prefix, can't be used with 'constexpr'
         """
         return "const " if self.is_const else ""
 
-    def _render_constexpr(self):
+    def _constexpr(self):
         """
         @return: 'constexpr' prefix, can't be used with 'const'
         """
         return "constexpr " if self.is_constexpr else ""
 
-    def _render_init_value(self):
+    def _init_value(self):
         """
         @return: string, value to be initialized with
         """
@@ -182,13 +182,13 @@ class CppVariable(CppLanguageElement):
                 "For class member variables use definition() and declaration() methods"
             )
         elif self.is_extern:
-            cpp(f"{self._render_extern()}{self.type} {self.name};")
+            cpp(f"{self._extern()}{self.type} {self.name};")
         else:
             if self.documentation:
                 cpp(dedent(self.documentation))
             cpp(
-                f"{self._render_static()}{self._render_const()}{self._render_constexpr()}"
-                f"{self.type} {self.assignment(self._render_init_value())};"
+                f"{self._static()}{self._const()}{self._constexpr()}"
+                f"{self.type} {self.assignment(self._init_value())};"
             )
 
     def render_to_string_declaration(self, cpp):
@@ -204,8 +204,8 @@ class CppVariable(CppLanguageElement):
         if self.documentation and self.is_class_member:
             cpp(dedent(self.documentation))
         cpp(
-            f"{self._render_static()}{self._render_extern()}{self._render_const()}{self._render_constexpr()}"
-            f"{self.type} {self.name if not self.is_constexpr else self.assignment(self._render_init_value())};"
+            f"{self._static()}{self._extern()}{self._const()}{self._constexpr()}"
+            f"{self.type} {self.name if not self.is_constexpr else self.assignment(self._init_value())};"
         )
 
     def render_to_string_implementation(self, cpp):
@@ -230,10 +230,10 @@ class CppVariable(CppLanguageElement):
         if not self.is_constexpr:
             if self.is_static:
                 cpp(
-                    f"{self._render_static()}{self._render_const()}{self._render_constexpr()}"
-                    f"{self.type} {self.fully_qualified_name()} = {self._render_init_value()};"
+                    f"{self._static()}{self._const()}{self._constexpr()}"
+                    f"{self.type} {self.fully_qualified_name()} = {self._init_value()};"
                 )
             # generate definition for non-static static class member, e.g. m_var(0)
             # (string for the constructor initialization list)
             else:
-                cpp(f"{self.name}({self._render_init_value()})")
+                cpp(f"{self.name}({self._init_value()})")

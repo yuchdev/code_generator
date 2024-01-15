@@ -18,7 +18,7 @@ class JavaFunction(JavaLanguageElement):
                 "access_specifier",
                 "documentation",
                 "custom_annotations",
-                "custom_modifiers",
+                "custom_size",
                 "implementation"
             } | JavaLanguageElement.available_properties_names)
 
@@ -71,32 +71,32 @@ class JavaFunction(JavaLanguageElement):
         """
         self.arguments.append(argument)
 
-    def _render_access_specifier(self):
+    def _access_specifier(self):
         return self.access_specifier if self.access_specifier else ""
 
-    def _render_static(self):
+    def _static(self):
         return "static" if self.is_static else ""
 
-    def _render_final(self):
+    def _final(self):
         return "final" if self.is_final else ""
 
-    def _render_synchronized(self):
+    def _synchronized(self):
         return "synchronized" if self.is_synchronized else ""
 
-    def _render_native(self):
+    def _native(self):
         return "native" if self.is_native else ""
 
-    def _render_strictfp(self):
+    def _strictfp(self):
         return "strictfp" if self.is_strictfp else ""
 
-    def _render_modifiers(self):
+    def _modifiers(self):
         modifiers = [
-            self._render_access_specifier(),
-            self._render_static(),
-            self._render_final(),
-            self._render_synchronized(),
-            self._render_native(),
-            self._render_strictfp(),
+            self._access_specifier(),
+            self._static(),
+            self._final(),
+            self._synchronized(),
+            self._native(),
+            self._strictfp(),
         ]
         return " ".join(modifier for modifier in modifiers if modifier)
 
@@ -122,7 +122,7 @@ class JavaFunction(JavaLanguageElement):
         self._render_custom_annotations(java)
         self._render_custom_modifiers(java)
         with java.block(
-                f"{self._render_modifiers()} {self.return_type} {self.name}({self.args_str()})"
+                f"{self._modifiers()} {self.return_type} {self.name}({self.args_str()})"
         ):
             if self.implementation is not None:
                 self.implementation(java)

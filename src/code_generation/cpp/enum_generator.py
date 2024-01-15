@@ -50,7 +50,7 @@ class CppEnum(CppLanguageElement):
         # place enum items here
         self.enum_items = []
 
-    def _render_class(self):
+    def _enum_class(self):
         return "class " if self.enum_class else ""
 
     def add_item(self, item):
@@ -79,7 +79,7 @@ class CppEnum(CppLanguageElement):
         """
         counter = 0
         final_prefix = self.prefix if self.prefix is not None else "e"
-        with cpp.block(f"enum {self._render_class()}{self.name}", postfix=";"):
+        with cpp.block(f"enum {self._enum_class()}{self.name}", postfix=";"):
             for item in self.enum_items:
                 cpp(f"{final_prefix}{item} = {counter},")
                 counter += 1

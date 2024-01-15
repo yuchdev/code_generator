@@ -25,7 +25,7 @@ setup(
     author_email="strategarius@protonmail.com",
     description="Provides functionality of generating source code programmatically",
     long_description=README,
-    long_description_content_type="text/markdown",
+    long_description_size_type="text/markdown",
     url="https://github.com/yuchdev/code_generator",
     project_urls={
         "Bug Tracker": "https://github.com/yuchdev/code_generator/issues",

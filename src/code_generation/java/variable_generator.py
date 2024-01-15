@@ -90,37 +90,37 @@ class JavaVariable(JavaLanguageElement):
         if self.access_modifier not in valid_access_modifiers:
             raise ValueError(f"Invalid access modifier: {self.access_modifier}")
 
-    def _render_type(self):
+    def _type(self):
         return f"{self.type} "
 
-    def _render_value(self):
+    def _value(self):
         return f" = {self.value}" if self.value else ""
 
-    def _render_static(self):
+    def _static(self):
         return "static " if self.is_static else ""
 
-    def _render_final(self):
+    def _final(self):
         return "final " if self.is_final else ""
 
-    def _render_volatile(self):
+    def _volatile(self):
         return "volatile " if self.is_volatile else ""
 
-    def _render_transient(self):
+    def _transient(self):
         return "transient " if self.is_transient else ""
 
-    def _render_synthetic(self):
+    def _synthetic(self):
         return "synthetic " if self.is_synthetic else ""
 
-    def _render_access_modifier(self):
+    def _access_modifier(self):
         return self.access_modifier if self.access_modifier is not None else ""
 
-    def _render_modifiers(self):
+    def _modifiers(self):
         modifiers = [
-            self._render_static(),
-            self._render_final(),
-            self._render_volatile(),
-            self._render_transient(),
-            self._render_synthetic(),
+            self._static(),
+            self._final(),
+            self._volatile(),
+            self._transient(),
+            self._synthetic(),
         ]
         return " ".join(modifier for modifier in modifiers if modifier)
 
@@ -146,8 +146,8 @@ class JavaVariable(JavaLanguageElement):
         self._render_custom_modifiers(java)
         self._render_documentation(java)
         java(
-            f"{self._render_modifiers()}"
-            f"{self._render_type()}"
+            f"{self._modifiers()}"
+            f"{self._type()}"
             f"{self.name}"
-            f"{self._render_value()};"
+            f"{self._value()};"
         )

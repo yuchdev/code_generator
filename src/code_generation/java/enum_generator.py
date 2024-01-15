@@ -55,7 +55,7 @@ class JavaEnum(JavaLanguageElement):
         """
         return self.values_str()
 
-    def _render_static(self, java):
+    def _static(self, java):
         """
         Render static enums
         """
@@ -66,4 +66,4 @@ class JavaEnum(JavaLanguageElement):
 
     def render_to_string(self, java):
         self._sanity_check()
-        self._render_static(java)
+        self._static(java)

@@ -63,7 +63,7 @@ class CppFunction(CppLanguageElement):
         if self.is_constexpr and self.implementation is None:
             raise ValueError(f"Constexpr function {self.name} must have implementation")
 
-    def _render_constexpr(self):
+    def _constexpr(self):
         """
         Before function name, declaration only
         Constexpr functions can't be const, virtual or pure virtual
@@ -116,7 +116,7 @@ class CppFunction(CppLanguageElement):
         if self.documentation:
             cpp(dedent(self.documentation))
         with cpp.block(
-            f"{self._render_constexpr()}{self.ret_type} {self.name}({self.args()})"
+            f"{self._constexpr()}{self.ret_type} {self.name}({self.args()})"
         ):
             self.implementation(cpp)
 
@@ -134,7 +134,7 @@ class CppFunction(CppLanguageElement):
             self.render_to_string(cpp)
         else:
             cpp(
-                f"{self._render_constexpr()}{self.ret_type} {self.name}({self.args()});"
+                f"{self._constexpr()}{self.ret_type} {self.name}({self.args()});"
             )
 
     def render_to_string_implementation(self, cpp):
@@ -155,6 +155,6 @@ class CppFunction(CppLanguageElement):
         if self.documentation and not self.is_constexpr:
             cpp(dedent(self.documentation))
         with cpp.block(
-            f"{self._render_constexpr()}{self.ret_type} {self.name}({self.args()})"
+            f"{self._constexpr()}{self.ret_type} {self.name}({self.args()})"
         ):
             self.implementation(cpp)

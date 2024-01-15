@@ -68,7 +68,7 @@ class JavaClass(JavaLanguageElement):
             for line in docstring_lines:
                 java(line)
 
-    def _render_class_type(self):
+    def _class_type(self):
         return "class" if not self.is_record else "record"
 
     def inherits(self):
@@ -117,7 +117,7 @@ class JavaClass(JavaLanguageElement):
     def render_to_string(self, java):
         self._render_documentation(java)
         with java.block(
-            f"public {self._render_class_type()} {self.name} {self.inherits()}"
+            f"public {self._class_type()} {self.name} {self.inherits()}"
         ):
             self.class_interface(java)
             self.private_class_members(java)

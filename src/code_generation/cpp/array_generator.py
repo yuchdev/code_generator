@@ -71,32 +71,32 @@ class CppArray(CppLanguageElement):
         if self.is_class_member and not self.name:
             raise RuntimeError("Class member array name is not set")
 
-    def _render_static(self):
+    def _static(self):
         """
         @return: 'static' prefix if required
         """
         return "static" if self.is_static else ""
 
-    def _render_const(self):
+    def _const(self):
         """
         @return: 'const' prefix if required
         """
         return "const" if self.is_const else ""
 
-    def _render_modifiers(self):
+    def _modifiers(self):
         modifiers = [
-            self._render_static(),
-            self._render_const()
+            self._static(),
+            self._const()
         ]
         return " ".join(modifiers)
 
-    def _render_size(self):
+    def _size(self):
         """
         @return: array size
         """
         return self.array_size if self.array_size else ""
 
-    def _render_content(self):
+    def _render_size(self):
         """
         @return: array items if any
         """
@@ -159,10 +159,10 @@ class CppArray(CppLanguageElement):
         # newline-formatting of array elements makes sense only if array is not empty
         if self.newline_align and self.items:
             with cpp.block(
-                    f"{self._render_modifiers()} "
+                    f"{self._modifiers()} "
                     f"{self.type} "
                     f"{self.name}"
-                    f"[{self._render_size()}]"
+                    f"[{self._size()}]"
                     f" = ",
                     postfix=";"
             ):
@@ -170,12 +170,12 @@ class CppArray(CppLanguageElement):
                 self._render_value(cpp)
         else:
             cpp(
-                f"{self._render_modifiers()} "
+                f"{self._modifiers()} "
                 f"{self.type} "
                 f"{self.name}"
-                f"[{self._render_size()}]"
+                f"[{self._size()}]"
                 f" = "
-                f"{{{self._render_content()}}};"
+                f"{{{self._render_size()}}};"
             )
 
     def render_to_string_declaration(self, cpp):
@@ -190,10 +190,10 @@ class CppArray(CppLanguageElement):
         if not self.is_class_member:
             raise RuntimeError("For automatic variable use its render_to_string() method")
         cpp(
-            f"{self._render_modifiers()} "
+            f"{self._modifiers()} "
             f"{self.type} "
             f"{self.name}"
-            f"[{self._render_size()}];"
+            f"[{self._size()}];"
         )
 
     def render_to_string_implementation(self, cpp):
@@ -221,10 +221,10 @@ class CppArray(CppLanguageElement):
         # newline-formatting of array elements makes sense only if array is not empty
         if self.newline_align and self.items:
             with cpp.block(
-                    f"{self._render_const()}"
+                    f"{self._const()}"
                     f"{self.type} "
                     f"{self.fully_qualified_name()}"
-                    f"[{self._render_size()}]"
+                    f"[{self._size()}]"
                     f" = ",
                     postfix=";"
             ):
@@ -232,10 +232,10 @@ class CppArray(CppLanguageElement):
                 self._render_value(cpp)
         else:
             cpp(
-                f"{self._render_const()}"
+                f"{self._const()}"
                 f"{self.type} "
                 f"{self.fully_qualified_name()}"
-                f"[{self._render_size()}]"
+                f"[{self._size()}]"
                 f" = "
-                f"{{{self._render_content()}}};"
+                f"{{{self._render_size()}}};"
             )
