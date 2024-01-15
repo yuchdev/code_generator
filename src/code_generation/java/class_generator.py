@@ -20,10 +20,12 @@ class JavaClass(JavaLanguageElement):
     java_class.add_method(JavaFunction(name='getVar', return_type='int', is_static=True, implementation='return myVariable;'))
 
     # Generated Java code
-    public class MyClass {
+    public class MyClass
+    {
         static final int myVariable = 10;
 
-        public static int getVar() {
+        public static int getVar()
+        {
             return myVariable;
         }
     }
