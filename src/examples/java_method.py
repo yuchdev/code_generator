@@ -7,17 +7,13 @@ __doc__ = """Example of generating Java class
 
 Expected output:
 public class MyClass {
-    /**
-     * Example Javadoc class member
-     */
-    private int m_my_member_variable;
 
     /**
      * Example Javadoc method
      */
     public final synchronized MyClassMethod() 
     {
-        m_my_member_variable = 10;
+        return 42;
     }
 }
 
@@ -27,19 +23,8 @@ java = JavaFile('java_class.java')
 
 java_class = JavaClass(name="MyClass")
 
-java_class.add_variable(
-    JavaVariable(
-        name="m_my_member_variable",
-        type="int",
-        is_class_member=True,
-        access_modifier="private",
-        documentation="/** Example Javadoc class member */"
-    )
-)
-
-
 def method_implementation(c):
-    c("m_my_member_variable = 10;")
+    c("return 42;")
 
 
 java_class.add_method(
@@ -48,7 +33,7 @@ java_class.add_method(
         is_final=True,
         is_synchronized=True,
         implementation=method_implementation,
-        documentation="/** Example Javadoc method */"
+        documentation="Example Javadoc method"
     )
 )
 
