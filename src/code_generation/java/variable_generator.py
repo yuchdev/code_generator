@@ -150,4 +150,6 @@ class JavaVariable(JavaLanguageElement):
             self._transient(),
             self._synthetic(),
         ]
+        # leave only non-empty elements
+        modifiers = [mod for mod in modifiers if mod]
         return " ".join(modifier for modifier in modifiers if modifier)

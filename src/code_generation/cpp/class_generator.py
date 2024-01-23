@@ -193,7 +193,7 @@ class CppClass(CppLanguageElement):
             else:
                 cpp(
                     f"{self._static()}"
-                    f"{self._modifiers_front()}"
+                    f"{self._modifiers_front()} "
                     f"{self._ret_type()} "
                     f"{self.name}"
                     f"({self.args()})"
@@ -269,6 +269,7 @@ class CppClass(CppLanguageElement):
                 self._virtual(),
                 self._inline(),
             ]
+            modifiers = [mod for mod in modifiers if mod]
             return " ".join(modifiers)
 
         def _modifiers_back(self):
@@ -277,6 +278,7 @@ class CppClass(CppLanguageElement):
                 self._override(),
                 self._final()
             ]
+            modifiers = [mod for mod in modifiers if mod]
             return " ".join(modifiers)
 
         def _static(self):

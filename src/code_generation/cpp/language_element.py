@@ -113,27 +113,25 @@ class CppLanguageElement(object):
                 f"Error: try to initialize {self.__class__.__name__} with unknown property: {repr(unknown_properties)}"
             )
 
-    def init_class_properties(
-        self,
-        current_class_properties,
-        input_properties_dict,
-        default_property_value=None,
-    ):
+    def init_class_properties(self, current_class_properties, input_properties_dict, default_property_value=None):
         """
+        Set default values for all properties not listed in availablePropertiesNames
+        Set values for all properties that are listed in input_properties_dict
         @param: current_class_properties - all available properties for the C++ element to be generated
         @param: input_properties_dict - values for the initialized properties (e.g. is_const=True)
         @param: default_property_value - value for properties that are not initialized
         (None by default, because of same as False semantic)
         """
-        # Set all available properties to DefaultValue
-        for propertyName in current_class_properties:
-            if propertyName not in CppLanguageElement.availablePropertiesNames:
-                setattr(self, propertyName, default_property_value)
+        # Set all properties not listed in availablePropertiesNames to default_property_value
+        for property_name in current_class_properties:
+            attribute_value = getattr(self, property_name, None)
+            if property_name not in CppLanguageElement.availablePropertiesNames and attribute_value is None:
+                setattr(self, property_name, default_property_value)
 
         # Set all defined properties values (all undefined will be left with defaults)
-        for propertyName, propertyValue in input_properties_dict.items():
-            if propertyName not in CppLanguageElement.availablePropertiesNames:
-                setattr(self, propertyName, propertyValue)
+        for property_name, propertyValue in input_properties_dict.items():
+            if property_name not in CppLanguageElement.availablePropertiesNames:
+                setattr(self, property_name, propertyValue)
 
     def render_to_string(self, cpp):
         """

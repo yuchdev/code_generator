@@ -1,8 +1,4 @@
-from code_generation.cpp.language_element import (
-    CppLanguageElement,
-    CppDeclaration,
-    CppImplementation,
-)
+from code_generation.cpp.language_element import CppLanguageElement, CppDeclaration, CppImplementation
 from textwrap import dedent
 
 

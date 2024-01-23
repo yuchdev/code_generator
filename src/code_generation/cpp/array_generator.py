@@ -1,4 +1,4 @@
-from code_generation.cpp.language_element import CppLanguageElement
+from code_generation.cpp.language_element import CppLanguageElement, CppDeclaration, CppImplementation
 
 
 # noinspection PyUnresolvedReferences
@@ -220,6 +220,8 @@ class CppArray(CppLanguageElement):
             self._static(),
             self._const()
         ]
+        # leave only non-empty elements
+        modifiers = [mod for mod in modifiers if mod]
         return " ".join(modifiers)
 
     def _size(self):
