@@ -31,6 +31,7 @@ class ANSICodeFormatter(CodeFormatter):
     };
     finishing postfix is optional (e.g. necessary for classes, unnecessary for namespaces)
     """
+
     def __init__(self, owner, text, indent=None, endline=None, postfix=None):
         """
         @param: owner - CodeFile where text is written to
@@ -59,23 +60,35 @@ class ANSICodeFormatter(CodeFormatter):
         attr_name = f"default_{inspect.currentframe().f_code.co_name}"
         return option if option is not None else getattr(self, attr_name)
 
-    def __enter__(self):
+    def write(self, text, indent_level=0, endline=None):
         """
-        Open code block
+        Write a new line with line ending
         """
-        self.owner.write("{")
-        self.owner.current_indent += 1
-        self.owner.last = None
+        return (
+            f"{self.indent * indent_level}"
+            f"{text}"
+            f"{self.endline if endline is None else endline}"
+        )
 
-    def __exit__(self, *_):
-        """
-        Close code block
-        """
-        if self.owner.last is not None:
-            with self.owner.last:
-                pass
-        self.owner.current_indent -= 1
-        self.owner.write("}" + self.postfix)
+
+def __enter__(self):
+    """
+    Open code block
+    """
+    self.owner.write("{")
+    self.owner.current_indent += 1
+    self.owner.last = None
+
+
+def __exit__(self, *_):
+    """
+    Close code block
+    """
+    if self.owner.last is not None:
+        with self.owner.last:
+            pass
+    self.owner.current_indent -= 1
+    self.owner.write("}" + self.postfix)
 
 
 class HTMLCodeFormatter(CodeFormatter):

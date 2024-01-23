@@ -74,7 +74,7 @@ class CodeFile:
     cpp.newline(3)
     """
 
-    def __init__(self, filename, code_style=None, writer=None):
+    def __init__(self, filename, code_formatter=None, writer=None):
         """
         Creates a new source file
         @param: filename source file to create (rewrite if exists)
@@ -83,7 +83,9 @@ class CodeFile:
         self.current_indent = 0
         self.last = None
         self.filename = filename
-        self.code_style = CodeFormat.DEFAULT if code_style is None else code_style
+        self.code_formatter = code_formatter if code_formatter is not None else CodeFormat.DEFAULT
+        if not isinstance(self.code_formatter, CodeFormat):
+            raise TypeError(f"code_format must be an instance of {CodeFormat.__name__}")
         self.out = writer if writer is not None else open(filename, "w")
 
     def close(self):
