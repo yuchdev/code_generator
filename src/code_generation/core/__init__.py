@@ -1,2 +1,2 @@
 from . import code_file
-from . import code_style
+from . import code_formatter

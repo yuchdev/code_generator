@@ -1,4 +1,4 @@
-from code_generation.core.code_style import ANSICodeStyle
+from code_generation.core.code_formatter import CodeFormat
 
 __doc__ = """
 Simple and straightforward code generator that could be used for generating code 
@@ -74,10 +74,7 @@ class CodeFile:
     cpp.newline(3)
     """
 
-    # Current formatting style (assigned as a class attribute to generate all files uniformly)
-    Formatter = ANSICodeStyle
-
-    def __init__(self, filename, writer=None):
+    def __init__(self, filename, code_style=None, writer=None):
         """
         Creates a new source file
         @param: filename source file to create (rewrite if exists)
@@ -86,10 +83,8 @@ class CodeFile:
         self.current_indent = 0
         self.last = None
         self.filename = filename
-        if writer:
-            self.out = writer
-        else:
-            self.out = open(filename, "w")
+        self.code_style = CodeFormat.DEFAULT if code_style is None else code_style
+        self.out = writer if writer is not None else open(filename, "w")
 
     def close(self):
         """
@@ -128,7 +123,7 @@ class CodeFile:
         """
         Returns a stub for C++ {} close
         Supports 'with' semantic, i.e.
-        cpp.block(class_name, ';'):
+        with cpp.block(class_name, ';'):
         """
         return CodeFile.Formatter(self, text, postfix)
 
@@ -136,7 +131,7 @@ class CodeFile:
         """
         Insert an endline
         """
-        self.write(CodeFile.Formatter.endline * count, endline=False)
+        self.write(CodeFile.Formatter.DEFAULT_ENDLINE * count, endline=False)
 
     def newline(self, n=1):
         """

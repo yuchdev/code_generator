@@ -1,8 +1,27 @@
 __doc__ = """Formatters for different styles of code generation
 """
 
+import inspect
+from enum import Enum, auto
 
-class ANSICodeStyle:
+
+class CodeFormat(Enum):
+    DEFAULT = auto()
+    ANSI_CPP = auto()
+    HTML = auto()
+    CUSTOM = auto()
+
+
+class CodeFormatter:
+    """
+    Base class for code styles
+    """
+    default_endline = "\n"
+    default_indent = " " * 4  # Default indentation is 4 spaces
+    default_postfix = ""
+
+
+class ANSICodeFormatter(CodeFormatter):
     """
     Class represents C++ {} close and its formatting style.
     It supports ANSI C style with braces on the new lines, like that:
@@ -12,17 +31,12 @@ class ANSICodeStyle:
     };
     finishing postfix is optional (e.g. necessary for classes, unnecessary for namespaces)
     """
-
-    # EOL symbol
-    endline = "\n"
-
-    # Tab (indentation) symbol
-    indent = "\t"
-
-    def __init__(self, owner, text, postfix):
+    def __init__(self, owner, text, indent=None, endline=None, postfix=None):
         """
         @param: owner - CodeFile where text is written to
         @param: text - text opening C++ close
+        @param indent: code indentation
+        @param endline: custom endline sequence
         @param: postfix - optional terminating symbol (e.g. ; for classes)
         """
         self.owner = owner
@@ -31,7 +45,19 @@ class ANSICodeStyle:
                 pass
         self.owner.write("".join(text))
         self.owner.last = self
-        self.postfix = postfix
+        self.indent = self.set_option(indent)
+        self.endline = self.set_option(endline)
+        self.postfix = self.set_option(postfix)
+
+    def set_option(self, option):
+        """
+        Set option to default value if it is None
+        Helps to make sure that reasonable default value provided for the option
+        :param option: usually, it is a string class attribute
+        :return: option if it is not None, otherwise default value
+        """
+        attr_name = f"default_{inspect.currentframe().f_code.co_name}"
+        return option if option is not None else getattr(self, attr_name)
 
     def __enter__(self):
         """
@@ -52,7 +78,7 @@ class ANSICodeStyle:
         self.owner.write("}" + self.postfix)
 
 
-class HTMLStyle:
+class HTMLCodeFormatter(CodeFormatter):
     """
     Class representing HTML close and its formatting style.
     It supports HTML DOM-tree style, like that:

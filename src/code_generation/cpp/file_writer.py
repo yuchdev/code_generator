@@ -1,3 +1,4 @@
+from code_generation.core.code_formatter import CodeFormat
 from code_generation.core.code_file import CodeFile
 
 __doc__ = """
@@ -8,6 +9,8 @@ class CppFile(CodeFile):
     """
     This class extends CodeFile class with some specific C++ constructions
     """
+
+    default_formatter = CodeFormat.ANSI_CPP
 
     def __init__(self, filename, writer=None):
         """

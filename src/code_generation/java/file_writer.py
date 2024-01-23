@@ -3,11 +3,11 @@ classes, methods, variables, enums.
 """
 
 from code_generation.core.code_file import CodeFile
-from code_generation.core.code_style import ANSICodeStyle
+from code_generation.core.code_formatter import ANSICodeFormatter
 
 
 class JavaFile(CodeFile):
-    Formatter = ANSICodeStyle
+    Formatter = ANSICodeFormatter
 
     def __init__(self, filename, writer=None):
         CodeFile.__init__(self, filename, writer)

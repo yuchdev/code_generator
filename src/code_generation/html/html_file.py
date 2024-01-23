@@ -1,8 +1,8 @@
-from code_generation.core.code_style import HTMLStyle
+from code_generation.core.code_formatter import HTMLCodeFormatter
 
 
 class HtmlFile:
-    Formatter = HTMLStyle
+    Formatter = HTMLCodeFormatter
 
     def __init__(self, filename, writer=None):
         self.current_indent = 0
