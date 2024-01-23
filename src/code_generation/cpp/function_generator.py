@@ -65,7 +65,7 @@ class CppFunction(CppLanguageElement):
         Before function name, declaration only
         Constexpr functions can't be const, virtual or pure virtual
         """
-        return "constexpr " if self.is_constexpr else ""
+        return "constexpr" if self.is_constexpr else ""
 
     def args(self):
         """
@@ -134,7 +134,7 @@ class CppFunction(CppLanguageElement):
             self.render_to_string(cpp)
         else:
             cpp(
-                f"{self._constexpr()}"
+                f"{self._constexpr()} "
                 f"{self.ret_type} "
                 f"{self.name}"
                 f"({self.args()});"
@@ -158,7 +158,7 @@ class CppFunction(CppLanguageElement):
         if self.documentation and not self.is_constexpr:
             cpp(dedent(self.documentation))
         with cpp.block(
-                f"{self._constexpr()}"
+                f"{self._constexpr()} "
                 f"{self.ret_type} "
                 f"{self.name}"
                 f"({self.args()})"
