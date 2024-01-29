@@ -1,13 +1,13 @@
 from code_generation.core.code_formatter import CodeFormat
-from code_generation.core.code_file import CodeFile
+from code_generation.core.source_file import SourceFile
 
 __doc__ = """
 """
 
 
-class CppFile(CodeFile):
+class CppFile(SourceFile):
     """
-    This class extends CodeFile class with some specific C++ constructions
+    This class extends SourceFile class with some specific C++ constructions
     """
 
     default_formatter = CodeFormat.ANSI_CPP
@@ -16,7 +16,7 @@ class CppFile(CodeFile):
         """
         Create C++ source file
         """
-        CodeFile.__init__(self, filename, writer)
+        SourceFile.__init__(self, filename, writer)
 
     def label(self, text):
         """

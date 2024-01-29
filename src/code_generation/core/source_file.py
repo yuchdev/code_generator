@@ -1,4 +1,4 @@
-from code_generation.core.code_formatter import CodeFormat
+from code_generation.core.code_formatter import CodeFormat, CodeFormatterFactory
 
 __doc__ = """
 Simple and straightforward code generator that could be used for generating code 
@@ -14,7 +14,7 @@ Examples of usage:
 
 1.
 # Python code
-cpp = CodeFile('example.cpp')
+cpp = SourceFile('example.cpp')
 cpp('int i = 0;')
  
 // Generated C++ code
@@ -41,13 +41,13 @@ Re-implement it if you wish to apply any other formatting style.
 """
 
 
-class CodeFile:
+class SourceFile:
     """
     The class is a main instrument of code generation
 
     It can generate plain strings using functional calls
     Ex:
-    code = CodeFile(python_src_file)
+    code = SourceFile(python_src_file)
     code('import os, sys')
 
     Is supports 'with' semantic for indentation blocks creation
@@ -55,15 +55,17 @@ class CodeFile:
     # Python code
     with code('for i in range(0, 5):'):
         code('lst.append(i*i)')
+        code('print(lst)')
 
     # Generated code:
     for i in range(0, 5):
         lst.append(i*i)
+        print(lst)
 
-    It can append code to the last line:
+    It can append code without line ending:
     Ex.
     # Python code
-    cpp = CodeFile('ex.cpp')
+    cpp = SourceFile('ex.cpp')
     cpp('class Derived')
     cpp.append(' : public Base')
 
@@ -83,7 +85,9 @@ class CodeFile:
         self.current_indent = 0
         self.last = None
         self.filename = filename
-        self.code_formatter = code_formatter if code_formatter is not None else CodeFormat.DEFAULT
+        if not isinstance(code_formatter, CodeFormat) and code_formatter is not None:
+            raise TypeError(f"code_format must be an instance of {CodeFormat.__name__}")
+        self.code_formatter = code_formatter if code_formatter is not None else CodeFormatterFactory.create(CodeFormat.DEFAULT)
         if not isinstance(self.code_formatter, CodeFormat):
             raise TypeError(f"code_format must be an instance of {CodeFormat.__name__}")
         self.out = writer if writer is not None else open(filename, "w")
@@ -95,17 +99,11 @@ class CodeFile:
         self.out.close()
         self.out = None
 
-    def write(self, text, indent=0, endline=True):
+    def write(self, text, indent, endline=True):
         """
         Write a new line with line ending
         """
-        self.out.write(
-            "{0}{1}{2}".format(
-                self.Formatter.indent * (self.current_indent + indent),
-                text,
-                self.Formatter.endline if endline else "",
-            )
-        )
+        self.out.write(self.code_formatter.write(text, indent, endline))
 
     def append(self, x):
         """
@@ -127,17 +125,17 @@ class CodeFile:
         Supports 'with' semantic, i.e.
         with cpp.block(class_name, ';'):
         """
-        return CodeFile.Formatter(self, text, postfix)
+        return self.code_formatter(self, text, postfix)
 
     def endline(self, count=1):
         """
         Insert an endline
         """
-        self.write(CodeFile.Formatter.DEFAULT_ENDLINE * count, endline=False)
+        self.write(text=self.code_formatter.endline * count, indent=0, endline=False)
 
     def newline(self, n=1):
         """
         Insert one or several empty lines
         """
         for _ in range(n):
-            self.write("")
+            self.write(text="", indent=0, endline=True)

@@ -27,10 +27,10 @@ struct MyClass
 const size_t MyClass::m_var = 255;
  
  
-That module uses and highly depends on code_file.py as it uses
+That module uses and highly depends on source_file.py as it uses
 code generating and formatting primitives implemented there.
  
-The main object referenced from code_file.py is CppFile, 
+The main object referenced from source_file.py is CppFile, 
 which is passed as a parameter to render_to_string(cpp) Python method
  
 It could also be used for composing more complicated C++ code,
@@ -51,7 +51,7 @@ cpp.append(', p = NULL);')
 - empty lines:
 cpp.newline(2)
  
-For detailed information see code_file.py documentation.
+For detailed information see source_file.py documentation.
 """
 
 

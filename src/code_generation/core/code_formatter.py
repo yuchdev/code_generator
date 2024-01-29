@@ -1,8 +1,7 @@
+from enum import Enum, auto
+
 __doc__ = """Formatters for different styles of code generation
 """
-
-import inspect
-from enum import Enum, auto
 
 
 class CodeFormat(Enum):
@@ -17,8 +16,18 @@ class CodeFormatter:
     Base class for code styles
     """
     default_endline = "\n"
-    default_indent = " " * 4  # Default indentation is 4 spaces
+    default_indent = " " * 4
     default_postfix = ""
+
+    def __init__(self, indent=None, endline=None, postfix=None):
+        """
+        :param indent: sequence of symbols used for indentation (4 spaces, tab, etc.)
+        :param endline: symbol used for line ending
+        :param postfix: optional terminating symbol (e.g. ; for classes)
+        """
+        self.indent = self.default_indent if indent is None else indent
+        self.endline = self.default_endline if endline is None else endline
+        self.postfix = self.default_postfix if postfix is None else postfix
 
 
 class ANSICodeFormatter(CodeFormatter):
@@ -34,31 +43,19 @@ class ANSICodeFormatter(CodeFormatter):
 
     def __init__(self, owner, text, indent=None, endline=None, postfix=None):
         """
-        @param: owner - CodeFile where text is written to
+        @param: owner - SourceFile where text is written to
         @param: text - text opening C++ close
         @param indent: code indentation
         @param endline: custom endline sequence
         @param: postfix - optional terminating symbol (e.g. ; for classes)
         """
+        super().__init__(indent, endline, postfix)
         self.owner = owner
         if self.owner.last is not None:
             with self.owner.last:
                 pass
         self.owner.write("".join(text))
         self.owner.last = self
-        self.indent = self.set_option(indent)
-        self.endline = self.set_option(endline)
-        self.postfix = self.set_option(postfix)
-
-    def set_option(self, option):
-        """
-        Set option to default value if it is None
-        Helps to make sure that reasonable default value provided for the option
-        :param option: usually, it is a string class attribute
-        :return: option if it is not None, otherwise default value
-        """
-        attr_name = f"default_{inspect.currentframe().f_code.co_name}"
-        return option if option is not None else getattr(self, attr_name)
 
     def write(self, text, indent_level=0, endline=None):
         """
@@ -70,25 +67,23 @@ class ANSICodeFormatter(CodeFormatter):
             f"{self.endline if endline is None else endline}"
         )
 
+    def __enter__(self):
+        """
+        Open code block
+        """
+        self.owner.write("{")
+        self.owner.current_indent += 1
+        self.owner.last = None
 
-def __enter__(self):
-    """
-    Open code block
-    """
-    self.owner.write("{")
-    self.owner.current_indent += 1
-    self.owner.last = None
-
-
-def __exit__(self, *_):
-    """
-    Close code block
-    """
-    if self.owner.last is not None:
-        with self.owner.last:
-            pass
-    self.owner.current_indent -= 1
-    self.owner.write("}" + self.postfix)
+    def __exit__(self, *_):
+        """
+        Close code block
+        """
+        if self.owner.last is not None:
+            with self.owner.last:
+                pass
+        self.owner.current_indent -= 1
+        self.owner.write("}" + self.postfix)
 
 
 class HTMLCodeFormatter(CodeFormatter):
@@ -101,19 +96,21 @@ class HTMLCodeFormatter(CodeFormatter):
     </element>
     """
 
-    # EOL symbol
-    endline = "\n"
-
     # Tab (indentation) symbol is 2 spaces
-    indent = "  "
+    html_indent = "  "
 
     def __init__(self, owner, element, *attrs, **kwattrs):
         """
-        @param: owner - CodeFile where text is written to
+        HTML code line
+        Note that some attributes like 'class' are conflicting with Python's 'class' keyword.
+        For such attributes prefer passing by list of strings `attrs`, e.g. `['class="class1"', 'id="id1"']`
+        For other attributes prefer passing by dictionary `kwattrs`, e.g. `{id="id1"}`
+        @param: owner - SourceFile where text is written to
         @param: element - HTML element name
-        @param: attrs - optional opening tag content, like attributes ['class="class1"', 'id="id1"']
-        @param: kwattrs - optional opening tag attributes, like class="class1", id="id1"
+        @param: attrs - optional opening tag content, e.g. attributes ['class="class1"', 'id="id1"']
+        @param: kwattrs - optional opening tag attributes, e.g. {id="id1"}
         """
+        super().__init__(indent=self.html_indent)
         self.owner = owner
         if self.owner.last is not None:
             with self.owner.last:
@@ -149,3 +146,28 @@ class HTMLCodeFormatter(CodeFormatter):
                 pass
         self.owner.current_indent -= 1
         self.owner.write(f"</{self.element}>")
+
+
+class CodeFormatterFactory:
+    """
+    Factory class for code formatters
+    """
+
+    @staticmethod
+    def create(code_format, owner, *args, **kwargs):
+        """
+        Create a new code formatter
+        :param code_format: code format to create
+        :param owner: source file where formatter is created
+        :param args: formatter arguments
+        :param kwargs: formatter keyword arguments
+        :return: new code formatter
+        """
+        if code_format == CodeFormat.ANSI_CPP:
+            return ANSICodeFormatter(owner, *args, **kwargs)
+        elif code_format == CodeFormat.HTML:
+            return HTMLCodeFormatter(owner, *args, **kwargs)
+        elif code_format == CodeFormat.CUSTOM:
+            return CodeFormatter(*args, **kwargs)
+        else:
+            raise ValueError(f"Unknown code format: {code_format}")

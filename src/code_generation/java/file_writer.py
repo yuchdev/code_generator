@@ -2,12 +2,12 @@ __doc__ = """The module encapsulates C++ code generation logics for main Java la
 classes, methods, variables, enums.
 """
 
-from code_generation.core.code_file import CodeFile
+from code_generation.core.source_file import SourceFile
 from code_generation.core.code_formatter import ANSICodeFormatter
 
 
-class JavaFile(CodeFile):
+class JavaFile(SourceFile):
     Formatter = ANSICodeFormatter
 
     def __init__(self, filename, writer=None):
-        CodeFile.__init__(self, filename, writer)
+        SourceFile.__init__(self, filename, writer)

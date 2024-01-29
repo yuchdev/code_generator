@@ -1,4 +1,4 @@
-from code_generation.core.code_file import CodeFile
+from code_generation.core.source_file import SourceFile
 
 __doc__ = """This module encapsulates Java code generation logic for main Java language primitives:
 classes, methods and functions, variables, enums. Every Java element can render its current state to a string
@@ -30,16 +30,16 @@ public class MyClass
 """
 
 
-class JavaFile(CodeFile):
+class JavaFile(SourceFile):
     """
-    This class extends CodeFile class with some specific Java constructions
+    This class extends SourceFile class with some specific Java constructions
     """
 
     def __init__(self, filename, writer=None):
         """
         Create Java source file
         """
-        CodeFile.__init__(self, filename, writer)
+        SourceFile.__init__(self, filename, writer)
 
     def access(self, text):
         """
@@ -106,7 +106,7 @@ class JavaLanguageElement:
 
     def render_to_string(self, java):
         """
-        @param: java - handle that supports code generation interface (see code_file.py)
+        @param: java - handle that supports code generation interface (see source_file.py)
         Typically it is passed to all child elements so that they can render their content
         """
         raise NotImplementedError("JavaLanguageElement is an abstract class")

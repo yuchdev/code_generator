@@ -41,7 +41,7 @@ cpp.append(', p = NULL);')
 - empty lines:
 cpp.newline(2)
 
-For more detailed information see CodeFile and CppFile documentation.
+For more detailed information see SourceFile and CppFile documentation.
 """
 
 
@@ -135,7 +135,7 @@ class CppLanguageElement(object):
 
     def render_to_string(self, cpp):
         """
-        @param: cpp - handle that supports code generation interface (see code_file.py)
+        @param: cpp - handle that supports code generation interface (see source_file.py)
         Typically it is passed to all child elements so that render their content
         """
         raise NotImplementedError("CppLanguageElement is an abstract class")
