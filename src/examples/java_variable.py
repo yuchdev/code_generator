@@ -1,4 +1,4 @@
-from code_generation.java.file_writer import JavaFile
+from code_generation.java.source_file import JavaSourceFile
 from code_generation.java.class_generator import JavaClass
 from code_generation.java.function_generator import JavaFunction
 from code_generation.java.variable_generator import JavaVariable
@@ -10,7 +10,7 @@ Expected output:
 
 """
 
-java = JavaFile('java_variable.java')
+java = JavaSourceFile('java_variable.java')
 
 java_class = JavaClass(name="MyClass")
 

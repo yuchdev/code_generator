@@ -1,4 +1,4 @@
-from code_generation.cpp.file_writer import CppFile
+from code_generation.cpp.source_file import CppSourceFile
 from code_generation.cpp.class_generator import CppClass
 from code_generation.cpp.variable_generator import CppVariable
 
@@ -20,7 +20,7 @@ size_t MyClass::GetVar()
 
 """
 
-cpp = CppFile('class.cpp')
+cpp = CppSourceFile('class.cpp')
 cpp_class = CppClass(name="MyClass", is_struct=True)
 
 cpp_class.add_variable(

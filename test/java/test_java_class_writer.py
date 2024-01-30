@@ -2,7 +2,7 @@ import unittest
 import io
 from textwrap import dedent
 
-from code_generation.java.file_writer import JavaFile
+from code_generation.java.source_file import JavaSourceFile
 from code_generation.java.class_generator import JavaClass
 from code_generation.java.variable_generator import JavaVariable
 from code_generation.java.function_generator import JavaFunction
@@ -16,7 +16,7 @@ class TestJavaClassStringIo(unittest.TestCase):
 
     def test_simple_case(self):
         writer = io.StringIO()
-        java = JavaFile(None, writer=writer)
+        java = JavaSourceFile(None, writer=writer)
         my_class = JavaClass(name="MyClass")
         var1 = JavaVariable(name="myVariable", type="int", value=10)
 
@@ -45,7 +45,7 @@ class TestJavaClassStringIo(unittest.TestCase):
 
     def test_with_parent_class(self):
         writer = io.StringIO()
-        java = JavaFile(None, writer=writer)
+        java = JavaSourceFile(None, writer=writer)
         my_class = JavaClass(name="MyClass", parent_class="ParentClass")
         my_class.render_to_string(java)
         expected_line = "public class MyClass extends ParentClass"
@@ -63,7 +63,7 @@ class TestJavaClassStringIo(unittest.TestCase):
 
     def test_with_documentation(self):
         writer = io.StringIO()
-        java = JavaFile(None, writer=writer)
+        java = JavaSourceFile(None, writer=writer)
         my_class = JavaClass(name="MyClass", documentation="Example Javadoc")
         my_class.render_to_string(java)
         self.assertTrue(writer.getvalue().strip().startswith('/**'))
@@ -84,7 +84,7 @@ class TestJavaClassStringIo(unittest.TestCase):
 
     def test_multiline_documentation(self):
         writer = io.StringIO()
-        java = JavaFile(None, writer=writer)
+        java = JavaSourceFile(None, writer=writer)
         my_class = JavaClass(name="MyClass", documentation="Example multiline Javadoc\nSecond line")
         my_class.render_to_string(java)
         self.assertTrue(writer.getvalue().strip().startswith('/**'))

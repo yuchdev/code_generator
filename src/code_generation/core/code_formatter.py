@@ -13,7 +13,7 @@ class CodeFormat(Enum):
 
 class CodeFormatter:
     """
-    Base class for code styles
+    Base class for code close of different styles
     """
     default_endline = "\n"
     default_indent = " " * 4
@@ -54,10 +54,10 @@ class ANSICodeFormatter(CodeFormatter):
         if self.owner.last is not None:
             with self.owner.last:
                 pass
-        self.owner.write("".join(text))
+        self.owner.line("".join(text))
         self.owner.last = self
 
-    def write(self, text, indent_level=0, endline=None):
+    def line(self, text, indent_level=0, endline=None):
         """
         Write a new line with line ending
         """
@@ -71,7 +71,7 @@ class ANSICodeFormatter(CodeFormatter):
         """
         Open code block
         """
-        self.owner.write("{")
+        self.owner.line("{")
         self.owner.current_indent += 1
         self.owner.last = None
 
@@ -83,7 +83,7 @@ class ANSICodeFormatter(CodeFormatter):
             with self.owner.last:
                 pass
         self.owner.current_indent -= 1
-        self.owner.write("}" + self.postfix)
+        self.owner.line("}" + self.postfix)
 
 
 class HTMLCodeFormatter(CodeFormatter):
@@ -133,7 +133,7 @@ class HTMLCodeFormatter(CodeFormatter):
         """
         Open code block
         """
-        self.owner.write(f"<{self.element}{self.attributes}>")
+        self.owner.line(f"<{self.element}{self.attributes}>")
         self.owner.current_indent += 1
         self.owner.last = None
 
@@ -145,7 +145,7 @@ class HTMLCodeFormatter(CodeFormatter):
             with self.owner.last:
                 pass
         self.owner.current_indent -= 1
-        self.owner.write(f"</{self.element}>")
+        self.owner.line(f"</{self.element}>")
 
 
 class CodeFormatterFactory:
@@ -154,20 +154,24 @@ class CodeFormatterFactory:
     """
 
     @staticmethod
-    def create(code_format, owner, *args, **kwargs):
+    def create(code_format, owner, text, *args, **kwargs):
         """
         Create a new code formatter
-        :param code_format: code format to create
         :param owner: source file where formatter is created
+        :param text: code to format
+        :param code_format: code formatter type
         :param args: formatter arguments
         :param kwargs: formatter keyword arguments
         :return: new code formatter
         """
         if code_format == CodeFormat.ANSI_CPP:
-            return ANSICodeFormatter(owner, *args, **kwargs)
+            return ANSICodeFormatter(owner=owner, text=text, *args, **kwargs)
         elif code_format == CodeFormat.HTML:
-            return HTMLCodeFormatter(owner, *args, **kwargs)
+            return HTMLCodeFormatter(owner=owner, text=text, *args, **kwargs)
         elif code_format == CodeFormat.CUSTOM:
+            return CodeFormatter(*args, **kwargs)
+        elif code_format == CodeFormat.DEFAULT:
+            # TODO: leave default formatter for respective source file
             return CodeFormatter(*args, **kwargs)
         else:
             raise ValueError(f"Unknown code format: {code_format}")

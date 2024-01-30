@@ -23,7 +23,7 @@ struct MyClass
 // Generated C++ definition
 const size_t MyClass::m_var = 255;
 
-You can use CppFile for composing more complicated C++ code,
+You can use CppSourceFile for composing more complicated C++ code,
 which is not supported by CppLanguageElement
 
 It supports:
@@ -41,7 +41,7 @@ cpp.append(', p = NULL);')
 - empty lines:
 cpp.newline(2)
 
-For more detailed information see SourceFile and CppFile documentation.
+For more detailed information see SourceFile and CppSourceFile documentation.
 """
 
 

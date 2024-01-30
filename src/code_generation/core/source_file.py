@@ -22,7 +22,7 @@ int i = 0;
  
 2.
 # Python code
-cpp = CppFile('example.cpp')
+cpp = CppSourceFile('example.cpp')
 with cpp.block('class A', ';'):
     cpp.label('public')
     cpp('int m_classMember1;')
@@ -69,27 +69,28 @@ class SourceFile:
     cpp('class Derived')
     cpp.append(' : public Base')
 
-    // Generated code
+    // Generated C++ code
     class Derived : public Base
 
     And finally, it can insert a number of empty lines
     cpp.newline(3)
     """
 
-    def __init__(self, filename, code_formatter=None, writer=None):
+    def __init__(self, filename, formatter=None, writer=None):
         """
         Creates a new source file
         @param: filename source file to create (rewrite if exists)
+        @param: formatter code formatter to define rules of code indentation and line ending
         @param: writer optional writer to write output to
         """
         self.current_indent = 0
         self.last = None
         self.filename = filename
-        if not isinstance(code_formatter, CodeFormat) and code_formatter is not None:
+        if not isinstance(formatter, CodeFormat) and formatter is not None:
             raise TypeError(f"code_format must be an instance of {CodeFormat.__name__}")
-        self.code_formatter = code_formatter if code_formatter is not None else CodeFormatterFactory.create(CodeFormat.DEFAULT)
-        if not isinstance(self.code_formatter, CodeFormat):
-            raise TypeError(f"code_format must be an instance of {CodeFormat.__name__}")
+        formatter = formatter if formatter is not None else CodeFormat.DEFAULT
+        # Problem...
+        self.code_formatter = CodeFormatterFactory.create(formatter, owner=self)
         self.out = writer if writer is not None else open(filename, "w")
 
     def close(self):
@@ -99,11 +100,11 @@ class SourceFile:
         self.out.close()
         self.out = None
 
-    def write(self, text, indent, endline=True):
+    def write(self, text, indent=0, endline=True):
         """
         Write a new line with line ending
         """
-        self.out.write(self.code_formatter.write(text, indent, endline))
+        self.out.write(self.code_formatter.line(text, indent, endline))
 
     def append(self, x):
         """
@@ -119,12 +120,14 @@ class SourceFile:
         """
         self.write(text, indent, endline)
 
-    def block(self, text, postfix=""):
+    def block(self, text, postfix=None):
         """
         Returns a stub for C++ {} close
         Supports 'with' semantic, i.e.
         with cpp.block(class_name, ';'):
         """
+        if postfix is None:
+            postfix = self.code_formatter.postfix
         return self.code_formatter(self, text, postfix)
 
     def endline(self, count=1):
@@ -138,4 +141,4 @@ class SourceFile:
         Insert one or several empty lines
         """
         for _ in range(n):
-            self.write(text="", indent=0, endline=True)
+            self.write(text="", indent=0)

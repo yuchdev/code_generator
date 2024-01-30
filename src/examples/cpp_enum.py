@@ -1,4 +1,4 @@
-from code_generation.cpp.file_writer import CppFile
+from code_generation.cpp.source_file import CppSourceFile
 from code_generation.cpp.enum_generator import CppEnum
 
 __doc__ = """Example of generating C++ enum and enum class
@@ -22,7 +22,7 @@ Expected output:
 
 """
 
-cpp = CppFile('array.cpp')
+cpp = CppSourceFile('array.cpp')
 enum = CppEnum(name="MyEnum", prefix="e")
 enum.add_items(["Item1", "Item2", "Item3"])
 enum.render_to_string(cpp)

@@ -5,7 +5,7 @@ __doc__ = """
 """
 
 
-class CppFile(SourceFile):
+class CppSourceFile(SourceFile):
     """
     This class extends SourceFile class with some specific C++ constructions
     """

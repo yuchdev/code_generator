@@ -1,4 +1,4 @@
-from code_generation.java.file_writer import JavaFile
+from code_generation.java.source_file import JavaSourceFile
 from code_generation.java.class_generator import JavaClass
 from code_generation.java.enum_generator import JavaEnum
 
@@ -8,7 +8,7 @@ Expected output:
 
 """
 
-java = JavaFile('java_enum.java')
+java = JavaSourceFile('java_enum.java')
 
 java_class = JavaClass(name="MyClass")
 

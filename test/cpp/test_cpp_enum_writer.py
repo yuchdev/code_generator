@@ -2,7 +2,7 @@ import unittest
 import io
 from textwrap import dedent
 
-from code_generation.cpp.file_writer import CppFile
+from code_generation.cpp.source_file import CppSourceFile
 from code_generation.cpp.enum_generator import CppEnum
 from test.comparing_tools import normalize_code, debug_dump, is_debug
 
@@ -17,7 +17,7 @@ class TestCppEnumStringIo(unittest.TestCase):
 
     def test_simple_case(self):
         writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
+        cpp = CppSourceFile(None, writer=writer)
         enum = CppEnum(name="Items")
         enum.add_items(["Chair", "Table", "Shelve"])
         enum.render_to_string(cpp)
@@ -39,7 +39,7 @@ class TestCppEnumStringIo(unittest.TestCase):
 
     def test_with_prefix(self):
         writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
+        cpp = CppSourceFile(None, writer=writer)
         enum = CppEnum(name="Items", prefix="Prefix")
         enum.add_items(["A", "B", "C"])
         enum.render_to_string(cpp)
@@ -61,7 +61,7 @@ class TestCppEnumStringIo(unittest.TestCase):
 
     def test_class(self):
         writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
+        cpp = CppSourceFile(None, writer=writer)
         enum = CppEnum(name="Items", enum_class=True)
         enum.add_items(["A", "B", "C"])
         enum.render_to_string(cpp)

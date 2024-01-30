@@ -2,7 +2,7 @@ import os
 import unittest
 import filecmp
 
-from code_generation.cpp.file_writer import CppFile
+from code_generation.cpp.source_file import CppSourceFile
 from code_generation.cpp.variable_generator import CppVariable
 from code_generation.cpp.enum_generator import CppEnum
 from code_generation.cpp.array_generator import CppArray
@@ -23,7 +23,7 @@ class TestCppFileIo(unittest.TestCase):
         """
         Test C++ variables generation
         """
-        cpp = CppFile('array.cpp')
+        cpp = CppSourceFile('array.cpp')
         arrays = []
         a1 = CppArray(name='array1', type='int', is_const=True, array_size=5)
         a1.add_array_items(['1', '2', '3'])
@@ -49,8 +49,8 @@ class TestCppFileIo(unittest.TestCase):
         """
         Test C++ classes generation
         """
-        my_class_cpp = CppFile('class.cpp')
-        my_class_h = CppFile('class.h')
+        my_class_cpp = CppSourceFile('class.cpp')
+        my_class_h = CppSourceFile('class.h')
         my_class = CppClass(name='MyClass')
 
         enum_elements = CppEnum(name='Items', prefix='wd')
@@ -121,7 +121,7 @@ class TestCppFileIo(unittest.TestCase):
         """
         Test C++ enums generation
         """
-        cpp = CppFile('enum.cpp')
+        cpp = CppSourceFile('enum.cpp')
         enum_elements = CppEnum(name='Items')
         for item in ['Chair', 'Table', 'Shelve']:
             enum_elements.add_item(item)
@@ -141,8 +141,8 @@ class TestCppFileIo(unittest.TestCase):
         """
         Test C++ functions generation
         """
-        cpp = CppFile('func.cpp')
-        hpp = CppFile('func.h')
+        cpp = CppSourceFile('func.cpp')
+        hpp = CppSourceFile('func.h')
 
         def function_body(_, cpp1):
             cpp1('return 42;')
@@ -170,7 +170,7 @@ class TestCppFileIo(unittest.TestCase):
         """
         Test C++ variables generation
         """
-        cpp = CppFile('var.cpp')
+        cpp = CppSourceFile('var.cpp')
         variables = [CppVariable(name="var1",
                                  type="char*",
                                  is_class_member=False,

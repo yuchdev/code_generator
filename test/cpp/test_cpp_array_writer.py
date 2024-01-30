@@ -2,7 +2,7 @@ import unittest
 import io
 
 from textwrap import dedent
-from code_generation.cpp.file_writer import CppFile
+from code_generation.cpp.source_file import CppSourceFile
 from code_generation.cpp.array_generator import CppArray
 from test.comparing_tools import normalize_lines
 
@@ -17,7 +17,7 @@ class TestCppArrayStringIo(unittest.TestCase):
 
     def test_simple_case(self):
         writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
+        cpp = CppSourceFile(None, writer=writer)
         arr = CppArray(name="my_array", type="int", array_size=5)
         arr.add_array_items(["1", "2", "0"])
         arr.render_to_string(cpp)
@@ -26,7 +26,7 @@ class TestCppArrayStringIo(unittest.TestCase):
 
     def test_with_newline_align(self):
         writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
+        cpp = CppSourceFile(None, writer=writer)
         arr = CppArray(name="my_array", type="int", array_size=5, newline_align=True)
         arr.add_array_items(["1", "2", "0"])
         arr.render_to_string(cpp)
@@ -43,7 +43,7 @@ class TestCppArrayStringIo(unittest.TestCase):
 
     def test_declaration(self):
         writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
+        cpp = CppSourceFile(None, writer=writer)
         arr = CppArray(name="my_class_member_array", type="int", array_size=None, is_class_member=True)
         arr.render_to_string_declaration(cpp)
         expected_output = "int my_class_member_array[];"
@@ -51,7 +51,7 @@ class TestCppArrayStringIo(unittest.TestCase):
 
     def test_implementation(self):
         writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
+        cpp = CppSourceFile(None, writer=writer)
         arr = CppArray(name="m_my_static_array", type="int", array_size=None,
                        is_class_member=True, is_static=True)
         arr.add_array_items(["1", "2", "0"])

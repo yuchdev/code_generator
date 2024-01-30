@@ -6,7 +6,8 @@ from code_generation.core.source_file import SourceFile
 from code_generation.core.code_formatter import ANSICodeFormatter
 
 
-class JavaFile(SourceFile):
+class JavaSourceFile(SourceFile):
+
     Formatter = ANSICodeFormatter
 
     def __init__(self, filename, writer=None):

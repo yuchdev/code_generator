@@ -2,7 +2,7 @@ import unittest
 import io
 from textwrap import dedent
 
-from code_generation.java.file_writer import JavaFile
+from code_generation.java.source_file import JavaSourceFile
 from code_generation.java.function_generator import JavaFunction
 from test.comparing_tools import normalize_code, debug_dump, is_debug
 
@@ -18,7 +18,7 @@ class TestJavaFunctionStringIo(unittest.TestCase):
 
     def test_simple_case(self):
         writer = io.StringIO()
-        java = JavaFile(None, writer=writer)
+        java = JavaSourceFile(None, writer=writer)
 
         method = JavaFunction(name="calculateSum",
                               return_type="int",

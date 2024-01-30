@@ -2,7 +2,7 @@ import unittest
 import io
 from textwrap import dedent
 
-from code_generation.cpp.file_writer import CppFile
+from code_generation.cpp.source_file import CppSourceFile
 from code_generation.cpp.enum_generator import CppEnum
 from code_generation.cpp.array_generator import CppArray
 from code_generation.cpp.variable_generator import CppVariable
@@ -19,7 +19,7 @@ class TestCppClassStringIo(unittest.TestCase):
 
     def test_simple_case(self):
         writer = io.StringIO()
-        cpp_file = CppFile(None, writer=writer)
+        cpp_file = CppSourceFile(None, writer=writer)
 
         # Create a CppClass instance
         cpp_class = CppClass(name="MyClass", is_struct=True)
@@ -77,7 +77,7 @@ class TestCppClassStringIo(unittest.TestCase):
 
     def test_with_inheritance(self):
         writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
+        cpp = CppSourceFile(None, writer=writer)
 
         # Create a parent class
         parent_class = CppClass(name="ParentClass")
@@ -144,7 +144,7 @@ class TestCppClassStringIo(unittest.TestCase):
 
     def test_with_nested_classes(self):
         writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
+        cpp = CppSourceFile(None, writer=writer)
 
         # Create a CppClass instance
         cpp_class = CppClass(name="MyClass")
@@ -179,7 +179,7 @@ class TestCppClassStringIo(unittest.TestCase):
 
     def test_with_enum(self):
         writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
+        cpp = CppSourceFile(None, writer=writer)
 
         # Create a CppClass instance
         cpp_class = CppClass(name="MyClass")
@@ -220,7 +220,7 @@ class TestCppClassStringIo(unittest.TestCase):
 
     def test_with_array(self):
         writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
+        cpp = CppSourceFile(None, writer=writer)
 
         # Create a CppClass instance
         cpp_class = CppClass(name="MyClass")

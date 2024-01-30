@@ -1,7 +1,7 @@
 import unittest
 import io
 
-from code_generation.java.file_writer import JavaFile
+from code_generation.java.source_file import JavaSourceFile
 from code_generation.java.enum_generator import JavaEnum
 from test.comparing_tools import normalize_code, debug_dump, is_debug
 
@@ -13,7 +13,7 @@ class TestJavaEnumStringIo(unittest.TestCase):
 
     def test_simple_case(self):
         writer = io.StringIO()
-        java = JavaFile(None, writer=writer)
+        java = JavaSourceFile(None, writer=writer)
         enum = JavaEnum(name="Color", values=["RED", "GREEN", "BLUE"])
         enum.render_to_string(java)
         actual_output = writer.getvalue().strip()

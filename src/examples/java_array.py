@@ -1,4 +1,4 @@
-from code_generation.java.file_writer import JavaFile
+from code_generation.java.source_file import JavaSourceFile
 from code_generation.java.class_generator import JavaClass
 from code_generation.java.array_generator import JavaArray
 
@@ -13,7 +13,7 @@ public class MyClass
 
 """
 
-java = JavaFile('java_array.java')
+java = JavaSourceFile('java_array.java')
 
 java_class = JavaClass(name="MyClass")
 

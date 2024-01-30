@@ -2,7 +2,7 @@ import unittest
 import io
 from textwrap import dedent
 
-from code_generation.cpp.file_writer import CppFile
+from code_generation.cpp.source_file import CppSourceFile
 from code_generation.cpp.function_generator import CppFunction
 
 __doc__ = """
@@ -21,7 +21,7 @@ class TestCppFunctionStringIo(unittest.TestCase):
 
     def test_simple_case(self):
         writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
+        cpp = CppSourceFile(None, writer=writer)
         func = CppFunction(name="factorial", ret_type="int", implementation=handle_to_factorial)
         func.add_argument('int n')
         func.render_to_string(cpp)
@@ -33,13 +33,13 @@ class TestCppFunctionStringIo(unittest.TestCase):
 
     def test_is_constexpr_no_implementation_raises(self):
         writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
+        cpp = CppSourceFile(None, writer=writer)
         func = CppFunction(name="factorial", ret_type="int", is_constexpr=True)
         self.assertRaises(ValueError, func.render_to_string, cpp)
 
     def test_is_constexpr_render_to_string(self):
         writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
+        cpp = CppSourceFile(None, writer=writer)
         func = CppFunction(name="factorial", ret_type="int",
                            implementation=handle_to_factorial, is_constexpr=True)
         func.add_argument('int n')
@@ -52,7 +52,7 @@ class TestCppFunctionStringIo(unittest.TestCase):
 
     def test_is_constexpr_render_to_string_declaration(self):
         writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
+        cpp = CppSourceFile(None, writer=writer)
         func = CppFunction(name="factorial", ret_type="int",
                            implementation=handle_to_factorial, is_constexpr=True)
         func.add_argument('int n')
@@ -65,7 +65,7 @@ class TestCppFunctionStringIo(unittest.TestCase):
 
     def test_docstring_example(self):
         writer = io.StringIO()
-        cpp = CppFile(None, writer=writer)
+        cpp = CppSourceFile(None, writer=writer)
         factorial_function = CppFunction(name='factorial', ret_type='int', is_constexpr=True,
                                          implementation=handle_to_factorial,
                                          documentation='/// Calculates and returns the factorial of p @n.')
