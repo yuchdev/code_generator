@@ -219,7 +219,11 @@ python create_assets.py --assets test_assets
 
 After executing that command, the fixed data under `tests/test_assets` will be updated and will need to be committed to git.
  
-### Special thanks
+### Acknowledgements
 
-Thanks to Eric Reynolds, for the initial idea of code generation in Python.
-http://www.codeproject.com/Articles/571645/Really-simple-Cplusplus-code-generation-in-Python
+Thanks to Eric Reynolds, the idea based on his 
+[article](https://www.codeproject.com/Articles/571645/Really-simple-Cplusplus-code-generation-in-Python) 
+published on Code Project.
+
+Used under the [Code Project Open License](https://www.codeproject.com/info/cpol10.aspx)
+

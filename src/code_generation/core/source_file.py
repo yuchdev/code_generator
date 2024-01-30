@@ -4,11 +4,6 @@ __doc__ = """
 Simple and straightforward code generator that could be used for generating code 
 on any programming language and to be a 'building block' for creating more complicated
 code generators.
-
-Thanks to Eric Reynolds, the code mainly based on his article published on
-https://www.codeproject.com/Articles/571645/Really-simple-Cplusplus-code-generation-in-Python
-Used under the Code Project Open License
-https://www.codeproject.com/info/cpol10.aspx
  
 Examples of usage:
 
@@ -35,9 +30,6 @@ public:
     int m_classMember1;
     double m_classMember2;
 };
-
-Class `ANSICodeStyle` is responsible for code formatting. 
-Re-implement it if you wish to apply any other formatting style.
 """
 
 
