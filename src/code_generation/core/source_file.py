@@ -80,9 +80,7 @@ class SourceFile:
         self.filename = filename
         if not isinstance(formatter, CodeFormat) and formatter is not None:
             raise TypeError(f"code_format must be an instance of {CodeFormat.__name__}")
-        formatter = formatter if formatter is not None else CodeFormat.DEFAULT
-        # Problem...
-        self.code_formatter = CodeFormatterFactory.create(formatter, owner=self)
+        self.formatter = formatter if formatter is not None else CodeFormat.DEFAULT
         self.out = writer if writer is not None else open(filename, "w")
 
     def close(self):

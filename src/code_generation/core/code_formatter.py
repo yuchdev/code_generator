@@ -11,9 +11,9 @@ class CodeFormat(Enum):
     CUSTOM = auto()
 
 
-class CodeFormatter:
+class CodeLayout:
     """
-    Base class for code close of different styles
+    Class defining code layout rules, such as indentation, line ending, etc.
     """
     default_endline = "\n"
     default_indent = " " * 4
@@ -23,11 +23,18 @@ class CodeFormatter:
         """
         :param indent: sequence of symbols used for indentation (4 spaces, tab, etc.)
         :param endline: symbol used for line ending
-        :param postfix: optional terminating symbol (e.g. ; for classes)
+        :param postfix: optional line-terminating symbol
         """
         self.indent = self.default_indent if indent is None else indent
         self.endline = self.default_endline if endline is None else endline
         self.postfix = self.default_postfix if postfix is None else postfix
+
+
+class CodeFormatter:
+    """
+    Base class for code close of different styles
+    """
+    pass
 
 
 class ANSICodeFormatter(CodeFormatter):
@@ -41,15 +48,12 @@ class ANSICodeFormatter(CodeFormatter):
     finishing postfix is optional (e.g. necessary for classes, unnecessary for namespaces)
     """
 
-    def __init__(self, owner, text, indent=None, endline=None, postfix=None):
+    def __init__(self, owner, text, code_layout=None):
         """
         @param: owner - SourceFile where text is written to
         @param: text - text opening C++ close
-        @param indent: code indentation
-        @param endline: custom endline sequence
-        @param: postfix - optional terminating symbol (e.g. ; for classes)
         """
-        super().__init__(indent, endline, postfix)
+        super().__init__()
         self.owner = owner
         if self.owner.last is not None:
             with self.owner.last:
